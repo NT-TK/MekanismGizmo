@@ -168,9 +168,8 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
 
         if (canFunction()) {
             if (progress > 0) {
-                if (producibleCobblestone() == 0) {
-                    progress = 0;
-                } else {
+                // No room for the cobblestone right now: pause and keep the progress (do not throw it away)
+                if (producibleCobblestone() > 0) {
                     long energyPerTick = energyContainer.getEnergyPerTick();
                     if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
                         energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
@@ -189,10 +188,12 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
 
     private void finish() {
         progress = 0;
-        int produced = producibleCobblestone();
-        // Energy is the only cost, so the cobblestone is simply produced here.
-        for (int i = 0; i < produced; i++) {
-            outputSlots[i].insertItem(new ItemStack(Items.COBBLESTONE), Action.EXECUTE, AutomationType.INTERNAL);
+        // Energy is the only cost, so the cobblestone is simply produced here. Use every slot that can take a block,
+        // not just the first N slots (a full slot 0 must not swallow the output of a free slot 1).
+        for (int i = 0; i < outputSlots.length; i++) {
+            if (canAcceptOutput(i)) {
+                outputSlots[i].insertItem(new ItemStack(Items.COBBLESTONE), Action.EXECUTE, AutomationType.INTERNAL);
+            }
         }
     }
 

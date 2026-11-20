@@ -41,7 +41,8 @@ import net.minecraft.world.level.material.Fluids;
  * Freezes water into ice. Built on Mekanism's machine base classes, so the side configuration, redstone
  * control, upgrades, fluid capability and item/energy handling all come from Mekanism itself.
  * <p>
- * Every tier adds one more ice output slot: Basic 1, Advanced 2, Elite 3, Ultimate 4.
+ * Every tier adds one more ice output slot (one parallel operation): 1 for the untiered machine, 2 for basic, ...
+ * and 5 for ultimate.
  */
 public class IceMakerBlockEntity extends TieredMachineBlockEntity {
     public static final int WATER_CAPACITY = 4_000;
@@ -202,9 +203,8 @@ public class IceMakerBlockEntity extends TieredMachineBlockEntity {
 
         if (canFunction()) {
             if (freezeTicks > 0) {
-                if (!canMakeIce()) {
-                    freezeTicks = 0;
-                } else {
+                // No room for the ice right now: pause and keep the progress (do not throw it away)
+                if (canMakeIce()) {
                     long energyPerTick = energyContainer.getEnergyPerTick();
                     if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
                         energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
@@ -223,10 +223,17 @@ public class IceMakerBlockEntity extends TieredMachineBlockEntity {
 
     private void finishIce() {
         freezeTicks = 0;
-        int produced = producibleIce();
-        for (int i = 0; i < produced; i++) {
-            // Water is consumed when the ice block is produced.
-            waterTank.extract(WATER_PER_ICE, Action.EXECUTE, AutomationType.INTERNAL);
+        // Water is consumed when the ice block is produced, so only the slots that can really take a block count.
+        // (Slot 0 being full must not eat the water of the ice that would have gone into slot 1.)
+        int water = waterTank.getFluidAmount() / WATER_PER_ICE;
+        for (int i = 0; i < iceSlots.length && water > 0; i++) {
+            if (!canAcceptIce(i)) {
+                continue;
+            }
+            if (waterTank.extract(WATER_PER_ICE, Action.EXECUTE, AutomationType.INTERNAL).getAmount() < WATER_PER_ICE) {
+                return;
+            }
+            water--;
             // Let Mekanism's inventory slot handle merging/limits.
             iceSlots[i].insertItem(new ItemStack(Items.ICE), Action.EXECUTE, AutomationType.INTERNAL);
         }

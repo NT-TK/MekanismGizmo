@@ -12,9 +12,12 @@ import net.minecraft.world.entity.player.Player;
  * the resulting values back to the client.
  */
 public class ItemCollectorMenu extends MekanismTileContainer<ItemCollectorBlockEntity> {
-    private static final int BUTTON_OFFSET = 32;
+    /** Value added to a setting value so negative offsets stay positive button ids. */
+    private static final int VALUE_OFFSET = 32;
     private static final int BUTTONS_PER_SETTING = 64;
-    /** Button id of the "show collection area" toggle (the slider ids are below this). */
+    /** First button id of the setting changes; ids below this belong to vanilla/Mekanism. */
+    private static final int SETTING_BUTTON_BASE = 64;
+    /** Button id of the "show collection area" toggle (the setting ids are below this). */
     public static final int PREVIEW_BUTTON = 1000;
 
     public ItemCollectorMenu(int id, Inventory inv, ItemCollectorBlockEntity tile) {
@@ -39,17 +42,17 @@ public class ItemCollectorMenu extends MekanismTileContainer<ItemCollectorBlockE
             getTileEntity().toggleRenderArea();
             return true;
         }
-        int index = id / BUTTONS_PER_SETTING;
-        int value = id % BUTTONS_PER_SETTING - BUTTON_OFFSET;
-        if (index >= 0 && index < ItemCollectorBlockEntity.SETTING_COUNT) {
-            getTileEntity().setSetting(index, value);
+        // Only ids inside our own range are setting changes, everything else is handed back to vanilla/Mekanism
+        int relative = id - SETTING_BUTTON_BASE;
+        if (relative >= 0 && relative < ItemCollectorBlockEntity.SETTING_COUNT * BUTTONS_PER_SETTING) {
+            getTileEntity().setSetting(relative / BUTTONS_PER_SETTING, relative % BUTTONS_PER_SETTING - VALUE_OFFSET);
             return true;
         }
-        return false;
+        return super.clickMenuButton(player, id);
     }
 
     /** Encodes a setting change for {@link net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket}. */
     public static int encodeButton(int index, int value) {
-        return index * BUTTONS_PER_SETTING + value + BUTTON_OFFSET;
+        return SETTING_BUTTON_BASE + index * BUTTONS_PER_SETTING + value + VALUE_OFFSET;
     }
 }

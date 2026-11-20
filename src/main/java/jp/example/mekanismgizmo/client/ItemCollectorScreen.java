@@ -52,9 +52,10 @@ public class ItemCollectorScreen extends GuiConfigurableTile<ItemCollectorBlockE
     public ItemCollectorScreen(MekanismTileContainer<ItemCollectorBlockEntity> container, Inventory inv, Component title) {
         super(container, inv, title);
         dynamicSlots = true;
-        // Wider (to fit the numeric text fields) and taller (settings area above the player inventory)
+        // Wider (to fit the numeric text fields) and taller (settings area above the player inventory).
+        // Height = inventory offset (200) + 3 inventory rows + hotbar + border = 282
         imageWidth = 200;
-        imageHeight = 280;
+        imageHeight = 282;
         Arrays.fill(pendingValues, Integer.MIN_VALUE);
     }
 
@@ -62,7 +63,7 @@ public class ItemCollectorScreen extends GuiConfigurableTile<ItemCollectorBlockE
     protected void init() {
         // The screen is larger than vanilla's default, so the labels have to be positioned after the resize
         imageWidth = 200;
-        imageHeight = 280;
+        imageHeight = 282;
         super.init();
         titleLabelY = 6;
         inventoryLabelX = LABEL_X;

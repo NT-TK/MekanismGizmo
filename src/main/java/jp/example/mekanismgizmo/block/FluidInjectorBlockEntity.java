@@ -211,13 +211,14 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         if (input.isEmpty() || isBottle(input) || !hasEnergy()) {
             return false;
         }
-        IFluidHandlerItem handler = FluidInventorySlot.tryGetFluidHandlerUnstacked(input);
+        // The fluid handler of a single item wraps that very stack, so it has to work on a copy: if the converted
+        // container cannot be stored, the item in the input slot (and the tank) must stay untouched.
+        IFluidHandlerItem handler = FluidInventorySlot.tryGetFluidHandlerUnstacked(input.copyWithCount(1));
         if (handler == null) {
             return false;
         }
         boolean allowEmpty = containerMode != ContainerEditMode.FILL;
         boolean allowFill = containerMode != ContainerEditMode.EMPTY;
-        // The handler works on a copy of the item, so nothing changes until everything below succeeded
         FluidStack drained = FluidStack.EMPTY;
         int filled = 0;
         if (allowEmpty) {
@@ -226,10 +227,8 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
                 int accepted = contained.getAmount()
                       - fluidTank.insert(contained, Action.SIMULATE, AutomationType.INTERNAL).getAmount();
                 if (accepted > 0) {
-                    FluidStack simulated = handler.drain(contained.copyWithAmount(accepted), FluidAction.SIMULATE);
-                    if (!simulated.isEmpty()) {
-                        drained = handler.drain(contained.copyWithAmount(accepted), FluidAction.EXECUTE);
-                    }
+                    // Executed on the copy only; the tank is filled after the container is known to fit
+                    drained = handler.drain(contained.copyWithAmount(accepted), FluidAction.EXECUTE);
                 }
             }
         }
@@ -240,10 +239,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
                 int free = handler.getTankCapacity(0) - contained.getAmount();
                 if (free > 0) {
                     int amount = Math.min(stored.getAmount(), free);
-                    FluidStack toFill = stored.copyWithAmount(amount);
-                    if (handler.fill(toFill, FluidAction.SIMULATE) > 0) {
-                        filled = handler.fill(toFill, FluidAction.EXECUTE);
-                    }
+                    filled = handler.fill(stored.copyWithAmount(amount), FluidAction.EXECUTE);
                 }
             }
         }
@@ -251,8 +247,8 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
             return false;
         }
         ItemStack result = handler.getContainer();
-        if (!canStoreIn(containerOutputSlots[index], result)) {
-            // No room for the converted container: leave the input and the tank untouched (nothing was committed yet)
+        if (result.isEmpty() || !canStoreIn(containerOutputSlots[index], result)) {
+            // No room for the converted container: nothing was committed, the input item is still intact
             return false;
         }
         if (!drained.isEmpty()) {
@@ -311,7 +307,9 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     }
 
     private boolean isContainerInput(ItemStack stack) {
-        return isBottle(stack) || FluidInventorySlot.tryGetFluidHandlerUnstacked(stack) != null;
+        // Only water bottles are useful here; other potions would just block the slot
+        return stack.is(Items.GLASS_BOTTLE) || isWaterBottle(stack)
+              || FluidInventorySlot.tryGetFluidHandlerUnstacked(stack) != null;
     }
 
     private static boolean canStoreIn(OutputInventorySlot slot, ItemStack result) {

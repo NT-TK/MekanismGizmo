@@ -293,10 +293,12 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
 
         if (canFunction()) {
             if (brewTicks > 0) {
-                if (!isBrewable() || brewingIngredientChanged()) {
+                if (brewingIngredientChanged()) {
+                    // A different ingredient was put in: the running brew is no longer valid
                     brewTicks = 0;
                     brewingIngredient = null;
-                } else {
+                } else if (isBrewable()) {
+                    // While the output slots are full or the gas ran out the brew simply pauses
                     long energyPerTick = energyContainer.getEnergyPerTick();
                     if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
                         energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
@@ -337,56 +339,72 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         return false;
     }
 
-    /** Number of three-bottle batches a cycle runs: one per parallel unit of the tier. */
-    public int batchCount() {
+    /** Number of three-bottle rows of this tier: one per parallel unit. */
+    public int rowCount() {
         return Math.max(1, bottleSlots.length / BOTTLES_PER_BREW);
     }
 
-    /**
-     * How many brews the next cycle actually performs, rounded up to whole batches of three bottles. Only these are
-     * charged for blaze powder gas, so a nearly empty machine does not need the full gas of every parallel unit.
-     */
-    public int brewsThisCycle() {
-        if (level == null) {
-            return 1;
-        }
-        PotionBrewing potionBrewing = level.potionBrewing();
-        ItemStack ingredient = ingredientSlot.getStack();
-        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
-            return 1;
-        }
-        int bottles = 0;
-        for (int i = 0; i < bottleSlots.length; i++) {
-            ItemStack bottle = bottleSlots[i].getStack();
-            if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && outputSlots[i].isEmpty()) {
-                bottles++;
-            }
-        }
-        return Math.max(1, (bottles + BOTTLES_PER_BREW - 1) / BOTTLES_PER_BREW);
+    /** True when the {@code i}-th bottle would be brewed by the given ingredient and its output slot is free. */
+    private boolean isBrewableAt(PotionBrewing potionBrewing, ItemStack ingredient, int i) {
+        ItemStack bottle = bottleSlots[i].getStack();
+        return !bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && outputSlots[i].isEmpty();
     }
 
-    private boolean isBrewable() {
-        if (level == null || blazePowderTank.getStored() < CHEMICAL_PER_BREW * brewsThisCycle()) {
-            return false;
-        }
-        PotionBrewing potionBrewing = level.potionBrewing();
-        ItemStack ingredient = ingredientSlot.getStack();
-        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
-            return false;
-        }
-        for (int i = 0; i < bottleSlots.length; i++) {
-            ItemStack bottle = bottleSlots[i].getStack();
-            if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && outputSlots[i].isEmpty()) {
+    /** True when at least one bottle of the {@code row}-th row of three can be brewed right now. */
+    private boolean rowHasWork(PotionBrewing potionBrewing, ItemStack ingredient, int row) {
+        int start = row * BOTTLES_PER_BREW;
+        int end = Math.min(start + BOTTLES_PER_BREW, bottleSlots.length);
+        for (int i = start; i < end; i++) {
+            if (isBrewableAt(potionBrewing, ingredient, i)) {
                 return true;
             }
         }
         return false;
     }
 
+    /** Number of rows of three bottles that have at least one bottle this machine can brew right now. */
+    private int rowsWithWork() {
+        if (level == null) {
+            return 0;
+        }
+        PotionBrewing potionBrewing = level.potionBrewing();
+        ItemStack ingredient = ingredientSlot.getStack();
+        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
+            return 0;
+        }
+        int rows = 0;
+        for (int row = 0; row < rowCount(); row++) {
+            if (rowHasWork(potionBrewing, ingredient, row)) {
+                rows++;
+            }
+        }
+        return rows;
+    }
+
+    /**
+     * How many brews the next cycle actually performs: one per row of three bottles that has something to brew, and
+     * never more than the ingredient items stored in the ingredient slot (a brewing stand also uses one ingredient
+     * per brew). One gas charge is used per brew, so a partly filled machine does not need the full gas of every
+     * parallel unit.
+     */
+    public int brewsThisCycle() {
+        return Math.max(1, Math.min(rowsWithWork(), ingredientSlot == null ? 0 : ingredientSlot.getStack().getCount()));
+    }
+
+    private boolean isBrewable() {
+        int rows = rowsWithWork();
+        if (rows == 0) {
+            return false;
+        }
+        int brews = Math.min(rows, ingredientSlot.getStack().getCount());
+        return brews > 0 && blazePowderTank.getStored() >= CHEMICAL_PER_BREW * brews;
+    }
+
     private void finishBrew() {
         brewTicks = 0;
         brewingIngredient = null;
-        if (level == null) {
+        if (level == null || rowsWithWork() == 0) {
+            // Nothing left to brew (the bottles were taken out while it ran): do not charge any gas
             return;
         }
         int brews = brewsThisCycle();
@@ -407,13 +425,20 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
             return;
         }
         PotionBrewing potionBrewing = level.potionBrewing();
-        for (int start = 0; start < bottleSlots.length; start += BOTTLES_PER_BREW) {
+        for (int row = 0; row < rowCount(); row++) {
+            int start = row * BOTTLES_PER_BREW;
             int end = Math.min(start + BOTTLES_PER_BREW, bottleSlots.length);
+            ItemStack currentIngredient = ingredientSlot.getStack();
+            // Rows without a single brewable bottle are skipped completely, so they do not eat an ingredient item
+            if (currentIngredient.isEmpty() || !potionBrewing.isIngredient(currentIngredient)
+                  || !rowHasWork(potionBrewing, currentIngredient, row)) {
+                continue;
+            }
             NonNullList<ItemStack> brewingItems = NonNullList.withSize(4, ItemStack.EMPTY);
             for (int i = start; i < end; i++) {
                 brewingItems.set(i - start, bottleSlots[i].getStack().copy());
             }
-            brewingItems.set(3, ingredientSlot.getStack().copy());
+            brewingItems.set(3, currentIngredient.copy());
             if (EventHooks.onPotionAttemptBrew(brewingItems)) {
                 continue;
             }
@@ -437,20 +462,27 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
                     bottleSlots[i].setStack(result);
                 }
             }
-            ingredient = brewingItems.get(3);
-            if (ingredient.hasCraftingRemainingItem()) {
-                ItemStack remainder = ingredient.getCraftingRemainingItem();
-                ingredient.shrink(1);
-                if (ingredient.isEmpty()) {
-                    ingredient = remainder;
-                } else {
-                    Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), remainder);
-                }
-            } else {
-                ingredient.shrink(1);
-            }
-            ingredientSlot.setStack(ingredient);
+            // One ingredient item per brewed row, taken from the machine's ingredient slot
+            consumeIngredient();
             level.levelEvent(1035, worldPosition, 0);
+        }
+    }
+
+    /** Consumes one ingredient item, keeping (or dropping) its crafting remainder, like a brewing stand. */
+    private void consumeIngredient() {
+        ItemStack ingredient = ingredientSlot.getStack();
+        if (ingredient.isEmpty()) {
+            return;
+        }
+        ItemStack remainder = ingredient.hasCraftingRemainingItem() ? ingredient.getCraftingRemainingItem() : ItemStack.EMPTY;
+        ingredient.shrink(1);
+        if (ingredient.isEmpty() && !remainder.isEmpty()) {
+            ingredientSlot.setStack(remainder);
+        } else if (!remainder.isEmpty() && level != null) {
+            Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), remainder);
+            ingredientSlot.setStack(ingredient);
+        } else {
+            ingredientSlot.setStack(ingredient);
         }
     }
 
