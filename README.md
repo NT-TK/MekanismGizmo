@@ -142,7 +142,10 @@ gradlew.bat build
 
 The jar is written to `build/libs/mekanismgizmo-<version>.jar`.
 
-Building needs the Mekanism development jars in `libs/` (see `libs/README.md`); they are not part of this repository.
+All dependencies are resolved automatically: NeoForge/Minecraft via ModDevGradle, Mekanism from
+**Modrinth's Maven** (`maven.modrinth:mekanism:10.7.19.85`) and JEI (compile only) from BlameJared. No third party jars
+are stored in the repository. CurseMaven works too - add `maven { url = 'https://cursemaven.com' }` and
+`implementation 'curse.maven:mekanism-268560:<file-id>'` if you prefer it.
 
 ## Credits
 
@@ -319,7 +322,10 @@ gradlew.bat build
 
 生成Jar: `build/libs/mekanismgizmo-<version>.jar`
 
-ビルドには `libs/` に Mekanism の開発用Jarが必要です（`libs/README.md` を参照。リポジトリには含めていません）。
+依存はすべて自動解決されます（NeoForge/MinecraftはModDevGradle、Mekanismは**ModrinthのMaven**
+`maven.modrinth:mekanism:10.7.19.85`、JEIはコンパイル時のみBlameJaredから）。リポジトリに第三者のJarは置いていません。
+CurseMavenを使いたい場合は `maven { url = 'https://cursemaven.com' }` を追加し、
+`implementation 'curse.maven:mekanism-268560:<file-id>'` に差し替えてください。
 
 クライアント起動:
 

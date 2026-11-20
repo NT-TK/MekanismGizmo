@@ -1,12 +1,12 @@
 modLoader="javafml"
 loaderVersion="[4,)"
+license="MIT"
 
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="NT-TK"
-license="MIT"
 logoFile="logo.png"
 description='''Mekanismアドオン。ポーション醸造機・製氷機・電動丸石製造機・アイテム収集機・流体注入機を追加します。
 各機械（アイテム収集機を除く）はティアなし＋Mekanismの基本/発展/精鋭/究極ティアに対応し、ティアが上がるほど並列処理数・エネルギー・タンク容量が増えます。'''

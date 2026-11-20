@@ -1,14 +1,14 @@
-# libs
+# libs (optional)
 
-The build needs Mekanism's development jars here. They are **not** part of this repository (they are third-party
-binaries), so drop them into this folder yourself:
+The build resolves Mekanism from **Modrinth's Maven** (`maven.modrinth:mekanism:10.7.19.85`), so this folder can stay
+empty and nothing has to be committed here. Any `*.jar` in this folder is ignored by git.
 
-| File | Required |
+If you prefer an offline build, drop the jars listed below into this folder and replace the dependencies in
+`build.gradle` with `implementation files('libs/Mekanism-1.21.1-10.7.19.85.jar')` / `runtimeOnly files(...)`:
+
+| File | Needed for |
 |---|---|
-| `Mekanism-1.21.1-10.7.19.85.jar` | yes (compilation and runtime) |
-| `MekanismAdditions-1.21.1-10.7.19.85.jar` | only for `runClient` |
-| `MekanismGenerators-1.21.1-10.7.19.85.jar` | only for `runClient` |
-| `MekanismTools-1.21.1-10.7.19.85.jar` | only for `runClient` |
-
-Download Mekanism 10.7.19 for Minecraft 1.21.1 (CurseForge / Modrinth, MIT licensed) and copy the jar files with
-exactly these names. `build.gradle` references them by name.
+| `Mekanism-1.21.1-10.7.19.85.jar` | compiling and running |
+| `MekanismAdditions-1.21.1-10.7.19.85.jar` | `runClient` |
+| `MekanismGenerators-1.21.1-10.7.19.85.jar` | `runClient` |
+| `MekanismTools-1.21.1-10.7.19.85.jar` | `runClient` |
