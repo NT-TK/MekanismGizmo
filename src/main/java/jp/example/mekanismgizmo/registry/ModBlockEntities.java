@@ -7,6 +7,7 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
+import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import mekanism.common.registration.impl.BlockRegistryObject;
 import mekanism.common.registration.impl.TileEntityTypeDeferredRegister;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
@@ -52,6 +53,12 @@ public final class ModBlockEntities {
 
     public static final TileEntityTypeRegistryObject<ItemCollectorBlockEntity> ITEM_COLLECTOR = TILE_ENTITIES
           .mekBuilder(ModBlocks.ITEM_COLLECTOR, (pos, state) -> new ItemCollectorBlockEntity(ModBlocks.ITEM_COLLECTOR, pos, state))
+          .clientTicker(TileEntityMekanism::tickClient)
+          .serverTicker(TileEntityMekanism::tickServer)
+          .build();
+
+    public static final TileEntityTypeRegistryObject<WindFusionBlockEntity> WIND_FUSION = TILE_ENTITIES
+          .mekBuilder(ModBlocks.WIND_FUSION, (pos, state) -> new WindFusionBlockEntity(ModBlocks.WIND_FUSION, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
           .build();

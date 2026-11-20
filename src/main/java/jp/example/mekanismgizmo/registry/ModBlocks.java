@@ -13,6 +13,8 @@ import jp.example.mekanismgizmo.block.ItemCollectorBlock;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlock;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
+import jp.example.mekanismgizmo.block.WindFusionBlock;
+import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.util.MachineTier;
 import mekanism.common.attachments.component.AttachedEjector;
 import mekanism.common.attachments.component.AttachedSideConfig;
@@ -104,6 +106,18 @@ public final class ModBlocks {
                 // 3x9 output slots + energy slot
                 .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
                       .addOutput(ItemCollectorBlockEntity.SLOT_COUNT)
+                      .addEnergy()
+                      .build()));
+
+    // --- wind generator fusion (single tier) ---
+    public static final BlockRegistryObject<WindFusionBlock, ItemBlockTooltip<WindFusionBlock>> WIND_FUSION = BLOCKS
+          .register("wind_fusion", () -> new WindFusionBlock(ModBlockTypes.WIND_FUSION),
+                (block, properties) -> new ItemBlockTooltip<>(block, true, properties
+                      .component(MekanismDataComponents.SIDE_CONFIG, ModSideConfigs.WIND_FUSION)))
+          .forItemHolder(item -> item
+                // 3x9 wind generator slots + energy slot, the same layout as the block entity
+                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                      .addInput(WindFusionBlockEntity.SLOT_COUNT)
                       .addEnergy()
                       .build()));
 

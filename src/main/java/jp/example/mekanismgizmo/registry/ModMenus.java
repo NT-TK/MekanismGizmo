@@ -7,12 +7,14 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
+import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.menu.BasaltGeneratorMenu;
 import jp.example.mekanismgizmo.menu.CobblestoneGeneratorMenu;
 import jp.example.mekanismgizmo.menu.FluidInjectorMenu;
 import jp.example.mekanismgizmo.menu.IceMakerMenu;
 import jp.example.mekanismgizmo.menu.ItemCollectorMenu;
 import jp.example.mekanismgizmo.menu.PotionBrewerMenu;
+import jp.example.mekanismgizmo.menu.WindFusionMenu;
 import mekanism.common.inventory.container.tile.MekanismTileContainer;
 import mekanism.common.registration.impl.ContainerTypeDeferredRegister;
 import mekanism.common.registration.impl.ContainerTypeRegistryObject;
@@ -36,6 +38,9 @@ public final class ModMenus {
 
     public static final ContainerTypeRegistryObject<MekanismTileContainer<ItemCollectorBlockEntity>> ITEM_COLLECTOR = CONTAINER_TYPES
           .register("item_collector", ItemCollectorBlockEntity.class, ItemCollectorMenu::new);
+
+    public static final ContainerTypeRegistryObject<MekanismTileContainer<WindFusionBlockEntity>> WIND_FUSION = CONTAINER_TYPES
+          .register("wind_fusion", WindFusionBlockEntity.class, WindFusionMenu::new);
 
     private ModMenus() {
     }

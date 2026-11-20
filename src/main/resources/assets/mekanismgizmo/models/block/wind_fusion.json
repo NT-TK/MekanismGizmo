@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/wind_fusion_front",
+    "down": "mekanismgizmo:block/wind_fusion_bottom",
+    "up": "mekanismgizmo:block/wind_fusion_top",
+    "north": "mekanismgizmo:block/wind_fusion_front",
+    "south": "mekanismgizmo:block/wind_fusion_back",
+    "east": "mekanismgizmo:block/wind_fusion_side",
+    "west": "mekanismgizmo:block/wind_fusion_side"
+  }
+}

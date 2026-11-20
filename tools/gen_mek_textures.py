@@ -46,6 +46,7 @@ ACCENT = {
     'lava': ((255, 138, 42), (198, 78, 12), (255, 214, 156)),
     'collector': ((191, 170, 118), (132, 116, 66), (228, 214, 174)),
     'injector': ((90, 190, 235), (46, 134, 184), (214, 242, 255)),
+    'wind': ((198, 220, 233), (118, 146, 164), (241, 251, 255)),
 }
 
 # Our own micro palette for the panel and the icons (kept in Mekanism's grey range)
@@ -165,6 +166,23 @@ def icon_collector(img):
         put(img, x, 10, hi if x in (6, 9) else dark)
 
 
+def icon_wind(img):
+    """A four bladed rotor around a steel hub, seen from the front like the blades of a wind generator."""
+    bright, dark, hi = ACCENT['wind']
+    arms = (
+        ((7, 4), (7, 5), (7, 6)),      # up
+        ((9, 7), (10, 7), (11, 7)),    # right
+        ((8, 11), (8, 10), (8, 9)),    # down
+        ((6, 8), (5, 8), (4, 8)),      # left
+    )
+    for cells in arms:
+        for i, (x, y) in enumerate(cells):
+            put(img, x, y, hi if i == 0 else (bright if i == 1 else dark))
+    # hub
+    for x, y in ((7, 7), (8, 7), (7, 8), (8, 8)):
+        put(img, x, y, C['steel'] if (x + y) % 2 else C['beam'])
+
+
 def icon_droplet(img):
     bright, dark, hi = ACCENT['injector']
     rows = {4: (7, 8), 5: (6, 9), 6: (6, 9), 7: (5, 10), 8: (5, 10), 9: (4, 11), 10: (5, 10), 11: (6, 9)}
@@ -189,6 +207,7 @@ ICONS = {
     'basalt': icon_basalt,
     'collector': icon_collector,
     'injector': icon_droplet,
+    'wind': icon_wind,
 }
 
 
@@ -299,14 +318,15 @@ def main():
             back_face(base, accent).save(OUT / f'{base}_back.png')
             bottom_face(base).save(OUT / f'{base}_bottom.png')
             count += 5
-    # The item collector has no tiers
-    base = 'item_collector'
-    front_face(base, 'collector', '').save(OUT / f'{base}_front.png')
-    side_face(base).save(OUT / f'{base}_side.png')
-    top_face(base, 'collector').save(OUT / f'{base}_top.png')
-    back_face(base, 'collector').save(OUT / f'{base}_back.png')
-    bottom_face(base).save(OUT / f'{base}_bottom.png')
-    print('wrote', count + 5, 'textures to', OUT)
+    # The single tier machines (the item collector and the wind generator fusion machine)
+    for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind')):
+        front_face(base, accent, '').save(OUT / f'{base}_front.png')
+        side_face(base).save(OUT / f'{base}_side.png')
+        top_face(base, accent).save(OUT / f'{base}_top.png')
+        back_face(base, accent).save(OUT / f'{base}_back.png')
+        bottom_face(base).save(OUT / f'{base}_bottom.png')
+        count += 5
+    print('wrote', count, 'textures to', OUT)
 
 
 if __name__ == '__main__':

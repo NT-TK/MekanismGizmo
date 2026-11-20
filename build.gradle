@@ -57,6 +57,8 @@ repositories {
 dependencies {
     // Mekanism: compile + runtime, fetched from Modrinth's Maven (no jars in the repository)
     implementation 'maven.modrinth:mekanism:10.7.19.85'
+    // Mekanism Generators: the wind generator fusion machine stores wind generators and mirrors their generation
+    implementation 'maven.modrinth:mekanism-generators:10.7.19.85'
     // Optional integration: JEI is not bundled and is not required at runtime.
     compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.21.0.247"
     // Optional integration: AE2's JEI pattern encoding (compile only, never bundled, not required at runtime)
@@ -65,10 +67,9 @@ dependencies {
     compileOnly 'maven.modrinth:emi:1.1.24+1.21.1+neoforge'
     // Uncomment to test the JEI integration in the dev client
     // runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.21.0.247"
-    // The optional Mekanism modules are only needed by the development client
+    // The remaining optional Mekanism modules are only needed by the development client
     runtimeOnly 'maven.modrinth:mekanism-additions:10.7.19.85'
     runtimeOnly 'maven.modrinth:mekanism-tools:10.7.19.85'
-    runtimeOnly 'maven.modrinth:mekanism-generators:10.7.19.85'
 }
 
 tasks.withType(JavaCompile).configureEach {

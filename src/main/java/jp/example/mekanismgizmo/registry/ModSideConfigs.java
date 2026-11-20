@@ -88,6 +88,20 @@ public final class ModSideConfigs {
                 RelativeSide.BACK, DataType.ENERGY)),
           TransmissionType.ENERGY, all(DataType.INPUT)));
 
+    /**
+     * Wind generators go in through the front and the machine sides, and the produced energy leaves through every face
+     * of the block; the back is kept free of item transport like the other machines.
+     */
+    public static final AttachedSideConfig WIND_FUSION = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.INPUT,
+                RelativeSide.LEFT, DataType.INPUT,
+                RelativeSide.RIGHT, DataType.INPUT,
+                RelativeSide.TOP, DataType.INPUT,
+                RelativeSide.BOTTOM, DataType.INPUT,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.ENERGY, all(DataType.OUTPUT)));
+
     private static LightConfigInfo item(Map<RelativeSide, DataType> sides) {
         return new LightConfigInfo(sides, false);
     }

@@ -8,6 +8,8 @@ import os
 
 TIERS = ['', 'basic_', 'advanced_', 'elite_', 'ultimate_']
 MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'basalt_generator', 'fluid_injector']
+# Machines that exist only once, without tiers
+SINGLES = ['item_collector', 'wind_fusion']
 ASSETS = 'src/main/resources/assets/mekanismgizmo'
 DATA = 'src/main/resources/data/mekanismgizmo'
 COMPONENTS = ['mekanism:ejector', 'mekanism:owner', 'mekanism:redstone_control', 'mekanism:security',
@@ -21,12 +23,15 @@ def write(path, obj):
 
 
 def names(machine):
+    if machine in SINGLES:
+        yield '', machine
+        return
     for tier in TIERS:
         yield tier, f'{tier}{machine}'
 
 
 # --- blockstates / models / loot tables -----------------------------------------------------------
-for machine in MACHINES:
+for machine in MACHINES + SINGLES:
     for _tier, name in names(machine):
         variants = {}
         for active in ('false', 'true'):
@@ -93,12 +98,24 @@ for machine in MACHINES:
         })
         previous = name
 
+# --- the wind generator fusion machine: wind generators around a steel casing -----------------------
+write(f'{DATA}/recipe/wind_fusion.json', {
+    'type': 'minecraft:crafting_shaped',
+    'category': 'misc',
+    'key': {
+        'A': {'tag': 'mekanism:alloys/basic'},
+        'W': {'item': 'mekanismgenerators:wind_generator'},
+        'P': {'item': 'mekanism:steel_casing'},
+    },
+    'pattern': ['AWA', 'WPW', 'AWA'],
+    'result': {'count': 1, 'id': 'mekanismgizmo:wind_fusion'},
+})
+
 # --- pickaxe tag ----------------------------------------------------------------------------------
 values = []
-for machine in MACHINES:
+for machine in MACHINES + SINGLES:
     for _tier, name in names(machine):
         values.append(f'mekanismgizmo:{name}')
-values.append('mekanismgizmo:item_collector')
 write('src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json', {'values': values})
 
 # --- lang -----------------------------------------------------------------------------------------
@@ -111,6 +128,8 @@ EN_NAMES = {
     'cobblestone_generator': 'Electric Cobblestone Generator',
     'basalt_generator': 'Electric Basalt Generator',
     'fluid_injector': 'Fluid Injector',
+    'item_collector': 'Item Collector',
+    'wind_fusion': 'Wind Generator Fusion',
 }
 JA_NAMES = {
     'potion_brewer': '\u30dd\u30fc\u30b7\u30e7\u30f3\u91b8\u9020\u6a5f',
@@ -118,11 +137,13 @@ JA_NAMES = {
     'cobblestone_generator': '\u96fb\u52d5\u4e38\u77f3\u88fd\u9020\u6a5f',
     'basalt_generator': '\u96fb\u52d5\u7384\u6b66\u5ca9\u88fd\u9020\u6a5f',
     'fluid_injector': '\u6d41\u4f53\u6ce8\u5165\u6a5f',
+    'item_collector': '\u30a2\u30a4\u30c6\u30e0\u53ce\u96c6\u6a5f',
+    'wind_fusion': '\u98a8\u529b\u767a\u96fb\u878d\u5408\u6a5f',
 }
 for lang, tier_names, machine_names in (('en_us', EN_TIER, EN_NAMES), ('ja_jp', JA_TIER, JA_NAMES)):
     path = f'{ASSETS}/lang/{lang}.json'
     data = json.loads(io.open(path, encoding='utf-8').read())
-    for machine in MACHINES:
+    for machine in MACHINES + SINGLES:
         for tier, name in names(machine):
             title = f'{tier_names[tier]}{machine_names[machine]}' if lang == 'en_us' \
                 else f'{tier_names[tier]}{machine_names[machine]}'

@@ -1,6 +1,6 @@
 # Mekanism Gizmo
 
-A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds six machines built on Mekanism's own machine
+A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds seven machines built on Mekanism's own machine
 framework, so the GUI, side configuration, upgrades, security, ownership and JEI integration all behave exactly like
 Mekanism's own machines.
 
@@ -20,11 +20,12 @@ Mekanism's own machines.
 | Electric Basalt Generator | `mekanismgizmo:basalt_generator` | Produces basalt from energy only - no items or fluids needed. |
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
+| Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses up to 27 Mekanism wind generators into one block. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 27 times that. |
 
 ## Tiers
 
-Every machine except the Item Collector comes in **five steps**: the plain machine you craft first, then Mekanism's
-four tiers. The tier is stored with Mekanism's own tier attributes, so **Mekanism's tier installers upgrade the machine
+Every machine except the Item Collector and the Wind Generator Fusion comes in **five steps**: the plain machine you
+craft first, then Mekanism's four tiers. The tier is stored with Mekanism's own tier attributes, so **Mekanism's tier installers upgrade the machine
 in place** and keep the contents, energy, tanks, side configuration, owner and upgrades.
 
 | Step | Registry name | Parallel operations | Tier installer |
@@ -106,6 +107,20 @@ and three potion output slots**.
 The Item Collector is a single tier machine (10 FE/t, 12,000 FE buffer, 27 output slots, area of 1-9 blocks per axis
 with a -5..+5 offset).
 
+## Wind Generator Fusion
+
+The Wind Generator Fusion machine is a single tier machine that works like a combiner for wind generators: put wind
+generators into its 3 x 9 slot grid and each one produces exactly what a Mekanism wind generator would produce at the
+same position.
+
+- 1 generator = 1 generator's output, 2 = twice that, a full machine (27) = 27 times that
+- the output uses Mekanism's own wind formula (`windGenerationMin` -> `windGenerationMax` between `windGenerationMinY`
+  and `windGenerationMaxY`), so height, sky access and the dimension behave like a real wind generator
+- the machine only counts what is actually inside, so a partly filled machine produces partially
+- 5,400,000 FE internal buffer (Mekanism's wind generator storage of 200,000 FE, once per fused generator), energy is
+  exported on every face that is configured as `Energy`
+- an energy slot lets the buffer charge items, and the screen shows the fused count and the current FE/t
+
 ## Pipettes (gauge droppers)
 
 Mekanism's gauge dropper is the only way to empty or fill a machine's tank by hand, but it holds one bucket. The four
@@ -143,6 +158,7 @@ The base machines use Mekanism's machine recipe ingredients: a steel casing in t
 | Electric Basalt Generator | `ALA` / `CXC` / `ABA` - L = lava bucket, B = blue ice |
 | Item Collector | `ACA` / `HXS` / `ACA` - H = hopper, S = logistical sorter |
 | Fluid Injector | `ABA` / `CXF` / `ABA` - B = glass bottle, F = basic fluid tank |
+| Wind Generator Fusion | `AWA` / `WPW` / `AWA` - A = redstone, W = wind generator, P = steel casing |
 
 Tier upgrades follow Mekanism's factory tier recipes (`ACA` / `IPI` / `ACA`, P = previous machine):
 
@@ -195,6 +211,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | Minecraft | 1.21.1 |
 | NeoForge | 21.1.194 or newer |
 | Mekanism | 10.7.19.x |
+| Mekanism Generators | 10.7.19.x (required by the Wind Generator Fusion) |
 | JEI | optional (client side only) |
 | EMI | optional (client side only) |
 | AE2 | optional (pattern encoding) |
@@ -245,12 +262,12 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 製氷機 | `mekanismgizmo:ice_maker` | 水1,000 mBから氷ブロック1個を作ります。バケツ・パイプ・タンクから給水できます。 |
 | 電動丸石製造機 | `mekanismgizmo:cobblestone_generator` | 電力だけで丸石を作り続けます（アイテム・液体の入力は不要）。 |
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
-| アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−5〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 |
-| 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
+| アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−５〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 || 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
+| 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を最大27台まで1ブロックに融合します。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、27台なら27台分になります。 |
 
 ## ティア
 
-アイテム収集機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
+アイテム収集機と風力発電融合機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
 最初にクラフトするのはティアなしの機械で、以後は **Mekanismのティアインストーラーでそのまま昇格**できます
 （中身・エネルギー・タンク・面設定・所有者・アップグレードは保持されます）。
 
@@ -332,6 +349,17 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 
 アイテム収集機は単一ティアです（10 FE/t、内部バッファ 12,000 FE、出力27スロット、範囲は各軸1〜9・オフセット−5〜+5）。
 
+## 風力発電融合機
+
+風力発電融合機は、風力発電機をまとめる「融合器」のような単一ティアの機械です。3×9のスロットに風力発電機を入れると、
+入れた1台ごとに、Mekanismの風力発電機をその場所に置いたときと同じ発電量を出します。
+
+- 1台＝風力発電機1台分、2台＝2台分、満杯（27台）＝27台分
+- 発電量は Mekanism 本体の計算式（`windGenerationMin`〜`windGenerationMax` を `windGenerationMinY`〜`windGenerationMaxY` で補間）をそのまま使うため、高さ・天空・ディメンションの扱いも本家と同じです
+- 実際に入っている台数だけ発電するので、途中までしか入っていなければその分だけ発電します
+- 内部バッファは 5,400,000 FE（風力発電機の蓄電 200,000 FE × 最大27台）。`Energy` に設定したすべての面から出力します
+- エネルギースロットでバッファからアイテムを充電でき、画面には融合中の台数と現在の発電量（FE/t）を表示します
+
 ## スポイト（ゲージドロッパー）
 
 Mekanismのゲージドロッパーは機械のタンクを手で出入れする唯一の手段ですが、容量は1バケツ分しかありません。
@@ -368,6 +396,7 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 | 電動玄武岩製造機 | `ALA` / `CXC` / `ABA` — L=溶岩バケツ, B=青氷 |
 | アイテム収集機 | `ACA` / `HXS` / `ACA` — H=ホッパー, S=ロジスティカルソーター |
 | 流体注入機 | `ABA` / `CXF` / `ABA` — B=ガラス瓶, F=基本液体タンク |
+| 風力発電融合機 | `AWA` / `WPW` / `AWA` — A=赤石, W=風力発電機, P=鋼ケーシング |
 
 ティア昇格は Mekanism の工場ティアレシピと同じ `ACA` / `IPI` / `ACA`（P＝前のティアの機械）です。
 
@@ -443,6 +472,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 | Minecraft | 1.21.1 |
 | NeoForge | 21.1.194 以降 |
 | Mekanism | 10.7.19.x |
+| Mekanism Generators | 10.7.19.x（風力発電融合機で必須） |
 | JEI | 任意（クライアント側のみ） |
 | EMI | 任意（クライアント側のみ） |
 | AE2 | 任意（パターン作成連携） |

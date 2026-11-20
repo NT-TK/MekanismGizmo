@@ -7,6 +7,7 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
+import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.util.MachineTier;
 import mekanism.api.Upgrade;
 import mekanism.common.block.attribute.AttributeSideConfig;
@@ -98,6 +99,17 @@ public final class ModBlockTypes {
           .withGui(() -> ModMenus.ITEM_COLLECTOR)
           .withEnergyConfig(() -> 10L, () -> 12_000L)
           .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
+          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .replace(Attributes.ACTIVE)
+          .build();
+
+    // --- wind generator fusion (single tier) ---
+    public static final Machine<WindFusionBlockEntity> WIND_FUSION = Machine.MachineBuilder
+          .createMachine(() -> ModBlockEntities.WIND_FUSION, ModLang.DESCRIPTION_WIND_FUSION)
+          .withGui(() -> ModMenus.WIND_FUSION)
+          // Storage only: the machine produces energy instead of using it
+          .withEnergyConfig(() -> WindFusionBlockEntity.ENERGY_CAPACITY)
+          .withSupportedUpgrades(Upgrade.MUFFLING)
           .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
           .replace(Attributes.ACTIVE)
           .build();

@@ -3,14 +3,7 @@
     "active=false,facing=north": {
       "model": "mekanismgizmo:block/item_collector"
     },
-    "active=true,facing=north": {
-      "model": "mekanismgizmo:block/item_collector"
-    },
     "active=false,facing=south": {
-      "model": "mekanismgizmo:block/item_collector",
-      "y": 180
-    },
-    "active=true,facing=south": {
       "model": "mekanismgizmo:block/item_collector",
       "y": 180
     },
@@ -18,13 +11,20 @@
       "model": "mekanismgizmo:block/item_collector",
       "y": 270
     },
-    "active=true,facing=west": {
-      "model": "mekanismgizmo:block/item_collector",
-      "y": 270
-    },
     "active=false,facing=east": {
       "model": "mekanismgizmo:block/item_collector",
       "y": 90
+    },
+    "active=true,facing=north": {
+      "model": "mekanismgizmo:block/item_collector"
+    },
+    "active=true,facing=south": {
+      "model": "mekanismgizmo:block/item_collector",
+      "y": 180
+    },
+    "active=true,facing=west": {
+      "model": "mekanismgizmo:block/item_collector",
+      "y": 270
     },
     "active=true,facing=east": {
       "model": "mekanismgizmo:block/item_collector",
