@@ -70,6 +70,10 @@
   "gui.mekanismgizmo.item_collector.range_x": "X幅 %s",
   "gui.mekanismgizmo.item_collector.range_y": "Y高 %s",
   "gui.mekanismgizmo.item_collector.range_z": "Z幅 %s",
+  "item.mekanismgizmo.advanced_pipette": "発展スポイト",
+  "item.mekanismgizmo.basic_pipette": "基本スポイト",
+  "item.mekanismgizmo.elite_pipette": "精鋭スポイト",
+  "item.mekanismgizmo.ultimate_pipette": "究極スポイト",
   "itemGroup.mekanismgizmo": "Mekanism Gizmo",
   "jei.mekanismgizmo.basalt_generator": "電動玄武岩製造機",
   "jei.mekanismgizmo.cobblestone_generator": "電動丸石製造機",
@@ -84,5 +88,6 @@
   "jei.mekanismgizmo.info.no_input": "入力なし（電力のみ）",
   "jei.mekanismgizmo.info.time": "所要時間: %s ticks",
   "jei.mekanismgizmo.potion_brewer": "ポーション醸造機",
-  "tooltip.mekanismgizmo.container_mode": "液体コンテナのモード（充填 / 排出 / 両方）"
+  "tooltip.mekanismgizmo.container_mode": "液体コンテナのモード（充填 / 排出 / 両方）",
+  "tooltip.mekanismgizmo.pipette_capacity": "容量: %s mB（液体・ガス）"
 }

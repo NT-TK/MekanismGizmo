@@ -41,6 +41,10 @@ public final class ModCreativeTabs {
                     output.accept(ModBlocks.FLUID_INJECTOR_ELITE.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR_ULTIMATE.asItem());
                     output.accept(ModBlocks.ITEM_COLLECTOR.asItem());
+                    output.accept(ModItems.BASIC_PIPETTE.asItem());
+                    output.accept(ModItems.ADVANCED_PIPETTE.asItem());
+                    output.accept(ModItems.ELITE_PIPETTE.asItem());
+                    output.accept(ModItems.ULTIMATE_PIPETTE.asItem());
                 })
                 .build());
 

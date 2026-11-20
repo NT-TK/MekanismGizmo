@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "O": {
+      "tag": "c:ingots/osmium"
+    },
+    "G": {
+      "tag": "c:glass_panes"
+    },
+    "D": {
+      "item": "mekanism:gauge_dropper"
+    }
+  },
+  "pattern": [
+    " O ",
+    "GDG",
+    "GGG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mekanismgizmo:basic_pipette"
+  }
+}

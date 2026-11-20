@@ -1,0 +1,40 @@
+package jp.example.mekanismgizmo.registry;
+
+import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.item.PipetteItem;
+import mekanism.common.attachments.containers.ContainerType;
+import mekanism.common.config.MekanismConfig;
+import mekanism.common.registration.impl.ItemDeferredRegister;
+import mekanism.common.registration.impl.ItemRegistryObject;
+
+/**
+ * Items that are not machine blocks. The pipettes are tiered gauge droppers: the tier only changes how much liquid and
+ * gas they hold, the handling (machine tank gauges, sneak + right click to void) is Mekanism's own.
+ */
+public final class ModItems {
+    public static final ItemDeferredRegister ITEMS = new ItemDeferredRegister(MekanismGizmo.MOD_ID);
+
+    private static final int BASIC_CAPACITY = 2_000;
+    private static final int ADVANCED_CAPACITY = 4_000;
+    private static final int ELITE_CAPACITY = 8_000;
+    private static final int ULTIMATE_CAPACITY = 16_000;
+
+    public static final ItemRegistryObject<PipetteItem> BASIC_PIPETTE = pipette("basic_pipette", BASIC_CAPACITY);
+    public static final ItemRegistryObject<PipetteItem> ADVANCED_PIPETTE = pipette("advanced_pipette", ADVANCED_CAPACITY);
+    public static final ItemRegistryObject<PipetteItem> ELITE_PIPETTE = pipette("elite_pipette", ELITE_CAPACITY);
+    public static final ItemRegistryObject<PipetteItem> ULTIMATE_PIPETTE = pipette("ultimate_pipette", ULTIMATE_CAPACITY);
+
+    /**
+     * One liquid tank and one gas tank per pipette, both sized by the tier. Mekanism's gauge dropper shares a single
+     * merged tank; separate tanks also expose the {@code IFluidHandlerItem} / {@code IChemicalHandler} capabilities the
+     * machine screens and the sneak-right-click dump use, and they let the pipette hold both at once.
+     */
+    private static ItemRegistryObject<PipetteItem> pipette(String name, int capacity) {
+        return ITEMS.registerItem(name, properties -> new PipetteItem(properties, capacity))
+              .addAttachedContainerCapabilities(ContainerType.FLUID, () -> PipetteItem.fluidTanks(capacity), MekanismConfig.gear)
+              .addAttachedContainerCapabilities(ContainerType.CHEMICAL, () -> PipetteItem.chemicalTanks(capacity), MekanismConfig.gear);
+    }
+
+    private ModItems() {
+    }
+}

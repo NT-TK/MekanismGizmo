@@ -106,6 +106,27 @@ and three potion output slots**.
 The Item Collector is a single tier machine (10 FE/t, 12,000 FE buffer, 27 output slots, area of 1-9 blocks per axis
 with a -5..+5 offset).
 
+## Pipettes (gauge droppers)
+
+Mekanism's gauge dropper is the only way to empty or fill a machine's tank by hand, but it holds one bucket. The four
+pipettes behave exactly like it - pick one up in a machine screen and click a tank gauge to fill or empty the machine,
+sneak + right click to void the contents - and every tier holds more and moves more per click:
+
+| Item | ID | Capacity (liquid / gas) |
+|---|---|---|
+| Basic Pipette | `mekanismgizmo:basic_pipette` | 2,000 mB |
+| Advanced Pipette | `mekanismgizmo:advanced_pipette` | 4,000 mB |
+| Elite Pipette | `mekanismgizmo:elite_pipette` | 8,000 mB |
+| Ultimate Pipette | `mekanismgizmo:ultimate_pipette` | 16,000 mB |
+
+A liquid tank and a gas tank are attached separately, so one pipette can carry both at the same time, and the
+contents stay on the item when it is dropped, stored or previewed in JEI.
+
+| Item | Pattern |
+|---|---|
+| Basic Pipette | ` O ` / `GDG` / `GGG` - O = osmium ingot, G = glass pane, D = Mekanism gauge dropper |
+| Advanced / Elite / Ultimate | `ACA` / `IPI` / `ACA` - the same tier ingredients as the machines, P = previous pipette |
+
 ## Recipes
 
 The base machines use Mekanism's machine recipe ingredients: a steel casing in the centre, `mekanism:alloys/basic`
@@ -307,6 +328,27 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 究極 | 5 | 125 | 60,000 | 80,000 | 11 | 5個 / tick（6,000/分） | ×5 |
 
 アイテム収集機は単一ティアです（10 FE/t、内部バッファ 12,000 FE、出力27スロット、範囲は各軸1〜9・オフセット−5〜+5）。
+
+## スポイト（ゲージドロッパー）
+
+Mekanismのゲージドロッパーは機械のタンクを手で出入れする唯一の手段ですが、容量は1バケツ分しかありません。
+4種類のスポイトはそれとまったく同じ使い勝手（機械の画面でスポイトを持ち上げてタンクをクリック／スニーク＋右クリックで中身を廃棄）で、
+ティアごとに容量と1回の移動量が増えます。
+
+| アイテム | ID | 容量（液体／ガス） |
+|---|---|---|
+| 基本スポイト | `mekanismgizmo:basic_pipette` | 2,000 mB |
+| 発展スポイト | `mekanismgizmo:advanced_pipette` | 4,000 mB |
+| 精鋭スポイト | `mekanismgizmo:elite_pipette` | 8,000 mB |
+| 究極スポイト | `mekanismgizmo:ultimate_pipette` | 16,000 mB |
+
+液体タンクとガスタンクは別々に付くので、1本で両方を同時に持てます。中身はアイテムのコンポーネントなので、
+落としても・チェストに入れても・JEIで見ても保持されます。
+
+| アイテム | レシピ |
+|---|---|
+| 基本スポイト | ` O ` / `GDG` / `GGG` — O=オスミウムインゴット, G=ガラス板, D=Mekanismのゲージドロッパー |
+| 発展／精鋭／究極スポイト | `ACA` / `IPI` / `ACA` — 機械と同じティア素材、P=前のティアのスポイト |
 
 ## レシピ
 

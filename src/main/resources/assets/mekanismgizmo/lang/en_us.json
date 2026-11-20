@@ -70,6 +70,10 @@
   "gui.mekanismgizmo.item_collector.range_x": "X size %s",
   "gui.mekanismgizmo.item_collector.range_y": "Y size %s",
   "gui.mekanismgizmo.item_collector.range_z": "Z size %s",
+  "item.mekanismgizmo.advanced_pipette": "Advanced Pipette",
+  "item.mekanismgizmo.basic_pipette": "Basic Pipette",
+  "item.mekanismgizmo.elite_pipette": "Elite Pipette",
+  "item.mekanismgizmo.ultimate_pipette": "Ultimate Pipette",
   "itemGroup.mekanismgizmo": "Mekanism Gizmo",
   "jei.mekanismgizmo.basalt_generator": "Electric Basalt Generator",
   "jei.mekanismgizmo.cobblestone_generator": "Cobblestone Generator",
@@ -84,5 +88,6 @@
   "jei.mekanismgizmo.info.no_input": "No input (energy only)",
   "jei.mekanismgizmo.info.time": "Time: %s ticks",
   "jei.mekanismgizmo.potion_brewer": "Potion Brewer",
-  "tooltip.mekanismgizmo.container_mode": "Fluid container mode (Fill / Empty / Both)"
+  "tooltip.mekanismgizmo.container_mode": "Fluid container mode (Fill / Empty / Both)",
+  "tooltip.mekanismgizmo.pipette_capacity": "Capacity: %s mB (liquid or gas)"
 }
