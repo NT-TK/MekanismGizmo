@@ -132,6 +132,13 @@ JEI support is optional and client side only. When JEI is installed the mod adds
 
 Page widths are measured from the localised text, so nothing spills out in any language.
 
+### EMI
+
+EMI is optional and client side only. EMI has its own native pages for the four machines (potion brewer, ice maker,
+electric cobblestone generator and fluid injector), including the **5 mB of blaze powder gas** on every potion brewer
+page, and every tier is a workstation of its category. When EMI is installed the JEI pages are not registered, so the
+recipes are never listed twice.
+
 ### AE2
 
 AE2 is optional and never required (the mod only *suggests* it). With AE2's JEI integration the potion brewer page can
@@ -149,7 +156,8 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | NeoForge | 21.1.194 or newer |
 | Mekanism | 10.7.19.x |
 | JEI | optional (client side only) |
-| AE2 | optional (JEI pattern encoding) |
+| EMI | optional (client side only) |
+| AE2 | optional (pattern encoding) |
 
 ## Installation
 
@@ -334,6 +342,13 @@ JEIは任意（クライアント側のみ）です。導入すると以下が�
 
 ページ幅は各言語の文字幅から自動で決まるため、日本語でも文字はみ出しません。
 
+### EMI連携
+
+EMIは任意（クライアント側のみ）です。EMI用に4機械の専用ページ（ポーション醸造機・製氷機・電動丸石製造機・
+流体注入機）を用意しており、醸造機のページには**ブレイズパウダーガス 5 mB** も入ります。全ティアが各カテゴリの
+ワークステーションとして登録されます。EMIが入っている場合はJEI側のページを登録しないため、レシピが二重に
+表示されることはありません。
+
 ### AE2連携
 
 AE2は任意（依存は `optional` 指定のみ）です。AE2のJEI連携を使うと、ポーション醸造機のページをパターンエンコード
@@ -351,7 +366,8 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 | NeoForge | 21.1.194 以降 |
 | Mekanism | 10.7.19.x |
 | JEI | 任意（クライアント側のみ） |
-| AE2 | 任意（JEIのパターン作成連携） |
+| EMI | 任意（クライアント側のみ） |
+| AE2 | 任意（パターン作成連携） |
 
 ## 導入方法
 

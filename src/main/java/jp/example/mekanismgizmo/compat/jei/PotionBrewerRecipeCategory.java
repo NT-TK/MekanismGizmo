@@ -16,12 +16,9 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.alchemy.PotionContents;
 
 /**
  * JEI page of the potion brewer, laid out like Mekanism's own machine pages: the bottle and the ingredient on the
@@ -86,20 +83,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     @Override
     public ResourceLocation getRegistryName(PotionBrewerJeiRecipe recipe) {
         // Only [a-z0-9_/] are allowed in a resource location, so the potion names are taken from the registry key
-        String ingredient = BuiltInRegistries.ITEM.getKey(recipe.ingredient().getItem()).getPath();
-        return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID,
-              "potion_brewer/" + potionName(recipe.input()) + "/" + ingredient + "/" + potionName(recipe.output()));
-    }
-
-    private static String potionName(ItemStack stack) {
-        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-        if (contents == null) {
-            return "none";
-        }
-        return contents.potion()
-              .flatMap(holder -> holder.unwrapKey().map(key -> key.location().getPath()))
-              .map(path -> path.replace('/', '_'))
-              .orElse("custom" + contents.customEffects().size());
+        return PotionBrewerRecipes.id(recipe);
     }
 
     @Override

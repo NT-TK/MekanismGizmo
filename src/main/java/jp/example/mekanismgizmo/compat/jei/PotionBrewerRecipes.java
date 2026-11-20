@@ -1,5 +1,6 @@
 package jp.example.mekanismgizmo.compat.jei;
 
+import jp.example.mekanismgizmo.MekanismGizmo;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,6 +62,25 @@ public final class PotionBrewerRecipes {
             }
         }
         return recipes;
+    }
+
+    /** Unique, resource location safe id of a brewing page (shared by the JEI and the EMI pages). */
+    public static ResourceLocation id(PotionBrewerJeiRecipe recipe) {
+        return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID,
+              "potion_brewer/" + potionName(recipe.input())
+                    + "/" + BuiltInRegistries.ITEM.getKey(recipe.ingredient().getItem()).getPath()
+                    + "/" + potionName(recipe.output()));
+    }
+
+    private static String potionName(ItemStack stack) {
+        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+        if (contents == null) {
+            return "none";
+        }
+        return contents.potion()
+              .flatMap(holder -> holder.unwrapKey().map(key -> key.location().getPath()))
+              .map(path -> path.replace('/', '_'))
+              .orElse("custom" + contents.customEffects().size());
     }
 
     private static String key(ItemStack input, ItemStack ingredient, ItemStack output) {
