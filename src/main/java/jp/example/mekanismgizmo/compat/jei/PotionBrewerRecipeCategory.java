@@ -3,6 +3,8 @@ package jp.example.mekanismgizmo.compat.jei;
 import jp.example.mekanismgizmo.MekanismGizmo;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.registry.ModBlocks;
+import jp.example.mekanismgizmo.registry.ModChemicals;
+import mekanism.client.recipe_viewer.jei.MekanismJEI;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -34,6 +36,9 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
           PotionBrewerBlockEntity.BASE_TICKS_REQUIRED);
     private static final int HEIGHT = 78;
+    /** Left hand gas slot: the blaze powder gas one brew of three bottles uses. */
+    private static final int GAS_X = 6;
+    private static final int GAS_Y = 20;
 
     /** Page width: wide enough for the widest info line (and for the slots), so nothing spills out. */
     private final int width;
@@ -43,7 +48,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     public PotionBrewerRecipeCategory(IGuiHelper guiHelper) {
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.POTION_BREWER.asItem()));
-        width = RecipePanel.widthFor(124, GAS_LINE, TIME_LINE);
+        width = RecipePanel.widthFor(132, GAS_LINE, TIME_LINE);
         background = new RecipePanel(width, HEIGHT);
         arrow = guiHelper.getRecipeArrow();
     }
@@ -99,14 +104,22 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, PotionBrewerJeiRecipe recipe, IFocusGroup focuses) {
+        // Every brew of three bottles also needs blaze powder gas, so the gas is an input of the page as well.
+        // (Mekanism's JEI plugin provides the chemical ingredient type; without it the page simply has no gas slot.)
+        if (MekanismJEI.shouldLoad()) {
+            builder.addInputSlot(GAS_X, GAS_Y)
+                  .setStandardSlotBackground()
+                  .addIngredient(MekanismJEI.TYPE_CHEMICAL,
+                        ModChemicals.BLAZE_POWDER.asStack(PotionBrewerBlockEntity.CHEMICAL_PER_BREW));
+        }
         // Same order as a brewing stand: the bottle on top, the ingredient underneath, the result to the right
-        builder.addInputSlot(24, 14)
+        builder.addInputSlot(30, 12)
               .setStandardSlotBackground()
               .addItemStack(recipe.input());
-        builder.addInputSlot(24, 36)
+        builder.addInputSlot(30, 34)
               .setStandardSlotBackground()
               .addItemStack(recipe.ingredient());
-        builder.addOutputSlot(74, 14)
+        builder.addOutputSlot(80, 12)
               .setOutputSlotBackground()
               .addItemStack(recipe.output());
     }
@@ -116,7 +129,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
           double mouseY) {
         // Drawn before the slots so it stays behind them
         background.draw(guiGraphics, 0, 0);
-        arrow.draw(guiGraphics, 48, 19);
+        arrow.draw(guiGraphics, 54, 17);
         Minecraft minecraft = Minecraft.getInstance();
         guiGraphics.drawString(minecraft.font, GAS_LINE, 6, 58, ChatFormatting.DARK_GRAY.getColor(), false);
         guiGraphics.drawString(minecraft.font, TIME_LINE, 6, 68, ChatFormatting.DARK_GRAY.getColor(), false);

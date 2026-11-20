@@ -244,6 +244,11 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         return bottleSlots;
     }
 
+    /** The blaze powder slot, the item source of the blaze powder gas (used by the JEI recipe transfer). */
+    public InputInventorySlot getBlazePowderSlot() {
+        return blazePowderSlot;
+    }
+
     /** The brewing ingredient slot (used by the JEI recipe transfer). */
     public InputInventorySlot getIngredientSlot() {
         return ingredientSlot;

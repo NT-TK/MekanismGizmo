@@ -16,8 +16,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 
 /**
- * Maps JEI's brewing recipe layout (3 potion slots, 1 ingredient slot, 1 output slot) onto the potion brewer's
- * slots, so the "+" button of the brewing category can fill the machine just like it fills a brewing stand.
+ * Maps the potion brewer's own JEI page onto the machine: the page shows the blaze powder gas, one bottle, the
+ * ingredient and the result, in that order, so the "+" button fills the bottle, the ingredient and the output slot.
+ * <p>
+ * The blaze powder gas has no container slot (it lives in the machine's chemical tank); it is mapped onto the blaze
+ * powder slot, which is the item that produces the gas, so the recipe slot indices line up. JEI has no item stack for
+ * a chemical, so it simply leaves that slot alone.
  */
 public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<PotionBrewerMenu, PotionBrewerJeiRecipe> {
 
@@ -51,15 +55,15 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
                 slots.put(containerSlot.getInventorySlot(), slot);
             }
         }
-        List<Slot> recipeSlots = new ArrayList<>(5);
-        // Same order as JEI's brewing category: three potion slots, the ingredient, then the output
-        // The brewing category only knows the three bottle slots of a brewing stand, so only the first row is offered
-        var bottleSlots = tile.getBottleSlots();
-        for (int i = 0; i < Math.min(PotionBrewerBlockEntity.BOTTLES_PER_BREW, bottleSlots.length); i++) {
-            Slot slot = slots.get(bottleSlots[i]);
-            if (slot != null) {
-                recipeSlots.add(slot);
-            }
+        List<Slot> recipeSlots = new ArrayList<>(4);
+        // Same order as the page: gas, bottle, ingredient, result
+        Slot gas = slots.get(tile.getBlazePowderSlot());
+        if (gas != null) {
+            recipeSlots.add(gas);
+        }
+        Slot bottle = slots.get(tile.getBottleSlots()[0]);
+        if (bottle != null) {
+            recipeSlots.add(bottle);
         }
         Slot ingredient = slots.get(tile.getIngredientSlot());
         if (ingredient != null) {

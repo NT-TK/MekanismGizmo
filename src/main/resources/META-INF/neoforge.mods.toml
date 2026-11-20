@@ -37,3 +37,13 @@ type="optional"
 versionRange="[19,)"
 ordering="AFTER"
 side="CLIENT"
+
+# Optional: AE2 itself is never required. Its JEI pattern encoding copies the potion brewer page into a pattern
+# (the item inputs always transfer; the 5 mB of blaze powder gas only when a chemical capable AE2 addon, such as
+# Applied Mekanistics, is installed).
+[[dependencies.${mod_id}]]
+modId="ae2"
+type="optional"
+versionRange="[19.2,)"
+ordering="AFTER"
+side="BOTH"
