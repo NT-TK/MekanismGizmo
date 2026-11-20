@@ -1,6 +1,7 @@
 package jp.example.mekanismgizmo.registry;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
@@ -37,6 +38,12 @@ public final class ModBlockEntities {
     public static final TileEntityTypeRegistryObject<CobblestoneGeneratorBlockEntity> COBBLESTONE_GENERATOR_ELITE = cobblestoneGenerator(ModBlocks.COBBLESTONE_GENERATOR_ELITE);
     public static final TileEntityTypeRegistryObject<CobblestoneGeneratorBlockEntity> COBBLESTONE_GENERATOR_ULTIMATE = cobblestoneGenerator(ModBlocks.COBBLESTONE_GENERATOR_ULTIMATE);
 
+    public static final TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> BASALT_GENERATOR = basaltGenerator(ModBlocks.BASALT_GENERATOR);
+    public static final TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> BASALT_GENERATOR_BASIC = basaltGenerator(ModBlocks.BASALT_GENERATOR_BASIC);
+    public static final TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ADVANCED = basaltGenerator(ModBlocks.BASALT_GENERATOR_ADVANCED);
+    public static final TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ELITE = basaltGenerator(ModBlocks.BASALT_GENERATOR_ELITE);
+    public static final TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ULTIMATE = basaltGenerator(ModBlocks.BASALT_GENERATOR_ULTIMATE);
+
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR = fluidInjector(ModBlocks.FLUID_INJECTOR);
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR_BASIC = fluidInjector(ModBlocks.FLUID_INJECTOR_BASIC);
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR_ADVANCED = fluidInjector(ModBlocks.FLUID_INJECTOR_ADVANCED);
@@ -65,6 +72,13 @@ public final class ModBlockEntities {
 
     private static TileEntityTypeRegistryObject<CobblestoneGeneratorBlockEntity> cobblestoneGenerator(BlockRegistryObject<?, ?> block) {
         return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new CobblestoneGeneratorBlockEntity(block, pos, state))
+              .clientTicker(TileEntityMekanism::tickClient)
+              .serverTicker(TileEntityMekanism::tickServer)
+              .build();
+    }
+
+    private static TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> basaltGenerator(BlockRegistryObject<?, ?> block) {
+        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new BasaltGeneratorBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
               .build();

@@ -7,6 +7,7 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiStack;
 import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
@@ -40,6 +41,7 @@ public class MekanismGizmoEmiPlugin implements EmiPlugin {
     public static final EmiRecipeCategory POTION_BREWER = category("potion_brewer", ModBlocks.POTION_BREWER);
     public static final EmiRecipeCategory ICE_MAKER = category("ice_maker", ModBlocks.ICE_MAKER);
     public static final EmiRecipeCategory COBBLESTONE_GENERATOR = category("cobblestone_generator", ModBlocks.COBBLESTONE_GENERATOR);
+    public static final EmiRecipeCategory BASALT_GENERATOR = category("basalt_generator", ModBlocks.BASALT_GENERATOR);
     public static final EmiRecipeCategory FLUID_INJECTOR = category("fluid_injector", ModBlocks.FLUID_INJECTOR);
 
     private static final Logger LOGGER = LoggerFactory.getLogger("mekanismgizmo-emi");
@@ -68,6 +70,7 @@ public class MekanismGizmoEmiPlugin implements EmiPlugin {
         addBrewer(registry);
         addIceMaker(registry);
         addCobblestoneGenerator(registry);
+        addBasaltGenerator(registry);
         addFluidInjector(registry);
     }
 
@@ -115,6 +118,19 @@ public class MekanismGizmoEmiPlugin implements EmiPlugin {
               List.of(Component.translatable("jei.mekanismgizmo.info.no_input"),
                     Component.translatable("jei.mekanismgizmo.info.energy", 10),
                     Component.translatable("jei.mekanismgizmo.info.time", CobblestoneGeneratorBlockEntity.BASE_TICKS_REQUIRED)),
+              -1, -1));
+    }
+
+    private void addBasaltGenerator(EmiRegistry registry) {
+        registry.addCategory(BASALT_GENERATOR);
+        addWorkstations(registry, BASALT_GENERATOR, ModBlocks.BASALT_GENERATOR,
+              ModBlocks.BASALT_GENERATOR_BASIC, ModBlocks.BASALT_GENERATOR_ADVANCED,
+              ModBlocks.BASALT_GENERATOR_ELITE, ModBlocks.BASALT_GENERATOR_ULTIMATE);
+        registry.addRecipe(new GizmoEmiRecipe(BASALT_GENERATOR, id("basalt_generator"), 100, 62, List.of(),
+              List.of(new GizmoEmiRecipe.Slot(EmiStack.of(Items.BASALT), 42, 12)),
+              List.of(Component.translatable("jei.mekanismgizmo.info.no_input"),
+                    Component.translatable("jei.mekanismgizmo.info.energy", 10),
+                    Component.translatable("jei.mekanismgizmo.info.time", BasaltGeneratorBlockEntity.BASE_TICKS_REQUIRED)),
               -1, -1));
     }
 

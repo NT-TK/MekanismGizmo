@@ -7,7 +7,7 @@ import json
 import os
 
 TIERS = ['', 'basic_', 'advanced_', 'elite_', 'ultimate_']
-MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'fluid_injector']
+MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'basalt_generator', 'fluid_injector']
 ASSETS = 'src/main/resources/assets/mekanismgizmo'
 DATA = 'src/main/resources/data/mekanismgizmo'
 COMPONENTS = ['mekanism:ejector', 'mekanism:owner', 'mekanism:redstone_control', 'mekanism:security',
@@ -109,12 +109,14 @@ EN_NAMES = {
     'potion_brewer': 'Potion Brewer',
     'ice_maker': 'Ice Maker',
     'cobblestone_generator': 'Electric Cobblestone Generator',
+    'basalt_generator': 'Electric Basalt Generator',
     'fluid_injector': 'Fluid Injector',
 }
 JA_NAMES = {
     'potion_brewer': '\u30dd\u30fc\u30b7\u30e7\u30f3\u91b8\u9020\u6a5f',
     'ice_maker': '\u88fd\u6c37\u6a5f',
     'cobblestone_generator': '\u96fb\u52d5\u4e38\u77f3\u88fd\u9020\u6a5f',
+    'basalt_generator': '\u96fb\u52d5\u7384\u6b66\u5ca9\u88fd\u9020\u6a5f',
     'fluid_injector': '\u6d41\u4f53\u6ce8\u5165\u6a5f',
 }
 for lang, tier_names, machine_names in (('en_us', EN_TIER, EN_NAMES), ('ja_jp', JA_TIER, JA_NAMES)):

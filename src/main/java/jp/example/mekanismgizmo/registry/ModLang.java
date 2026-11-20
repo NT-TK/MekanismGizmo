@@ -11,6 +11,7 @@ public enum ModLang implements ILangEntry {
     DESCRIPTION_POTION_BREWER("description", "potion_brewer"),
     DESCRIPTION_ICE_MAKER("description", "ice_maker"),
     DESCRIPTION_COBBLESTONE_GENERATOR("description", "cobblestone_generator"),
+    DESCRIPTION_BASALT_GENERATOR("description", "basalt_generator"),
     DESCRIPTION_ITEM_COLLECTOR("description", "item_collector"),
     DESCRIPTION_FLUID_INJECTOR("description", "fluid_injector"),
     TOOLTIP_CONTAINER_MODE("tooltip", "container_mode");

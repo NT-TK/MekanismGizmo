@@ -24,6 +24,7 @@ MACHINES = {
     'potion_brewer': 'potion',
     'ice_maker': 'ice',
     'cobblestone_generator': 'cobble',
+    'basalt_generator': 'basalt',
     'fluid_injector': 'injector',
 }
 
@@ -41,6 +42,8 @@ ACCENT = {
     'potion': ((198, 100, 224), (142, 58, 168), (235, 182, 247)),
     'ice': ((143, 216, 245), (62, 143, 191), (226, 247, 255)),
     'cobble': ((232, 120, 36), (163, 78, 16), (255, 192, 122)),
+    'basalt': ((104, 106, 116), (58, 59, 68), (176, 178, 190)),
+    'lava': ((255, 138, 42), (198, 78, 12), (255, 214, 156)),
     'collector': ((191, 170, 118), (132, 116, 66), (228, 214, 174)),
     'injector': ((90, 190, 235), (46, 134, 184), (214, 242, 255)),
 }
@@ -128,6 +131,24 @@ def icon_cobble(img):
                 put(img, x, y, colour)
 
 
+def icon_basalt(img):
+    """Three basalt columns of different heights with a lava seam glowing between them."""
+    bright, dark, hi = ACCENT['basalt']
+    lava = ACCENT['lava'][0]
+    for x0, top in ((4, 6), (7, 4), (10, 7)):
+        for y in range(top, 12):
+            put(img, x0, y, hi if y == top else bright)
+            put(img, x0 + 1, y, hi if y == top else dark)
+        put(img, x0, 11, C['shadow'])
+        put(img, x0 + 1, 11, C['shadow'])
+    # lava glowing up out of the gaps between the columns
+    for y in range(9, 12):
+        put(img, 6, y, lava)
+    put(img, 6, 9, ACCENT['lava'][2])
+    put(img, 9, 10, ACCENT['lava'][1])
+    put(img, 9, 11, lava)
+
+
 def icon_collector(img):
     bright, dark, hi = ACCENT['collector']
     for x in range(4, 12):
@@ -165,6 +186,7 @@ ICONS = {
     'potion': icon_potion,
     'ice': icon_ice,
     'cobble': icon_cobble,
+    'basalt': icon_basalt,
     'collector': icon_collector,
     'injector': icon_droplet,
 }

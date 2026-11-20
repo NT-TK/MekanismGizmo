@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/basalt_generator_front",
+    "down": "mekanismgizmo:block/basalt_generator_bottom",
+    "up": "mekanismgizmo:block/basalt_generator_top",
+    "north": "mekanismgizmo:block/basalt_generator_front",
+    "south": "mekanismgizmo:block/basalt_generator_back",
+    "east": "mekanismgizmo:block/basalt_generator_side",
+    "west": "mekanismgizmo:block/basalt_generator_side"
+  }
+}

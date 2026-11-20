@@ -1,11 +1,13 @@
 package jp.example.mekanismgizmo.registry;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
+import jp.example.mekanismgizmo.menu.BasaltGeneratorMenu;
 import jp.example.mekanismgizmo.menu.CobblestoneGeneratorMenu;
 import jp.example.mekanismgizmo.menu.FluidInjectorMenu;
 import jp.example.mekanismgizmo.menu.IceMakerMenu;
@@ -25,6 +27,9 @@ public final class ModMenus {
 
     public static final ContainerTypeRegistryObject<MekanismTileContainer<CobblestoneGeneratorBlockEntity>> COBBLESTONE_GENERATOR = CONTAINER_TYPES
           .register("cobblestone_generator", CobblestoneGeneratorBlockEntity.class, CobblestoneGeneratorMenu::new);
+
+    public static final ContainerTypeRegistryObject<MekanismTileContainer<BasaltGeneratorBlockEntity>> BASALT_GENERATOR = CONTAINER_TYPES
+          .register("basalt_generator", BasaltGeneratorBlockEntity.class, BasaltGeneratorMenu::new);
 
     public static final ContainerTypeRegistryObject<MekanismTileContainer<FluidInjectorBlockEntity>> FLUID_INJECTOR = CONTAINER_TYPES
           .register("fluid_injector", FluidInjectorBlockEntity.class, FluidInjectorMenu::new);

@@ -1,6 +1,6 @@
 # Mekanism Gizmo
 
-A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds five machines built on Mekanism's own machine
+A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds six machines built on Mekanism's own machine
 framework, so the GUI, side configuration, upgrades, security, ownership and JEI integration all behave exactly like
 Mekanism's own machines.
 
@@ -17,6 +17,7 @@ Mekanism's own machines.
 | Potion Brewer | `mekanismgizmo:potion_brewer` | Brews any vanilla/NeoForge brewing recipe. Blaze powder is turned into Mekanism blaze powder gas (100 mB per powder) and 5 mB is used for each brew of three bottles. |
 | Ice Maker | `mekanismgizmo:ice_maker` | Turns 1,000 mB of water into one ice block. Water can come from buckets, pipes or tanks. |
 | Electric Cobblestone Generator | `mekanismgizmo:cobblestone_generator` | Produces cobblestone from energy only - no items or fluids needed. |
+| Electric Basalt Generator | `mekanismgizmo:basalt_generator` | Produces basalt from energy only - no items or fluids needed. |
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
 
@@ -34,14 +35,14 @@ in place** and keep the contents, energy, tanks, side configuration, owner and u
 | Elite | `elite_ice_maker` | 4 | `mekanism:ultimate_tier_installer` |
 | Ultimate | `ultimate_ice_maker` | 5 | - |
 
-(The example above uses the Ice Maker; the Potion Brewer, Cobblestone Generator and Fluid Injector follow the same
-pattern.) Higher tiers can also be crafted directly from the previous step.
+(The example above uses the Ice Maker; the Potion Brewer, Cobblestone Generator, Basalt Generator and Fluid Injector
+follow the same pattern.) Higher tiers can also be crafted directly from the previous step.
 
 ### What increases per tier
 
 - **Parallel operations** 1 -> 2 -> 3 -> 4 -> 5, so throughput scales 1x -> 5x
 - **Energy use** (FE/t) and the **internal energy buffer** scale with the same ratio, so the **cost per item stays
-  constant** (ice 2,000 FE / cobblestone 200 FE / potion 400 FE / container 25 FE)
+  constant** (ice 2,000 FE / cobblestone 200 FE / basalt 200 FE / potion 400 FE / container 25 FE)
 - **Tank capacity** scales as well: ice maker water 4,000 -> 20,000 mB, fluid injector 16,000 -> 80,000 mB,
   brewer gas 1,000 -> 5,000 mB
 - **Slots**: every tier adds the parallel slots (the brewer adds a whole brewing row of three bottles and three outputs)
@@ -57,6 +58,19 @@ pattern.) Higher tiers can also be crafted directly from the previous step.
 | Ultimate | 5 | 100 | 60,000 | 20,000 | 7 | 5 ice / 5 s (60/min) | x5 |
 
 #### Electric Cobblestone Generator
+
+| Tier | Parallel | FE/t | Buffer | Slots | Throughput | vs untiered |
+|---|---|---|---|---|---|---|
+| Untiered | 1 | 10 | 12,000 | 2 | 1 / s (60/min) | x1 |
+| Basic | 2 | 20 | 24,000 | 3 | 2 / s (120/min) | x2 |
+| Advanced | 3 | 30 | 36,000 | 4 | 3 / s (180/min) | x3 |
+| Elite | 4 | 40 | 48,000 | 5 | 4 / s (240/min) | x4 |
+| Ultimate | 5 | 50 | 60,000 | 6 | 5 / s (300/min) | x5 |
+
+#### Electric Basalt Generator
+
+Same numbers as the cobblestone generator: 200 FE per basalt block (10 FE/t for 20 ticks), one basalt per parallel unit
+per second.
 
 | Tier | Parallel | FE/t | Buffer | Slots | Throughput | vs untiered |
 |---|---|---|---|---|---|---|
@@ -102,6 +116,7 @@ The base machines use Mekanism's machine recipe ingredients: a steel casing in t
 | Potion Brewer | `ACA` / `BXB` / `ACA` - A = redstone, B = brewing stand, C = basic control circuit, X = steel casing |
 | Ice Maker | `ACA` / `IXI` / `ACA` - I = ice |
 | Electric Cobblestone Generator | `ALA` / `CXC` / `AWA` - L = lava bucket, W = water bucket |
+| Electric Basalt Generator | `ALA` / `CXC` / `ABA` - L = lava bucket, B = blue ice |
 | Item Collector | `ACA` / `HXS` / `ACA` - H = hopper, S = logistical sorter |
 | Fluid Injector | `ABA` / `CXF` / `ABA` - B = glass bottle, F = basic fluid tank |
 
@@ -125,7 +140,8 @@ JEI support is optional and client side only. When JEI is installed the mod adds
 
 - a **Potion Brewer** page with one entry per bottle + ingredient, built from the game's own brewing data (all vanilla,
   NeoForge and data pack recipes) together with the recipe transfer ("+") button
-- an **Ice Maker** page, an **Electric Cobblestone Generator** page and a **Fluid Injector** page
+- an **Ice Maker** page, an **Electric Cobblestone Generator** page, an **Electric Basalt Generator** page and a
+  **Fluid Injector** page
 - every tier as a recipe catalyst, and clickable progress arrows in the machine screens
 - the **5 mB of blaze powder gas** one brew of three bottles needs, listed as a chemical ingredient on every
   potion brewer page
@@ -134,10 +150,10 @@ Page widths are measured from the localised text, so nothing spills out in any l
 
 ### EMI
 
-EMI is optional and client side only. EMI has its own native pages for the four machines (potion brewer, ice maker,
-electric cobblestone generator and fluid injector), including the **5 mB of blaze powder gas** on every potion brewer
-page, and every tier is a workstation of its category. When EMI is installed the JEI pages are not registered, so the
-recipes are never listed twice.
+EMI is optional and client side only. EMI has its own native pages for the five machines (potion brewer, ice maker,
+electric cobblestone generator, electric basalt generator and fluid injector), including the **5 mB of blaze powder
+gas** on every potion brewer page, and every tier is a workstation of its category. When EMI is installed the JEI
+pages are not registered, so the recipes are never listed twice.
 
 ### AE2
 
@@ -204,12 +220,13 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | ポーション醸造機 | `mekanismgizmo:potion_brewer` | バニラ／NeoForgeの醸造レシピでポーションを醸造します。ブレイズパウダーはMekanismのガス（1個=100 mB）になり、3本の醸造ごとに5 mB消費します。 |
 | 製氷機 | `mekanismgizmo:ice_maker` | 水1,000 mBから氷ブロック1個を作ります。バケツ・パイプ・タンクから給水できます。 |
 | 電動丸石製造機 | `mekanismgizmo:cobblestone_generator` | 電力だけで丸石を作り続けます（アイテム・液体の入力は不要）。 |
+| 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
 | アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−5〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 |
 | 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
 
 ## ティア
 
-アイテム収集機以外の4機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
+アイテム収集機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
 最初にクラフトするのはティアなしの機械で、以後は **Mekanismのティアインストーラーでそのまま昇格**できます
 （中身・エネルギー・タンク・面設定・所有者・アップグレードは保持されます）。
 
@@ -221,14 +238,14 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 精鋭 | `elite_ice_maker` | 4 | `mekanism:ultimate_tier_installer` |
 | 究極 | `ultimate_ice_maker` | 5 | — |
 
-（例は製氷機。ポーション醸造機・電動丸石製造機・流体注入機も同じ構成です。）
+（例は製氷機。ポーション醸造機・電動丸石製造機・電動玄武岩製造機・流体注入機も同じ構成です。）
 各段階は前の段階の機械からクラフトすることもできます。
 
 ### ティアごとに増えるもの
 
 - **並列数** 1 → 2 → 3 → 4 → 5（処理量も 1 → 5倍）
 - **FE/t と内部バッファ**も同じ比率で増えるため、**1個あたりのコストは全ティアで一定**
-  （氷 2,000 FE / 丸石 200 FE / ポーション 400 FE / コンテナ 25 FE）
+  （氷 2,000 FE / 丸石 200 FE / 玄武岩 200 FE / ポーション 400 FE / コンテナ 25 FE）
 - **タンク容量**も並列数に比例（製氷機の水 4,000 → 20,000 mB、流体注入機 16,000 → 80,000 mB、
   醸造機のガス 1,000 → 5,000 mB）
 - **スロット**は並列数ぶん増加（醸造機は「瓶3本＋出力3本」の行が1段ごとに増えます）
@@ -246,6 +263,18 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 究極 | 5 | 100 | 60,000 | 20,000 | 7 | 5個 / 5秒（60/分） | ×5 |
 
 #### 電動丸石製造機
+
+| ティア | 並列 | FE/t | 内部バッファ | スロット | 処理能力 | 対ティアなし |
+|---|---|---|---|---|---|---|
+| ティアなし | 1 | 10 | 12,000 | 2 | 1個 / 秒（60/分） | ×1 |
+| 基本 | 2 | 20 | 24,000 | 3 | 2個 / 秒（120/分） | ×2 |
+| 発展 | 3 | 30 | 36,000 | 4 | 3個 / 秒（180/分） | ×3 |
+| 精鋭 | 4 | 40 | 48,000 | 5 | 4個 / 秒（240/分） | ×4 |
+| 究極 | 5 | 50 | 60,000 | 6 | 5個 / 秒（300/分） | ×5 |
+
+#### 電動玄武岩製造機
+
+数値は電動丸石製造機と同じです（玄武岩1個＝200 FE、10 FE/t で20 tick）。1並列あたり毎秒1個。
 
 | ティア | 並列 | FE/t | 内部バッファ | スロット | 処理能力 | 対ティアなし |
 |---|---|---|---|---|---|---|
@@ -288,6 +317,7 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | ポーション醸造機 | `ACA` / `BXB` / `ACA` — A=赤石, B=醸造台, C=基礎制御回路, X=鋼ケーシング |
 | 製氷機 | `ACA` / `IXI` / `ACA` — I=氷 |
 | 電動丸石製造機 | `ALA` / `CXC` / `AWA` — L=溶岩バケツ, W=水バケツ |
+| 電動玄武岩製造機 | `ALA` / `CXC` / `ABA` — L=溶岩バケツ, B=青氷 |
 | アイテム収集機 | `ACA` / `HXS` / `ACA` — H=ホッパー, S=ロジスティカルソーター |
 | 流体注入機 | `ABA` / `CXF` / `ABA` — B=ガラス瓶, F=基本液体タンク |
 
@@ -336,7 +366,7 @@ JEIは任意（クライアント側のみ）です。導入すると以下が�
 
 - **ポーション醸造機**の専用ページ（ゲーム本体の醸造データから生成するので、バニラ・NeoForge・データパックの
   醸造レシピがすべて表示されます）と「+」のレシピ転送
-- **製氷機**・**電動丸石製造機**・**流体注入機**のページ
+- **製氷機**・**電動丸石製造機**・**電動玄武岩製造機**・**流体注入機**のページ
 - 全ティアのレシピカタリストと、機械画面の進行矢印クリックからのレシピ表示
 - 3本ぶんの醸造に必要な**ブレイズパウダーガス 5 mB** を、各ページの入力（ガス）として表示
 
@@ -344,8 +374,8 @@ JEIは任意（クライアント側のみ）です。導入すると以下が�
 
 ### EMI連携
 
-EMIは任意（クライアント側のみ）です。EMI用に4機械の専用ページ（ポーション醸造機・製氷機・電動丸石製造機・
-流体注入機）を用意しており、醸造機のページには**ブレイズパウダーガス 5 mB** も入ります。全ティアが各カテゴリの
+EMIは任意（クライアント側のみ）です。EMI用に5機械の専用ページ（ポーション醸造機・製氷機・電動丸石製造機・
+電動玄武岩製造機・流体注入機）を用意しており、醸造機のページには**ブレイズパウダーガス 5 mB** も入ります。全ティアが各カテゴリの
 ワークステーションとして登録されます。EMIが入っている場合はJEI側のページを登録しないため、レシピが二重に
 表示されることはありません。
 

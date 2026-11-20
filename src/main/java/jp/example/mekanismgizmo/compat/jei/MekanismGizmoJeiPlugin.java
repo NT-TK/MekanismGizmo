@@ -5,6 +5,7 @@ import jp.example.mekanismgizmo.MekanismGizmo;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.client.BasaltGeneratorScreen;
 import jp.example.mekanismgizmo.client.CobblestoneGeneratorScreen;
 import jp.example.mekanismgizmo.client.IceMakerScreen;
 import jp.example.mekanismgizmo.client.PotionBrewerScreen;
@@ -53,7 +54,8 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
         }
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(new PotionBrewerRecipeCategory(guiHelper), new IceMakerRecipeCategory(guiHelper),
-              new CobblestoneGeneratorRecipeCategory(guiHelper), new FluidInjectorRecipeCategory(guiHelper));
+              new CobblestoneGeneratorRecipeCategory(guiHelper), new BasaltGeneratorRecipeCategory(guiHelper),
+              new FluidInjectorRecipeCategory(guiHelper));
     }
 
     @Override
@@ -68,6 +70,8 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
               new IceMakerJeiRecipe(IceMakerBlockEntity.WATER_PER_ICE, new ItemStack(Items.ICE))));
         registration.addRecipes(CobblestoneGeneratorRecipeCategory.TYPE, List.of(
               new CobblestoneGeneratorJeiRecipe(new ItemStack(Items.COBBLESTONE))));
+        registration.addRecipes(BasaltGeneratorRecipeCategory.TYPE, List.of(
+              new BasaltGeneratorJeiRecipe(new ItemStack(Items.BASALT))));
         registration.addRecipes(FluidInjectorRecipeCategory.TYPE, injectorRecipes());
         registration.addIngredientInfo(new ItemStack(ModBlocks.FLUID_INJECTOR.asItem()), VanillaTypes.ITEM_STACK,
               Component.translatable("jei.mekanismgizmo.info.fluid_injector"));
@@ -97,6 +101,11 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(ModBlocks.COBBLESTONE_GENERATOR_ADVANCED.asItem(), CobblestoneGeneratorRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.COBBLESTONE_GENERATOR_ELITE.asItem(), CobblestoneGeneratorRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.COBBLESTONE_GENERATOR_ULTIMATE.asItem(), CobblestoneGeneratorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.BASALT_GENERATOR.asItem(), BasaltGeneratorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.BASALT_GENERATOR_BASIC.asItem(), BasaltGeneratorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.BASALT_GENERATOR_ADVANCED.asItem(), BasaltGeneratorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.BASALT_GENERATOR_ELITE.asItem(), BasaltGeneratorRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.BASALT_GENERATOR_ULTIMATE.asItem(), BasaltGeneratorRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.FLUID_INJECTOR.asItem(), FluidInjectorRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.FLUID_INJECTOR_BASIC.asItem(), FluidInjectorRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.FLUID_INJECTOR_ADVANCED.asItem(), FluidInjectorRecipeCategory.TYPE);
@@ -139,5 +148,6 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
         registration.addRecipeClickArea(PotionBrewerScreen.class, 102, 37, 32, 8, PotionBrewerRecipeCategory.TYPE);
         registration.addRecipeClickArea(IceMakerScreen.class, 54, 40, 32, 8, IceMakerRecipeCategory.TYPE);
         registration.addRecipeClickArea(CobblestoneGeneratorScreen.class, 54, 40, 32, 8, CobblestoneGeneratorRecipeCategory.TYPE);
+        registration.addRecipeClickArea(BasaltGeneratorScreen.class, 54, 40, 32, 8, BasaltGeneratorRecipeCategory.TYPE);
     }
 }

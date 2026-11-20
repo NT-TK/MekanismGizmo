@@ -1,6 +1,8 @@
 package jp.example.mekanismgizmo.registry;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlock;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlock;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlock;
@@ -70,6 +72,18 @@ public final class ModBlocks {
     public static final BlockRegistryObject<CobblestoneGeneratorBlock, ItemBlockTooltip<CobblestoneGeneratorBlock>> COBBLESTONE_GENERATOR_ULTIMATE =
           cobblestoneGenerator("ultimate_cobblestone_generator", ModBlockTypes.COBBLESTONE_GENERATOR_ULTIMATE, MachineTier.ULTIMATE);
 
+    // --- basalt generator ---
+    public static final BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> BASALT_GENERATOR =
+          basaltGenerator("basalt_generator", ModBlockTypes.BASALT_GENERATOR, MachineTier.UNTIERED);
+    public static final BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> BASALT_GENERATOR_BASIC =
+          basaltGenerator("basic_basalt_generator", ModBlockTypes.BASALT_GENERATOR_BASIC, MachineTier.BASIC);
+    public static final BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> BASALT_GENERATOR_ADVANCED =
+          basaltGenerator("advanced_basalt_generator", ModBlockTypes.BASALT_GENERATOR_ADVANCED, MachineTier.ADVANCED);
+    public static final BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> BASALT_GENERATOR_ELITE =
+          basaltGenerator("elite_basalt_generator", ModBlockTypes.BASALT_GENERATOR_ELITE, MachineTier.ELITE);
+    public static final BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> BASALT_GENERATOR_ULTIMATE =
+          basaltGenerator("ultimate_basalt_generator", ModBlockTypes.BASALT_GENERATOR_ULTIMATE, MachineTier.ULTIMATE);
+
     // --- fluid injector ---
     public static final BlockRegistryObject<FluidInjectorBlock, ItemBlockTooltip<FluidInjectorBlock>> FLUID_INJECTOR =
           fluidInjector("fluid_injector", ModBlockTypes.FLUID_INJECTOR, MachineTier.UNTIERED);
@@ -136,6 +150,19 @@ public final class ModBlocks {
                     (block, properties) -> machineItem(block, properties, ModSideConfigs.COBBLESTONE_GENERATOR))
               .forItemHolder(item -> item
                     // One cobblestone output per tier + energy slot
+                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                          .addOutput(parallel)
+                          .addEnergy()
+                          .build()));
+    }
+
+    private static BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> basaltGenerator(
+          String name, Machine<BasaltGeneratorBlockEntity> type, MachineTier tier) {
+        int parallel = tier.getParallel();
+        return BLOCKS.register(name, () -> new BasaltGeneratorBlock(type, tier),
+                    (block, properties) -> machineItem(block, properties, ModSideConfigs.BASALT_GENERATOR))
+              .forItemHolder(item -> item
+                    // One basalt output per tier + energy slot
                     .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
                           .addOutput(parallel)
                           .addEnergy()

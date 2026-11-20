@@ -1,6 +1,7 @@
 package jp.example.mekanismgizmo.registry;
 
 import java.util.function.Supplier;
+import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
@@ -67,6 +68,18 @@ public final class ModBlockTypes {
     public static final Machine<CobblestoneGeneratorBlockEntity> COBBLESTONE_GENERATOR_ULTIMATE = cobblestoneGenerator(MachineTier.ULTIMATE,
           () -> ModBlockEntities.COBBLESTONE_GENERATOR_ULTIMATE, null);
 
+    // --- basalt generator ---
+    public static final Machine<BasaltGeneratorBlockEntity> BASALT_GENERATOR = basaltGenerator(MachineTier.UNTIERED,
+          () -> ModBlockEntities.BASALT_GENERATOR, () -> ModBlocks.BASALT_GENERATOR_BASIC);
+    public static final Machine<BasaltGeneratorBlockEntity> BASALT_GENERATOR_BASIC = basaltGenerator(MachineTier.BASIC,
+          () -> ModBlockEntities.BASALT_GENERATOR_BASIC, () -> ModBlocks.BASALT_GENERATOR_ADVANCED);
+    public static final Machine<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ADVANCED = basaltGenerator(MachineTier.ADVANCED,
+          () -> ModBlockEntities.BASALT_GENERATOR_ADVANCED, () -> ModBlocks.BASALT_GENERATOR_ELITE);
+    public static final Machine<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ELITE = basaltGenerator(MachineTier.ELITE,
+          () -> ModBlockEntities.BASALT_GENERATOR_ELITE, () -> ModBlocks.BASALT_GENERATOR_ULTIMATE);
+    public static final Machine<BasaltGeneratorBlockEntity> BASALT_GENERATOR_ULTIMATE = basaltGenerator(MachineTier.ULTIMATE,
+          () -> ModBlockEntities.BASALT_GENERATOR_ULTIMATE, null);
+
     // --- fluid injector ---
     public static final Machine<FluidInjectorBlockEntity> FLUID_INJECTOR = fluidInjector(MachineTier.UNTIERED,
           () -> ModBlockEntities.FLUID_INJECTOR, () -> ModBlocks.FLUID_INJECTOR_BASIC);
@@ -120,6 +133,19 @@ public final class ModBlockTypes {
         Machine.MachineBuilder<Machine<CobblestoneGeneratorBlockEntity>, CobblestoneGeneratorBlockEntity, ?> builder = Machine.MachineBuilder
               .createMachine(be, ModLang.DESCRIPTION_COBBLESTONE_GENERATOR)
               .withGui(() -> ModMenus.COBBLESTONE_GENERATOR)
+              .withEnergyConfig(() -> 10L * tier.getParallel(), () -> 12_000L * tier.getParallel())
+              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
+              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+              .replace(Attributes.ACTIVE);
+        addTier(builder, tier, next);
+        return builder.build();
+    }
+
+    private static Machine<BasaltGeneratorBlockEntity> basaltGenerator(MachineTier tier,
+          Supplier<TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
+        Machine.MachineBuilder<Machine<BasaltGeneratorBlockEntity>, BasaltGeneratorBlockEntity, ?> builder = Machine.MachineBuilder
+              .createMachine(be, ModLang.DESCRIPTION_BASALT_GENERATOR)
+              .withGui(() -> ModMenus.BASALT_GENERATOR)
               .withEnergyConfig(() -> 10L * tier.getParallel(), () -> 12_000L * tier.getParallel())
               .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
               .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))

@@ -30,6 +30,11 @@ public final class ModCreativeTabs {
                     output.accept(ModBlocks.COBBLESTONE_GENERATOR_ADVANCED.asItem());
                     output.accept(ModBlocks.COBBLESTONE_GENERATOR_ELITE.asItem());
                     output.accept(ModBlocks.COBBLESTONE_GENERATOR_ULTIMATE.asItem());
+                    output.accept(ModBlocks.BASALT_GENERATOR.asItem());
+                    output.accept(ModBlocks.BASALT_GENERATOR_BASIC.asItem());
+                    output.accept(ModBlocks.BASALT_GENERATOR_ADVANCED.asItem());
+                    output.accept(ModBlocks.BASALT_GENERATOR_ELITE.asItem());
+                    output.accept(ModBlocks.BASALT_GENERATOR_ULTIMATE.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR_BASIC.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR_ADVANCED.asItem());

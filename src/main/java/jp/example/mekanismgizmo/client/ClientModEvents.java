@@ -19,6 +19,7 @@ public final class ClientModEvents {
         event.register(ModMenus.POTION_BREWER.get(), PotionBrewerScreen::new);
         event.register(ModMenus.ICE_MAKER.get(), IceMakerScreen::new);
         event.register(ModMenus.COBBLESTONE_GENERATOR.get(), CobblestoneGeneratorScreen::new);
+        event.register(ModMenus.BASALT_GENERATOR.get(), BasaltGeneratorScreen::new);
         event.register(ModMenus.FLUID_INJECTOR.get(), FluidInjectorScreen::new);
         event.register(ModMenus.ITEM_COLLECTOR.get(), ItemCollectorScreen::new);
     }

@@ -54,6 +54,17 @@ public final class ModSideConfigs {
                 RelativeSide.BACK, DataType.ENERGY)),
           TransmissionType.ENERGY, all(DataType.INPUT)));
 
+    /** The generator only produces: basalt can be pulled from every face except the energy port. */
+    public static final AttachedSideConfig BASALT_GENERATOR = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.OUTPUT,
+                RelativeSide.LEFT, DataType.OUTPUT,
+                RelativeSide.RIGHT, DataType.OUTPUT,
+                RelativeSide.TOP, DataType.OUTPUT,
+                RelativeSide.BOTTOM, DataType.OUTPUT,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.ENERGY, all(DataType.INPUT)));
+
     /** Container inputs on the left/top/bottom, converted containers out on the front/right, fluid in/out everywhere. */
     public static final AttachedSideConfig FLUID_INJECTOR = new AttachedSideConfig(config(
           TransmissionType.ITEM, item(map(
