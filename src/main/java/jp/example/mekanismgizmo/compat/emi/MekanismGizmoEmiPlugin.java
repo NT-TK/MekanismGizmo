@@ -24,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Optional EMI integration (EMI is only a compile time dependency and is never bundled).
@@ -40,6 +42,7 @@ public class MekanismGizmoEmiPlugin implements EmiPlugin {
     public static final EmiRecipeCategory COBBLESTONE_GENERATOR = category("cobblestone_generator", ModBlocks.COBBLESTONE_GENERATOR);
     public static final EmiRecipeCategory FLUID_INJECTOR = category("fluid_injector", ModBlocks.FLUID_INJECTOR);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger("mekanismgizmo-emi");
     private static final Component BREWER_GAS = Component.translatable("jei.mekanismgizmo.info.brewer_gas",
           PotionBrewerBlockEntity.CHEMICAL_PER_BREW);
     private static final Component BREWER_TIME = Component.translatable("jei.mekanismgizmo.info.time",
@@ -74,14 +77,20 @@ public class MekanismGizmoEmiPlugin implements EmiPlugin {
               ModBlocks.POTION_BREWER_ADVANCED, ModBlocks.POTION_BREWER_ELITE, ModBlocks.POTION_BREWER_ULTIMATE);
         // The gas one brew of three bottles uses, as a Mekanism chemical ingredient
         EmiStack gas = new ChemicalEmiStack(ModChemicals.BLAZE_POWDER.asStack(PotionBrewerBlockEntity.CHEMICAL_PER_BREW));
-        for (PotionBrewerJeiRecipe recipe : PotionBrewerRecipes.all(Minecraft.getInstance().level)) {
-            registry.addRecipe(new GizmoEmiRecipe(POTION_BREWER, PotionBrewerRecipes.id(recipe), 124, 76,
-                  List.of(new GizmoEmiRecipe.Slot(gas, 4, 20),
-                        new GizmoEmiRecipe.Slot(EmiStack.of(recipe.input()), 28, 12),
-                        new GizmoEmiRecipe.Slot(EmiStack.of(recipe.ingredient()), 28, 34)),
-                  List.of(new GizmoEmiRecipe.Slot(EmiStack.of(recipe.output()), 78, 12)),
-                  List.of(BREWER_GAS, BREWER_TIME), 54, 17));
-        }
+        // The brewing data comes from the level, so the pages are handed over when EMI builds its index
+        registry.addDeferredRecipes(add -> {
+            int pages = 0;
+            for (PotionBrewerJeiRecipe recipe : PotionBrewerRecipes.all(Minecraft.getInstance().level)) {
+                pages++;
+                add.accept(new GizmoEmiRecipe(POTION_BREWER, PotionBrewerRecipes.id(recipe), 124, 76,
+                      List.of(new GizmoEmiRecipe.Slot(gas, 4, 20),
+                            new GizmoEmiRecipe.Slot(EmiStack.of(recipe.input()), 28, 12),
+                            new GizmoEmiRecipe.Slot(EmiStack.of(recipe.ingredient()), 28, 34)),
+                      List.of(new GizmoEmiRecipe.Slot(EmiStack.of(recipe.output()), 78, 12)),
+                      List.of(BREWER_GAS, BREWER_TIME), 54, 17));
+            }
+            LOGGER.info("Added {} potion brewer pages to EMI", pages);
+        });
     }
 
     private void addIceMaker(EmiRegistry registry) {
