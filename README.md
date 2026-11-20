@@ -127,6 +127,9 @@ contents stay on the item when it is dropped, stored or previewed in JEI.
 | Basic Pipette | ` O ` / `GDG` / `GGG` - O = osmium ingot, G = glass pane, D = Mekanism gauge dropper |
 | Advanced / Elite / Ultimate | `ACA` / `IPI` / `ACA` - the same tier ingredients as the machines, P = previous pipette |
 
+The item sprite is Mekanism's own gauge dropper texture: only the 15 pixels of the black rubber bulb are tinted with
+the tier colour (the glass part is unchanged), so a pipette looks like a Mekanism item next to the rest of the mod.
+
 ## Recipes
 
 The base machines use Mekanism's machine recipe ingredients: a steel casing in the centre, `mekanism:alloys/basic`
@@ -349,6 +352,9 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 |---|---|
 | 基本スポイト | ` O ` / `GDG` / `GGG` — O=オスミウムインゴット, G=ガラス板, D=Mekanismのゲージドロッパー |
 | 発展／精鋭／究極スポイト | `ACA` / `IPI` / `ACA` — 機械と同じティア素材、P=前のティアのスポイト |
+
+アイテムのテクスチャは Mekanism のゲージドロッパーそのままで、黒いゴム部分の15ピクセルだけをティア色に置き換えています
+（ガラス部分は無変更）。Mekanism のアイテムと並べても違和感のない見た目です。
 
 ## レシピ
 
