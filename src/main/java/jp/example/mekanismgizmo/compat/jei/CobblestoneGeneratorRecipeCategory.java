@@ -26,15 +26,21 @@ public class CobblestoneGeneratorRecipeCategory implements IRecipeCategory<Cobbl
 
     public static final RecipeType<CobblestoneGeneratorJeiRecipe> TYPE = new RecipeType<>(
           ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "cobblestone_generator"), CobblestoneGeneratorJeiRecipe.class);
-    private static final int WIDTH = 116;
+    private static final Component NO_INPUT_LINE = Component.translatable("jei.mekanismgizmo.info.no_input");
+    private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy", 10);
+    private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
+          CobblestoneGeneratorBlockEntity.BASE_TICKS_REQUIRED);
     private static final int HEIGHT = 64;
 
+    /** Page width: wide enough for the widest info line (and for the slots), so nothing spills out. */
+    private final int width;
     private final IDrawable icon;
     private final IDrawable background;
 
     public CobblestoneGeneratorRecipeCategory(IGuiHelper guiHelper) {
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.COBBLESTONE_GENERATOR.asItem()));
-        background = new RecipePanel(WIDTH, HEIGHT);
+        width = RecipePanel.widthFor(116, NO_INPUT_LINE, ENERGY_LINE, TIME_LINE);
+        background = new RecipePanel(width, HEIGHT);
     }
 
     @Override
@@ -49,7 +55,7 @@ public class CobblestoneGeneratorRecipeCategory implements IRecipeCategory<Cobbl
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return width;
     }
 
     @Override
@@ -79,12 +85,8 @@ public class CobblestoneGeneratorRecipeCategory implements IRecipeCategory<Cobbl
         // Drawn before the slots so it is behind them (anything added through IRecipeExtrasBuilder is rendered on top)
         background.draw(guiGraphics, 0, 0);
         Minecraft minecraft = Minecraft.getInstance();
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.mekanismgizmo.info.no_input"),
-              6, 34, ChatFormatting.DARK_GRAY.getColor(), false);
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.mekanismgizmo.info.energy", 10),
-              6, 43, ChatFormatting.DARK_GRAY.getColor(), false);
-        guiGraphics.drawString(minecraft.font,
-              Component.translatable("jei.mekanismgizmo.info.time", CobblestoneGeneratorBlockEntity.BASE_TICKS_REQUIRED),
-              6, 52, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, NO_INPUT_LINE, 6, 34, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, ENERGY_LINE, 6, 43, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, TIME_LINE, 6, 52, ChatFormatting.DARK_GRAY.getColor(), false);
     }
 }

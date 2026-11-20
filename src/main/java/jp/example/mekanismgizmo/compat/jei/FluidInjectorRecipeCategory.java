@@ -28,16 +28,22 @@ public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjecto
 
     public static final RecipeType<FluidInjectorJeiRecipe> TYPE = new RecipeType<>(
           ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "fluid_injector"), FluidInjectorJeiRecipe.class);
-    private static final int WIDTH = 120;
+    private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy_per_container",
+          FluidInjectorBlockEntity.ENERGY_PER_OPERATION);
+    private static final Component BOTTLE_LINE = Component.translatable("jei.mekanismgizmo.info.bottle",
+          FluidInjectorBlockEntity.BOTTLE_AMOUNT);
     private static final int HEIGHT = 62;
 
+    /** Page width: wide enough for the widest info line (and for the slots), so nothing spills out. */
+    private final int width;
     private final IDrawable icon;
     private final IDrawable background;
     private final IDrawable arrow;
 
     public FluidInjectorRecipeCategory(IGuiHelper guiHelper) {
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.FLUID_INJECTOR.asItem()));
-        background = new RecipePanel(WIDTH, HEIGHT);
+        width = RecipePanel.widthFor(124, ENERGY_LINE, BOTTLE_LINE);
+        background = new RecipePanel(width, HEIGHT);
         arrow = guiHelper.getRecipeArrow();
     }
 
@@ -53,7 +59,7 @@ public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjecto
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return width;
     }
 
     @Override
@@ -106,11 +112,7 @@ public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjecto
         background.draw(guiGraphics, 0, 0);
         arrow.draw(guiGraphics, 52, 17);
         Minecraft minecraft = Minecraft.getInstance();
-        guiGraphics.drawString(minecraft.font,
-              Component.translatable("jei.mekanismgizmo.info.energy_per_container", FluidInjectorBlockEntity.ENERGY_PER_OPERATION),
-              8, 40, ChatFormatting.DARK_GRAY.getColor(), false);
-        guiGraphics.drawString(minecraft.font,
-              Component.translatable("jei.mekanismgizmo.info.bottle", FluidInjectorBlockEntity.BOTTLE_AMOUNT),
-              8, 50, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, ENERGY_LINE, 8, 40, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, BOTTLE_LINE, 8, 50, ChatFormatting.DARK_GRAY.getColor(), false);
     }
 }

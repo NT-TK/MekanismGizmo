@@ -119,6 +119,17 @@ Additional recipes:
 - Oxidizing (`mekanism:oxidizing`) and Chemical Conversion (`mekanism:chemical_conversion`): 1 blaze powder ->
   100 mB of `mekanismgizmo:blaze_powder` gas
 
+## JEI
+
+JEI support is optional and client side only. When JEI is installed the mod adds
+
+- a **Potion Brewer** page with one entry per bottle + ingredient, built from the game's own brewing data (all vanilla,
+  NeoForge and data pack recipes) together with the recipe transfer ("+") button
+- an **Ice Maker** page, an **Electric Cobblestone Generator** page and a **Fluid Injector** page
+- every tier as a recipe catalyst, and clickable progress arrows in the machine screens
+
+Page widths are measured from the localised text, so nothing spills out in any language.
+
 ## Requirements
 
 | | |
@@ -298,6 +309,17 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 - ティアは前面LEDの色で表現（ティアなし=灰、基本=ミント、発展=サーモン、精鋭=シアン、究極=マゼンタ）
 - Modアイコンは `src/main/resources/logo.png`（128×128、ポーション醸造機のアイソメトリック、
   `tools/gen_logo.py` で生成）。クリエイティブタブのアイコンも同じブロックです
+
+## JEI連携
+
+JEIは任意（クライアント側のみ）です。導入すると以下が追加されます。
+
+- **ポーション醸造機**の専用ページ（ゲーム本体の醸造データから生成するので、バニラ・NeoForge・データパックの
+  醸造レシピがすべて表示されます）と「+」のレシピ転送
+- **製氷機**・**電動丸石製造機**・**流体注入機**のページ
+- 全ティアのレシピカタリストと、機械画面の進行矢印クリックからのレシピ表示
+
+ページ幅は各言語の文字幅から自動で決まるため、日本語でも文字がはみ出しません。
 
 ## 動作環境
 

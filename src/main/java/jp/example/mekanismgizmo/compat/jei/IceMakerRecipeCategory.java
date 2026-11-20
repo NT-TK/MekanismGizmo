@@ -27,16 +27,21 @@ public class IceMakerRecipeCategory implements IRecipeCategory<IceMakerJeiRecipe
 
     public static final RecipeType<IceMakerJeiRecipe> TYPE = new RecipeType<>(
           ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "ice_maker"), IceMakerJeiRecipe.class);
-    private static final int WIDTH = 116;
+    private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy", 20);
+    private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
+          IceMakerBlockEntity.BASE_TICKS_REQUIRED);
     private static final int HEIGHT = 58;
 
+    /** Page width: wide enough for the widest info line (and for the slots), so nothing spills out. */
+    private final int width;
     private final IDrawable icon;
     private final IDrawable background;
     private final IDrawable arrow;
 
     public IceMakerRecipeCategory(IGuiHelper guiHelper) {
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.ICE_MAKER.asItem()));
-        background = new RecipePanel(WIDTH, HEIGHT);
+        width = RecipePanel.widthFor(116, ENERGY_LINE, TIME_LINE);
+        background = new RecipePanel(width, HEIGHT);
         arrow = guiHelper.getRecipeArrow();
     }
 
@@ -52,7 +57,7 @@ public class IceMakerRecipeCategory implements IRecipeCategory<IceMakerJeiRecipe
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return width;
     }
 
     @Override
@@ -87,9 +92,7 @@ public class IceMakerRecipeCategory implements IRecipeCategory<IceMakerJeiRecipe
         background.draw(guiGraphics, 0, 0);
         arrow.draw(guiGraphics, 34, 17);
         Minecraft minecraft = Minecraft.getInstance();
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.mekanismgizmo.info.energy", 20),
-              10, 38, ChatFormatting.DARK_GRAY.getColor(), false);
-        guiGraphics.drawString(minecraft.font, Component.translatable("jei.mekanismgizmo.info.time", IceMakerBlockEntity.BASE_TICKS_REQUIRED),
-              10, 47, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, ENERGY_LINE, 10, 38, ChatFormatting.DARK_GRAY.getColor(), false);
+        guiGraphics.drawString(minecraft.font, TIME_LINE, 10, 47, ChatFormatting.DARK_GRAY.getColor(), false);
     }
 }

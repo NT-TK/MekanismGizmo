@@ -10,10 +10,8 @@ import jp.example.mekanismgizmo.menu.PotionBrewerMenu;
 import jp.example.mekanismgizmo.registry.ModMenus;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.common.inventory.container.slot.InventoryContainerSlot;
-import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
-import mezz.jei.api.recipe.vanilla.IJeiBrewingRecipe;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 
@@ -21,7 +19,7 @@ import net.minecraft.world.inventory.Slot;
  * Maps JEI's brewing recipe layout (3 potion slots, 1 ingredient slot, 1 output slot) onto the potion brewer's
  * slots, so the "+" button of the brewing category can fill the machine just like it fills a brewing stand.
  */
-public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<PotionBrewerMenu, IJeiBrewingRecipe> {
+public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<PotionBrewerMenu, PotionBrewerJeiRecipe> {
 
     @Override
     public Class<? extends PotionBrewerMenu> getContainerClass() {
@@ -35,17 +33,17 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
     }
 
     @Override
-    public RecipeType<IJeiBrewingRecipe> getRecipeType() {
-        return RecipeTypes.BREWING;
+    public RecipeType<PotionBrewerJeiRecipe> getRecipeType() {
+        return PotionBrewerRecipeCategory.TYPE;
     }
 
     @Override
-    public boolean canHandle(PotionBrewerMenu container, IJeiBrewingRecipe recipe) {
+    public boolean canHandle(PotionBrewerMenu container, PotionBrewerJeiRecipe recipe) {
         return true;
     }
 
     @Override
-    public List<Slot> getRecipeSlots(PotionBrewerMenu container, IJeiBrewingRecipe recipe) {
+    public List<Slot> getRecipeSlots(PotionBrewerMenu container, PotionBrewerJeiRecipe recipe) {
         PotionBrewerBlockEntity tile = container.getTileEntity();
         Map<IInventorySlot, Slot> slots = new HashMap<>();
         for (Slot slot : container.slots) {
@@ -75,7 +73,7 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
     }
 
     @Override
-    public List<Slot> getInventorySlots(PotionBrewerMenu container, IJeiBrewingRecipe recipe) {
+    public List<Slot> getInventorySlots(PotionBrewerMenu container, PotionBrewerJeiRecipe recipe) {
         List<Slot> inventorySlots = new ArrayList<>();
         for (Slot slot : container.slots) {
             if (!(slot instanceof InventoryContainerSlot) && slot.container instanceof net.minecraft.world.entity.player.Inventory) {

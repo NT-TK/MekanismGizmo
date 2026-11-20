@@ -12,13 +12,13 @@ import jp.example.mekanismgizmo.registry.ModBlocks;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -46,12 +46,15 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
-        registration.addRecipeCategories(new IceMakerRecipeCategory(guiHelper), new CobblestoneGeneratorRecipeCategory(guiHelper),
-              new FluidInjectorRecipeCategory(guiHelper));
+        registration.addRecipeCategories(new PotionBrewerRecipeCategory(guiHelper), new IceMakerRecipeCategory(guiHelper),
+              new CobblestoneGeneratorRecipeCategory(guiHelper), new FluidInjectorRecipeCategory(guiHelper));
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        // The brewer gets its own page: every recipe the game's brewing system accepts, one page per bottle+ingredient
+        registration.addRecipes(PotionBrewerRecipeCategory.TYPE,
+              PotionBrewerRecipes.all(Minecraft.getInstance().level));
         registration.addRecipes(IceMakerRecipeCategory.TYPE, List.of(
               new IceMakerJeiRecipe(IceMakerBlockEntity.WATER_PER_ICE, new ItemStack(Items.ICE))));
         registration.addRecipes(CobblestoneGeneratorRecipeCategory.TYPE, List.of(
@@ -65,13 +68,12 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        // List the potion brewer as an additional station of the vanilla brewing category (next to the brewing stand),
-        // so all vanilla/NeoForge brewing recipes show it on the left hand side.
-        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER.asItem(), RecipeTypes.BREWING);
-        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_BASIC.asItem(), RecipeTypes.BREWING);
-        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ADVANCED.asItem(), RecipeTypes.BREWING);
-        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ELITE.asItem(), RecipeTypes.BREWING);
-        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ULTIMATE.asItem(), RecipeTypes.BREWING);
+        // The potion brewer shows up on its own brewing page (one entry per bottle + ingredient)
+        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER.asItem(), PotionBrewerRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_BASIC.asItem(), PotionBrewerRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ADVANCED.asItem(), PotionBrewerRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ELITE.asItem(), PotionBrewerRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_ULTIMATE.asItem(), PotionBrewerRecipeCategory.TYPE);
         // And the two custom machines for their own processing pages
         registration.addRecipeCatalyst(ModBlocks.ICE_MAKER.asItem(), IceMakerRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.ICE_MAKER_BASIC.asItem(), IceMakerRecipeCategory.TYPE);
@@ -116,7 +118,7 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         // Same behaviour as Mekanism machines: clicking the progress arrow shows the recipes the machine can run
-        registration.addRecipeClickArea(PotionBrewerScreen.class, 102, 37, 32, 8, RecipeTypes.BREWING);
+        registration.addRecipeClickArea(PotionBrewerScreen.class, 102, 37, 32, 8, PotionBrewerRecipeCategory.TYPE);
         registration.addRecipeClickArea(IceMakerScreen.class, 54, 40, 32, 8, IceMakerRecipeCategory.TYPE);
         registration.addRecipeClickArea(CobblestoneGeneratorScreen.class, 54, 40, 32, 8, CobblestoneGeneratorRecipeCategory.TYPE);
     }
