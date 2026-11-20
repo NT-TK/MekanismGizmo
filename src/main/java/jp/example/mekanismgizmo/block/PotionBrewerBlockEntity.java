@@ -1,0 +1,502 @@
+package jp.example.mekanismgizmo.block;
+
+import java.util.ArrayList;
+import java.util.List;
+import jp.example.mekanismgizmo.registry.ModSideConfigs;
+import jp.example.mekanismgizmo.util.MachineTier;
+import jp.example.mekanismgizmo.util.MachineSideDefaults;
+import jp.example.mekanismgizmo.registry.ModChemicals;
+import mekanism.api.Action;
+import mekanism.api.IContentsListener;
+import mekanism.api.AutomationType;
+import mekanism.api.Upgrade;
+import mekanism.api.chemical.BasicChemicalTank;
+import mekanism.api.chemical.ChemicalStack;
+import mekanism.api.inventory.IInventorySlot;
+import mekanism.api.chemical.IChemicalTank;
+import mekanism.common.capabilities.energy.MachineEnergyContainer;
+import mekanism.common.capabilities.holder.chemical.ChemicalTankHelper;
+import mekanism.common.capabilities.holder.chemical.IChemicalTankHolder;
+import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
+import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
+import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
+import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
+import mekanism.common.inventory.container.MekanismContainer;
+import mekanism.common.inventory.container.sync.SyncableInt;
+import mekanism.common.inventory.slot.EnergyInventorySlot;
+import mekanism.common.inventory.slot.InputInventorySlot;
+import mekanism.common.inventory.slot.OutputInventorySlot;
+import mekanism.common.lib.transmitter.TransmissionType;
+import mekanism.common.tile.component.TileComponentEjector;
+import mekanism.common.tile.component.config.ConfigInfo;
+import mekanism.common.tile.component.config.DataType;
+import mekanism.common.tile.component.config.slot.InventorySlotInfo;
+import mekanism.common.attachments.containers.ContainerType;
+import mekanism.common.util.MekanismUtils;
+import mekanism.common.util.UpgradeUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.event.EventHooks;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Potion brewer built on Mekanism's {@link TileEntityMekanism}. Everything the machine exposes - item,
+ * chemical and energy capabilities, side configuration, redstone control, upgrades, ejector and the
+ * data synced to the screen - is handled by Mekanism itself; this class only implements the brewing.
+ */
+public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
+    public IChemicalTank blazePowderTank;
+    private MachineEnergyContainer<PotionBrewerBlockEntity> energyContainer;
+    private InputInventorySlot[] bottleSlots;
+    private OutputInventorySlot[] outputSlots;
+    private InputInventorySlot blazePowderSlot;
+    private InputInventorySlot ingredientSlot;
+    private EnergyInventorySlot energySlot;
+
+    private int brewTicks;
+    private int ticksRequired = BASE_TICKS_REQUIRED;
+    @Nullable
+    private Item brewingIngredient;
+
+    public static final int CHEMICAL_CAPACITY = 1_000;
+    public static final int CHEMICAL_PER_BREW = 5;
+    public static final int BASE_TICKS_REQUIRED = 400;
+    /** mB of blaze powder gas per blaze powder and per brew. */
+    private static final int POWDER_CHEMICAL = 100;
+    /** Bottles one brew processes at once (a brewing stand has three bottle slots). */
+    public static final int BOTTLES_PER_BREW = 3;
+    /** Screen layout: a grid of three bottle pairs per parallel unit. */
+    public static final int BOTTLE_COLUMNS = BOTTLES_PER_BREW;
+    public static final int INPUT_X = 46;
+    public static final int OUTPUT_X = 138;
+    public static final int FIRST_ROW_Y = 33;
+    /** One arrow per brewing row, between the bottle slots and the potion slots. */
+    public static final int ARROW_X = 102;
+    public static final int ARROW_WIDTH = 32;
+    public static final int ARROW_HEIGHT = 8;
+    public static final int POWDER_X = 26;
+    public static final int POWDER_Y = 13;
+    public static final int INGREDIENT_X = 26;
+    public static final int INGREDIENT_Y = 35;
+    /** Energy slot, top right next to the power bar. */
+    public static final int ENERGY_X = OUTPUT_X + 2 * 18;
+    public static final int ENERGY_Y = 13;
+    public static final int GUI_WIDTH = 208;
+    /** x offset of the player inventory (the screen is wider than vanilla's 176). */
+    public static final int INVENTORY_X = 23;
+
+    /**
+     * Number of bottle slots of a tier. One brew handles three bottles at once, so every parallel unit of the tier
+     * adds three more bottles: 3 (untiered), 6 (basic), 9 (advanced), 12 (elite), 15 (ultimate).
+     */
+    public static int bottleCount(MachineTier tier) {
+        return tier.getParallel() * BOTTLES_PER_BREW;
+    }
+
+    /** Number of bottle slots of this machine. */
+    public int bottleCount() {
+        return bottleCount(getTier());
+    }
+
+    /** x position of the {@code index}-th bottle input slot (three per row). */
+    public static int bottleSlotX(int index) {
+        return INPUT_X + (index % BOTTLE_COLUMNS) * 18;
+    }
+
+    /** x position of the {@code index}-th potion output slot (three per row). */
+    public static int outputSlotX(int index) {
+        return OUTPUT_X + (index % BOTTLE_COLUMNS) * 18;
+    }
+
+    /** y position of the {@code index}-th bottle slot; one row per parallel unit. */
+    public static int pairY(int index) {
+        return FIRST_ROW_Y + (index / BOTTLE_COLUMNS) * 18;
+    }
+
+    /** x position of the energy slot (top row, between the blaze powder slot and the first bottle). */
+    public static int energySlotX(int bottles) {
+        return ENERGY_X;
+    }
+
+    /** Blaze powder gas capacity of a tier: every parallel unit adds another 1,000 mB (ten powders). */
+    public static int chemicalCapacity(int parallel) {
+        return CHEMICAL_CAPACITY * parallel;
+    }
+
+    /** Number of brewing rows (one per parallel unit). */
+    public static int rows(int bottles) {
+        return Math.max(1, (bottles + BOTTLE_COLUMNS - 1) / BOTTLE_COLUMNS);
+    }
+
+    /** y offset of the player inventory inside the machine screen. */
+    public static int inventoryYOffset(int bottles) {
+        int lastRow = pairY(bottles - 1);
+        return Math.max(84, lastRow + 16 + 12);
+    }
+
+    /** Total height of the machine screen for the given number of bottle slots. */
+    public static int guiHeight(int bottles) {
+        return inventoryYOffset(bottles) + (166 - 84);
+    }
+
+    /** Total width of the machine screen (fixed: the brewing grid is three bottles wide). */
+    public static int guiWidth(int bottles) {
+        return GUI_WIDTH;
+    }
+
+    /** x offset of the player inventory inside the machine screen. */
+    public static int inventoryXOffset(int bottles) {
+        return INVENTORY_X;
+    }
+
+    public PotionBrewerBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+        super(block, pos, state);
+        // Item slot groups, following Mekanism's own colours: bottles are a normal "Input" (red),
+        // the blaze powder slot is "Input (2)" (orange) and the brewing ingredient slot is "Extra" (yellow).
+        ConfigInfo itemConfig = configComponent.getConfig(TransmissionType.ITEM);
+        List<IInventorySlot> itemInputs = new ArrayList<>(List.of(bottleSlots));
+        itemInputs.add(blazePowderSlot);
+        itemInputs.add(ingredientSlot);
+        List<IInventorySlot> itemOutputs = List.of(outputSlots);
+        List<IInventorySlot> allItemSlots = new ArrayList<>(itemInputs);
+        allItemSlots.addAll(itemOutputs);
+        itemConfig.addSlotInfo(DataType.INPUT_2, new InventorySlotInfo(true, false, List.of(blazePowderSlot)));
+        itemConfig.addSlotInfo(DataType.EXTRA, new InventorySlotInfo(true, false, List.of(ingredientSlot)));
+        itemConfig.addSlotInfo(DataType.INPUT, new InventorySlotInfo(true, false, itemInputs));
+        itemConfig.addSlotInfo(DataType.OUTPUT, new InventorySlotInfo(false, true, itemOutputs));
+        itemConfig.addSlotInfo(DataType.INPUT_OUTPUT, new InventorySlotInfo(true, true, allItemSlots));
+        itemConfig.addSlotInfo(DataType.ENERGY, new InventorySlotInfo(true, true, List.of(energySlot)));
+        configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
+        configComponent.setupInputConfig(TransmissionType.CHEMICAL, blazePowderTank);
+        ejectorComponent = new TileComponentEjector(this);
+        ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.POTION_BREWER);
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        // Items dropped by an older version (or copied from an unconfigured machine) can carry an all-"None" side
+        // configuration; repair it so the machine still accepts power and piped items.
+        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.POTION_BREWER);
+    }
+
+    @Override
+    protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
+        int bottles = bottleCount();
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        bottleSlots = new InputInventorySlot[bottles];
+        outputSlots = new OutputInventorySlot[bottles];
+        for (int i = 0; i < bottles; i++) {
+            builder.addSlot(bottleSlots[i] = InputInventorySlot.at(this::isBottleInput, listener, bottleSlotX(i), pairY(i)));
+            builder.addSlot(outputSlots[i] = OutputInventorySlot.at(listener, outputSlotX(i), pairY(i)));
+        }
+        builder.addSlot(blazePowderSlot = InputInventorySlot.at(stack -> stack.is(Items.BLAZE_POWDER), listener, POWDER_X, POWDER_Y));
+        builder.addSlot(ingredientSlot = InputInventorySlot.at(this::isBrewingIngredient, listener, INGREDIENT_X, INGREDIENT_Y));
+        builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, energySlotX(bottles), ENERGY_Y));
+        return builder.build();
+    }
+
+    @Override
+    public IChemicalTankHolder getInitialChemicalTanks(IContentsListener listener) {
+        ChemicalTankHelper builder = ChemicalTankHelper.forSideWithConfig(this);
+        blazePowderTank = BasicChemicalTank.inputModern(chemicalCapacity(parallel()),
+              stack -> stack.is(ModChemicals.BLAZE_POWDER), listener);
+        builder.addTank(blazePowderTank);
+        return builder.build();
+    }
+
+    @Override
+    protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
+        builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
+        return builder.build();
+    }
+
+    private boolean isBottleInput(ItemStack stack) {
+        if (stack.is(Items.GLASS_BOTTLE)) {
+            return true;
+        }
+        return level != null && level.potionBrewing().isInput(stack);
+    }
+
+    private boolean isBrewingIngredient(ItemStack stack) {
+        return level != null && level.potionBrewing().isIngredient(stack);
+    }
+
+    public MachineEnergyContainer<PotionBrewerBlockEntity> getEnergyContainer() {
+        return energyContainer;
+    }
+
+    /** All bottle input slots of this tier (the first three are used by the JEI recipe transfer). */
+    public InputInventorySlot[] getBottleSlots() {
+        return bottleSlots;
+    }
+
+    /** The brewing ingredient slot (used by the JEI recipe transfer). */
+    public InputInventorySlot getIngredientSlot() {
+        return ingredientSlot;
+    }
+
+    /** All potion output slots of this tier (the first three are used by the JEI recipe transfer). */
+    public OutputInventorySlot[] getOutputSlots() {
+        return outputSlots;
+    }
+
+    public double getScaledProgress() {
+        if (brewTicks <= 0 || ticksRequired <= 0) {
+            return 0;
+        }
+        return 1D - (double) brewTicks / ticksRequired;
+    }
+
+    public int getBrewTicks() {
+        return brewTicks;
+    }
+
+    public void setBrewTicks(int brewTicks) {
+        this.brewTicks = brewTicks;
+    }
+
+    public int getTicksRequired() {
+        return ticksRequired;
+    }
+
+    public void setTicksRequired(int ticksRequired) {
+        this.ticksRequired = ticksRequired;
+    }
+
+    @Override
+    protected boolean onUpdateServer() {
+        boolean sendUpdatePacket = super.onUpdateServer();
+        energySlot.fillContainerOrConvert();
+
+        ItemStack powder = blazePowderSlot.getStack();
+        if (!powder.isEmpty() && powder.is(Items.BLAZE_POWDER) && blazePowderTank.getNeeded() >= POWDER_CHEMICAL) {
+            ChemicalStack remainder = blazePowderTank.insert(
+                  ModChemicals.BLAZE_POWDER.asStack(POWDER_CHEMICAL), Action.EXECUTE, AutomationType.INTERNAL);
+            if (remainder.isEmpty()) {
+                blazePowderSlot.shrinkStack(1, Action.EXECUTE);
+            }
+        }
+
+        if (canFunction()) {
+            if (brewTicks > 0) {
+                if (!isBrewable() || brewingIngredientChanged()) {
+                    brewTicks = 0;
+                    brewingIngredient = null;
+                } else {
+                    long energyPerTick = energyContainer.getEnergyPerTick();
+                    if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
+                        energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
+                        if (--brewTicks <= 0) {
+                            finishBrew();
+                        }
+                    }
+                }
+            } else if (isBrewable() && blazePowderTank.getStored() >= CHEMICAL_PER_BREW) {
+                brewTicks = ticksRequired;
+                brewingIngredient = ingredientSlot.getStack().getItem();
+            }
+        }
+        setActive(brewTicks > 0);
+        return sendUpdatePacket;
+    }
+
+    private boolean brewingIngredientChanged() {
+        return brewingIngredient == null || !ingredientSlot.getStack().is(brewingIngredient);
+    }
+
+    /** True when a valid brew exists but the matching output slot is occupied (Mekanism warning hook). */
+    public boolean isOutputBlocked() {
+        if (level == null) {
+            return false;
+        }
+        PotionBrewing potionBrewing = level.potionBrewing();
+        ItemStack ingredient = ingredientSlot.getStack();
+        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
+            return false;
+        }
+        for (int i = 0; i < bottleSlots.length; i++) {
+            ItemStack bottle = bottleSlots[i].getStack();
+            if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && !outputSlots[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Number of three-bottle batches a cycle runs: one per parallel unit of the tier. */
+    public int batchCount() {
+        return Math.max(1, bottleSlots.length / BOTTLES_PER_BREW);
+    }
+
+    /**
+     * How many brews the next cycle actually performs, rounded up to whole batches of three bottles. Only these are
+     * charged for blaze powder gas, so a nearly empty machine does not need the full gas of every parallel unit.
+     */
+    public int brewsThisCycle() {
+        if (level == null) {
+            return 1;
+        }
+        PotionBrewing potionBrewing = level.potionBrewing();
+        ItemStack ingredient = ingredientSlot.getStack();
+        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
+            return 1;
+        }
+        int bottles = 0;
+        for (int i = 0; i < bottleSlots.length; i++) {
+            ItemStack bottle = bottleSlots[i].getStack();
+            if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && outputSlots[i].isEmpty()) {
+                bottles++;
+            }
+        }
+        return Math.max(1, (bottles + BOTTLES_PER_BREW - 1) / BOTTLES_PER_BREW);
+    }
+
+    private boolean isBrewable() {
+        if (level == null || blazePowderTank.getStored() < CHEMICAL_PER_BREW * brewsThisCycle()) {
+            return false;
+        }
+        PotionBrewing potionBrewing = level.potionBrewing();
+        ItemStack ingredient = ingredientSlot.getStack();
+        if (ingredient.isEmpty() || !potionBrewing.isIngredient(ingredient)) {
+            return false;
+        }
+        for (int i = 0; i < bottleSlots.length; i++) {
+            ItemStack bottle = bottleSlots[i].getStack();
+            if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient) && outputSlots[i].isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void finishBrew() {
+        brewTicks = 0;
+        brewingIngredient = null;
+        if (level == null) {
+            return;
+        }
+        int brews = brewsThisCycle();
+        if (blazePowderTank.getStored() < CHEMICAL_PER_BREW * brews) {
+            return;
+        }
+        // The gas is only consumed once the potion is finished; one brew is charged per three bottles
+        blazePowderTank.extract(CHEMICAL_PER_BREW * brews, Action.EXECUTE, AutomationType.INTERNAL);
+        doBrew();
+    }
+
+    /**
+     * Brews every batch of three bottles, exactly like a brewing stand would (three bottles and one ingredient per
+     * batch). The NeoForge brewing events are fired once per batch with the four vanilla slots.
+     */
+    private void doBrew() {
+        if (level == null) {
+            return;
+        }
+        PotionBrewing potionBrewing = level.potionBrewing();
+        for (int start = 0; start < bottleSlots.length; start += BOTTLES_PER_BREW) {
+            int end = Math.min(start + BOTTLES_PER_BREW, bottleSlots.length);
+            NonNullList<ItemStack> brewingItems = NonNullList.withSize(4, ItemStack.EMPTY);
+            for (int i = start; i < end; i++) {
+                brewingItems.set(i - start, bottleSlots[i].getStack().copy());
+            }
+            brewingItems.set(3, ingredientSlot.getStack().copy());
+            if (EventHooks.onPotionAttemptBrew(brewingItems)) {
+                continue;
+            }
+            ItemStack ingredient = brewingItems.get(3);
+            boolean[] brewed = new boolean[end - start];
+            for (int i = start; i < end; i++) {
+                ItemStack bottle = brewingItems.get(i - start);
+                if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient)) {
+                    brewingItems.set(i - start, potionBrewing.mix(ingredient, bottle));
+                    brewed[i - start] = true;
+                }
+            }
+            EventHooks.onPotionBrewed(brewingItems);
+            for (int i = start; i < end; i++) {
+                ItemStack result = brewingItems.get(i - start);
+                if (brewed[i - start] && !result.isEmpty()) {
+                    outputSlots[i].setStack(result);
+                    bottleSlots[i].setEmpty();
+                } else if (!brewed[i - start]) {
+                    // Bottles that had no recipe for this ingredient stay in the input slot, like vanilla.
+                    bottleSlots[i].setStack(result);
+                }
+            }
+            ingredient = brewingItems.get(3);
+            if (ingredient.hasCraftingRemainingItem()) {
+                ItemStack remainder = ingredient.getCraftingRemainingItem();
+                ingredient.shrink(1);
+                if (ingredient.isEmpty()) {
+                    ingredient = remainder;
+                } else {
+                    Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), remainder);
+                }
+            } else {
+                ingredient.shrink(1);
+            }
+            ingredientSlot.setStack(ingredient);
+            level.levelEvent(1035, worldPosition, 0);
+        }
+    }
+
+    @Override
+    public int getRedstoneLevel() {
+        return MekanismUtils.redstoneLevelFromContents(blazePowderTank.getStored(), blazePowderTank.getCapacity());
+    }
+
+    @Override
+    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
+        return type == ContainerType.CHEMICAL || type == ContainerType.ITEM;
+    }
+
+    @Override
+    public java.util.List<net.minecraft.network.chat.Component> getInfo(Upgrade upgrade) {
+        return UpgradeUtils.getMultScaledInfo(this, upgrade);
+    }
+
+    @Override
+    public void recalculateUpgrades(Upgrade upgrade) {
+        super.recalculateUpgrades(upgrade);
+        if (upgrade == Upgrade.SPEED) {
+            ticksRequired = MekanismUtils.getTicks(this, BASE_TICKS_REQUIRED);
+        }
+    }
+
+    @Override
+    public void addContainerTrackers(MekanismContainer container) {
+        super.addContainerTrackers(container);
+        container.track(SyncableInt.create(this::getBrewTicks, this::setBrewTicks));
+        container.track(SyncableInt.create(this::getTicksRequired, this::setTicksRequired));
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt("BrewTicks", brewTicks);
+        tag.putInt("TicksRequired", ticksRequired);
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.POTION_BREWER);
+        brewTicks = tag.getInt("BrewTicks");
+        ticksRequired = tag.contains("TicksRequired") ? tag.getInt("TicksRequired") : BASE_TICKS_REQUIRED;
+        brewingIngredient = brewTicks > 0 && ingredientSlot != null && !ingredientSlot.isEmpty() ? ingredientSlot.getStack().getItem() : null;
+    }
+}

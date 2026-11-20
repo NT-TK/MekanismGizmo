@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/item_collector_front",
+    "down": "mekanismgizmo:block/item_collector_bottom",
+    "up": "mekanismgizmo:block/item_collector_top",
+    "north": "mekanismgizmo:block/item_collector_front",
+    "south": "mekanismgizmo:block/item_collector_back",
+    "east": "mekanismgizmo:block/item_collector_side",
+    "west": "mekanismgizmo:block/item_collector_side"
+  }
+}

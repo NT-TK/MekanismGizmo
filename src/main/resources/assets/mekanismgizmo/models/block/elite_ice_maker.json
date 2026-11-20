@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/elite_ice_maker_front",
+    "down": "mekanismgizmo:block/elite_ice_maker_bottom",
+    "up": "mekanismgizmo:block/elite_ice_maker_top",
+    "north": "mekanismgizmo:block/elite_ice_maker_front",
+    "south": "mekanismgizmo:block/elite_ice_maker_back",
+    "east": "mekanismgizmo:block/elite_ice_maker_side",
+    "west": "mekanismgizmo:block/elite_ice_maker_side"
+  }
+}

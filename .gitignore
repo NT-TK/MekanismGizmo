@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Development runs / logs
+run/
+runs/
+*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+bin/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development dependencies (Mekanism jars, see libs/README.md)
+libs/*.jar

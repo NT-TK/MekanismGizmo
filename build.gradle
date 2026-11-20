@@ -1,0 +1,76 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+
+group = mod_group
+version = mod_version
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+neoForge {
+    version = neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    // JEI (RecipeTypes / IModPlugin) - only needed for compilation, JEI itself stays optional at runtime
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com/'
+    }
+}
+
+dependencies {
+    implementation files('libs/Mekanism-1.21.1-10.7.19.85.jar')
+    // Optional integration: JEI is not bundled and is not required at runtime.
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.21.0.247"
+    // Uncomment to test the JEI integration in the dev client
+    // runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.21.0.247"
+    runtimeOnly files('libs/MekanismAdditions-1.21.1-10.7.19.85.jar',
+                      'libs/MekanismTools-1.21.1-10.7.19.85.jar',
+                      'libs/MekanismGenerators-1.21.1-10.7.19.85.jar')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    def properties = [mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,
+                      minecraft_version: minecraft_version, neo_version: neo_version]
+    inputs.properties properties
+    filteringCharset = 'UTF-8'
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand properties
+    }
+}
+
+// Ship the license with the jar
+tasks.named('jar', Jar).configure {
+    from('LICENSE') {
+        into ''
+    }
+}

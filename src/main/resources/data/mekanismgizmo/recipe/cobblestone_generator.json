@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"misc","key":{"A":{"tag":"mekanism:alloys/basic"},"C":{"tag":"c:circuits/basic"},"L":{"item":"minecraft:lava_bucket"},"W":{"item":"minecraft:water_bucket"},"X":{"item":"mekanism:steel_casing"}},"pattern":["ALA","CXC","AWA"],"result":{"count":1,"id":"mekanismgizmo:cobblestone_generator"}}

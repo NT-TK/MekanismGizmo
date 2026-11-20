@@ -1,0 +1,25 @@
+{
+  "values": [
+    "mekanismgizmo:potion_brewer",
+    "mekanismgizmo:basic_potion_brewer",
+    "mekanismgizmo:advanced_potion_brewer",
+    "mekanismgizmo:elite_potion_brewer",
+    "mekanismgizmo:ultimate_potion_brewer",
+    "mekanismgizmo:ice_maker",
+    "mekanismgizmo:basic_ice_maker",
+    "mekanismgizmo:advanced_ice_maker",
+    "mekanismgizmo:elite_ice_maker",
+    "mekanismgizmo:ultimate_ice_maker",
+    "mekanismgizmo:cobblestone_generator",
+    "mekanismgizmo:basic_cobblestone_generator",
+    "mekanismgizmo:advanced_cobblestone_generator",
+    "mekanismgizmo:elite_cobblestone_generator",
+    "mekanismgizmo:ultimate_cobblestone_generator",
+    "mekanismgizmo:fluid_injector",
+    "mekanismgizmo:basic_fluid_injector",
+    "mekanismgizmo:advanced_fluid_injector",
+    "mekanismgizmo:elite_fluid_injector",
+    "mekanismgizmo:ultimate_fluid_injector",
+    "mekanismgizmo:item_collector"
+  ]
+}

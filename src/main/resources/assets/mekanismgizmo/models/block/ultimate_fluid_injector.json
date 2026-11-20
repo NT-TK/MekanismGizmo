@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/ultimate_fluid_injector_front",
+    "down": "mekanismgizmo:block/ultimate_fluid_injector_bottom",
+    "up": "mekanismgizmo:block/ultimate_fluid_injector_top",
+    "north": "mekanismgizmo:block/ultimate_fluid_injector_front",
+    "south": "mekanismgizmo:block/ultimate_fluid_injector_back",
+    "east": "mekanismgizmo:block/ultimate_fluid_injector_side",
+    "west": "mekanismgizmo:block/ultimate_fluid_injector_side"
+  }
+}

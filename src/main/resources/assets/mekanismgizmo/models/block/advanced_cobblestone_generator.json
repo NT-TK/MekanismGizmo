@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/advanced_cobblestone_generator_front",
+    "down": "mekanismgizmo:block/advanced_cobblestone_generator_bottom",
+    "up": "mekanismgizmo:block/advanced_cobblestone_generator_top",
+    "north": "mekanismgizmo:block/advanced_cobblestone_generator_front",
+    "south": "mekanismgizmo:block/advanced_cobblestone_generator_back",
+    "east": "mekanismgizmo:block/advanced_cobblestone_generator_side",
+    "west": "mekanismgizmo:block/advanced_cobblestone_generator_side"
+  }
+}

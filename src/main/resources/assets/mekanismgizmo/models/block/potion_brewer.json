@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/potion_brewer_front",
+    "down": "mekanismgizmo:block/potion_brewer_bottom",
+    "up": "mekanismgizmo:block/potion_brewer_top",
+    "north": "mekanismgizmo:block/potion_brewer_front",
+    "south": "mekanismgizmo:block/potion_brewer_back",
+    "east": "mekanismgizmo:block/potion_brewer_side",
+    "west": "mekanismgizmo:block/potion_brewer_side"
+  }
+}
