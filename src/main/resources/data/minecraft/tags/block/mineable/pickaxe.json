@@ -26,6 +26,7 @@
     "mekanismgizmo:elite_fluid_injector",
     "mekanismgizmo:ultimate_fluid_injector",
     "mekanismgizmo:item_collector",
-    "mekanismgizmo:wind_fusion"
+    "mekanismgizmo:wind_fusion",
+    "mekanismgizmo:machine_resetter"
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/machine_resetter_front",
+    "down": "mekanismgizmo:block/machine_resetter_bottom",
+    "up": "mekanismgizmo:block/machine_resetter_top",
+    "north": "mekanismgizmo:block/machine_resetter_front",
+    "south": "mekanismgizmo:block/machine_resetter_back",
+    "east": "mekanismgizmo:block/machine_resetter_side",
+    "west": "mekanismgizmo:block/machine_resetter_side"
+  }
+}

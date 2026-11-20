@@ -88,6 +88,17 @@ public final class ModSideConfigs {
                 RelativeSide.BACK, DataType.ENERGY)),
           TransmissionType.ENERGY, all(DataType.INPUT)));
 
+    /** Machine items go in on the left/top/bottom, the clean machine items come out on the front/right. */
+    public static final AttachedSideConfig MACHINE_RESETTER = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.OUTPUT,
+                RelativeSide.LEFT, DataType.INPUT,
+                RelativeSide.RIGHT, DataType.OUTPUT,
+                RelativeSide.TOP, DataType.INPUT,
+                RelativeSide.BOTTOM, DataType.INPUT,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.ENERGY, all(DataType.INPUT)));
+
     /**
      * Wind generators go in through the front and the machine sides, and the produced energy leaves through every face
      * of the block; the back is kept free of item transport like the other machines.

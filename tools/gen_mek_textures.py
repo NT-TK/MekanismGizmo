@@ -47,6 +47,7 @@ ACCENT = {
     'collector': ((191, 170, 118), (132, 116, 66), (228, 214, 174)),
     'injector': ((90, 190, 235), (46, 134, 184), (214, 242, 255)),
     'wind': ((198, 220, 233), (118, 146, 164), (241, 251, 255)),
+    'resetter': ((230, 205, 96), (176, 148, 48), (252, 238, 168)),
 }
 
 # Our own micro palette for the panel and the icons (kept in Mekanism's grey range)
@@ -183,6 +184,22 @@ def icon_wind(img):
         put(img, x, y, C['steel'] if (x + y) % 2 else C['beam'])
 
 
+def icon_sponge(img):
+    """A sponge: the machine wipes everything a machine item carries."""
+    bright, dark, hi = ACCENT['resetter']
+    for y in range(4, 12):
+        for x in range(4, 12):
+            if x in (4, 11) and y in (4, 11):
+                continue
+            if x in (4, 11) or y in (4, 11):
+                colour = hi if x == 4 or y == 4 else dark
+            else:
+                colour = bright
+            put(img, x, y, colour)
+    for x, y in ((5, 5), (8, 5), (6, 7), (9, 7), (5, 9), (8, 9), (10, 6), (7, 10)):
+        put(img, x, y, dark)
+
+
 def icon_droplet(img):
     bright, dark, hi = ACCENT['injector']
     rows = {4: (7, 8), 5: (6, 9), 6: (6, 9), 7: (5, 10), 8: (5, 10), 9: (4, 11), 10: (5, 10), 11: (6, 9)}
@@ -208,6 +225,7 @@ ICONS = {
     'collector': icon_collector,
     'injector': icon_droplet,
     'wind': icon_wind,
+    'resetter': icon_sponge,
 }
 
 
@@ -318,8 +336,8 @@ def main():
             back_face(base, accent).save(OUT / f'{base}_back.png')
             bottom_face(base).save(OUT / f'{base}_bottom.png')
             count += 5
-    # The single tier machines (the item collector and the wind generator fusion machine)
-    for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind')):
+    # The single tier machines (the item collector, the wind generator fusion and the machine resetter)
+    for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind'), ('machine_resetter', 'resetter')):
         front_face(base, accent, '').save(OUT / f'{base}_front.png')
         side_face(base).save(OUT / f'{base}_side.png')
         top_face(base, accent).save(OUT / f'{base}_top.png')

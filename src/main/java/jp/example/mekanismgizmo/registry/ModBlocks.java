@@ -11,6 +11,8 @@ import jp.example.mekanismgizmo.block.IceMakerBlock;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlock;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
+import jp.example.mekanismgizmo.block.MachineResetterBlock;
+import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlock;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlock;
@@ -106,6 +108,18 @@ public final class ModBlocks {
                 // 3x9 output slots + energy slot
                 .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
                       .addOutput(ItemCollectorBlockEntity.SLOT_COUNT)
+                      .addEnergy()
+                      .build()));
+
+    // --- machine resetter (single tier) ---
+    public static final BlockRegistryObject<MachineResetterBlock, ItemBlockTooltip<MachineResetterBlock>> MACHINE_RESETTER = BLOCKS
+          .register("machine_resetter", () -> new MachineResetterBlock(ModBlockTypes.MACHINE_RESETTER),
+                (block, properties) -> machineItem(block, properties, ModSideConfigs.MACHINE_RESETTER))
+          .forItemHolder(item -> item
+                // One machine item in, one clean machine item out, plus the energy slot
+                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                      .addInput(1)
+                      .addOutput()
                       .addEnergy()
                       .build()));
 

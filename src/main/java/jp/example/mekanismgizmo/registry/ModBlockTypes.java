@@ -6,6 +6,7 @@ import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
+import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.util.MachineTier;
@@ -110,6 +111,16 @@ public final class ModBlockTypes {
           // Storage only: the machine produces energy instead of using it
           .withEnergyConfig(() -> WindFusionBlockEntity.ENERGY_CAPACITY)
           .withSupportedUpgrades(Upgrade.MUFFLING)
+          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .replace(Attributes.ACTIVE)
+          .build();
+
+    // --- machine resetter (single tier) ---
+    public static final Machine<MachineResetterBlockEntity> MACHINE_RESETTER = Machine.MachineBuilder
+          .createMachine(() -> ModBlockEntities.MACHINE_RESETTER, ModLang.DESCRIPTION_MACHINE_RESETTER)
+          .withGui(() -> ModMenus.MACHINE_RESETTER)
+          .withEnergyConfig(() -> 10L, () -> 12_000L)
+          .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
           .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
           .replace(Attributes.ACTIVE)
           .build();

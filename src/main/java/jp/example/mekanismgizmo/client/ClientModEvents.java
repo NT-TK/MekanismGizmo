@@ -23,6 +23,7 @@ public final class ClientModEvents {
         event.register(ModMenus.FLUID_INJECTOR.get(), FluidInjectorScreen::new);
         event.register(ModMenus.ITEM_COLLECTOR.get(), ItemCollectorScreen::new);
         event.register(ModMenus.WIND_FUSION.get(), WindFusionScreen::new);
+        event.register(ModMenus.MACHINE_RESETTER.get(), MachineResetterScreen::new);
     }
 
     @SubscribeEvent

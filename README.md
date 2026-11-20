@@ -1,6 +1,6 @@
 # Mekanism Gizmo
 
-A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds seven machines built on Mekanism's own machine
+A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds eight machines built on Mekanism's own machine
 framework, so the GUI, side configuration, upgrades, security, ownership and JEI integration all behave exactly like
 Mekanism's own machines.
 
@@ -20,11 +20,12 @@ Mekanism's own machines.
 | Electric Basalt Generator | `mekanismgizmo:basalt_generator` | Produces basalt from energy only - no items or fluids needed. |
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
+| Machine Resetter | `mekanismgizmo:machine_resetter` | Strips every stored value from a machine item: owner, security, item/fluid/gas contents, stored energy, upgrades and side configuration. The result is exactly the item you get from crafting it. |
 | Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses up to 27 Mekanism wind generators into one block. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 27 times that. |
 
 ## Tiers
 
-Every machine except the Item Collector and the Wind Generator Fusion comes in **five steps**: the plain machine you
+Every machine except the Item Collector, the Wind Generator Fusion and the Machine Resetter comes in **five steps**: the plain machine you
 craft first, then Mekanism's four tiers. The tier is stored with Mekanism's own tier attributes, so **Mekanism's tier installers upgrade the machine
 in place** and keep the contents, energy, tanks, side configuration, owner and upgrades.
 
@@ -121,6 +122,21 @@ same position.
   exported on every face that is configured as `Energy`
 - an energy slot lets the buffer charge items, and the screen shows the fused count and the current FE/t
 
+## Machine Resetter
+
+Since Minecraft 1.21 Mekanism keeps everything a machine contains on its item: the owner, the security mode, the item,
+fluid and gas contents, the stored energy, the installed upgrades, the side configuration and the redstone setting.
+Breaking a machine keeps all of that, so a machine that was picked up in another world - or one you got from a friend
+or a loot chest - arrives with someone else's settings and contents.
+
+The Machine Resetter takes such an item, spends 200 FE on it and hands back the item with its defaults only:
+
+- input slot (machine item) -> progress arrow -> output slot (clean machine item)
+- the input must be a Mekanism machine item (a block item that carries machine data); casings, ordinary items and
+  items with only fluid or gas tanks such as the pipettes are rejected
+- the result is the item's own default instance, so nothing of the old machine survives - not even the owner
+- 200 FE per item, 20 ticks at base speed, with the usual SPEED and ENERGY upgrades
+
 ## Pipettes (gauge droppers)
 
 Mekanism's gauge dropper is the only way to empty or fill a machine's tank by hand, but it holds one bucket. The four
@@ -159,6 +175,7 @@ The base machines use Mekanism's machine recipe ingredients: a steel casing in t
 | Item Collector | `ACA` / `HXS` / `ACA` - H = hopper, S = logistical sorter |
 | Fluid Injector | `ABA` / `CXF` / `ABA` - B = glass bottle, F = basic fluid tank |
 | Wind Generator Fusion | `AWA` / `WPW` / `AWA` - A = redstone, W = wind generator, P = steel casing |
+| Machine Resetter | `ACA` / `WXW` / `ACA` - A = redstone, C = basic control circuit, W = sponge, X = steel casing |
 
 Tier upgrades follow Mekanism's factory tier recipes (`ACA` / `IPI` / `ACA`, P = previous machine):
 
@@ -263,11 +280,12 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 電動丸石製造機 | `mekanismgizmo:cobblestone_generator` | 電力だけで丸石を作り続けます（アイテム・液体の入力は不要）。 |
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
 | アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−５〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 || 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
+| 機械リセット機 | `mekanismgizmo:machine_resetter` | 機械アイテムに保存されたデータ（所有者・セキュリティ・中身・液体・ガス・エネルギー・アップグレード・面設定）をすべて消去します。クラフトしたてのアイテムとまったく同じ状態になります。 |
 | 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を最大27台まで1ブロックに融合します。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、27台なら27台分になります。 |
 
 ## ティア
 
-アイテム収集機と風力発電融合機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
+アイテム収集機・風力発電融合機・機械リセット機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
 最初にクラフトするのはティアなしの機械で、以後は **Mekanismのティアインストーラーでそのまま昇格**できます
 （中身・エネルギー・タンク・面設定・所有者・アップグレードは保持されます）。
 
@@ -360,6 +378,17 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 - 内部バッファは 5,400,000 FE（風力発電機の蓄電 200,000 FE × 最大27台）。`Energy` に設定したすべての面から出力します
 - エネルギースロットでバッファからアイテムを充電でき、画面には融合中の台数と現在の発電量（FE/t）を表示します
 
+## 機械リセット機
+
+Minecraft 1.21 以降の Mekanism は、機械の中身（所有者・セキュリティ・アイテム／液体／ガス・蓄電・アップグレード・面設定・レッドストーン設定）を**アイテム側に保存**します。そのため、機械を壊して持ち帰っても設定や中身がそのまま付いてきます。
+
+機械リセット機はそうしたアイテムを入れて 200 FE を消費するだけで、**クラフトしたての状態**に戻して出力します。
+
+- 入力スロット（機械アイテム）→ 進捗矢印 → 出力スロット（リセット済みアイテム）
+- 入力できるのは Mekanism の機械アイテム（機械データを持つブロックアイテム）のみ。鋼ケーシングや普通のアイテム、スポイトのような液体・ガスタンクだけのアイテムは入りません
+- 出力は「そのアイテムのデフォルト状態」そのものなので、所有者を含めて古いデータは一切残りません
+- 1個あたり 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）
+
 ## スポイト（ゲージドロッパー）
 
 Mekanismのゲージドロッパーは機械のタンクを手で出入れする唯一の手段ですが、容量は1バケツ分しかありません。
@@ -397,6 +426,7 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 | アイテム収集機 | `ACA` / `HXS` / `ACA` — H=ホッパー, S=ロジスティカルソーター |
 | 流体注入機 | `ABA` / `CXF` / `ABA` — B=ガラス瓶, F=基本液体タンク |
 | 風力発電融合機 | `AWA` / `WPW` / `AWA` — A=赤石, W=風力発電機, P=鋼ケーシング |
+| 機械リセット機 | `ACA` / `WXW` / `ACA` — A=赤石, C=基礎制御回路, W=スポンジ, X=鋼ケーシング |
 
 ティア昇格は Mekanism の工場ティアレシピと同じ `ACA` / `IPI` / `ACA`（P＝前のティアの機械）です。
 

@@ -9,7 +9,7 @@ import os
 TIERS = ['', 'basic_', 'advanced_', 'elite_', 'ultimate_']
 MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'basalt_generator', 'fluid_injector']
 # Machines that exist only once, without tiers
-SINGLES = ['item_collector', 'wind_fusion']
+SINGLES = ['item_collector', 'wind_fusion', 'machine_resetter']
 ASSETS = 'src/main/resources/assets/mekanismgizmo'
 DATA = 'src/main/resources/data/mekanismgizmo'
 COMPONENTS = ['mekanism:ejector', 'mekanism:owner', 'mekanism:redstone_control', 'mekanism:security',
@@ -111,6 +111,20 @@ write(f'{DATA}/recipe/wind_fusion.json', {
     'result': {'count': 1, 'id': 'mekanismgizmo:wind_fusion'},
 })
 
+# --- the machine resetter: circuits and sponges around a steel casing -------------------------------
+write(f'{DATA}/recipe/machine_resetter.json', {
+    'type': 'minecraft:crafting_shaped',
+    'category': 'misc',
+    'key': {
+        'A': {'tag': 'mekanism:alloys/basic'},
+        'C': {'tag': 'c:circuits/basic'},
+        'W': {'item': 'minecraft:sponge'},
+        'X': {'item': 'mekanism:steel_casing'},
+    },
+    'pattern': ['ACA', 'WXW', 'ACA'],
+    'result': {'count': 1, 'id': 'mekanismgizmo:machine_resetter'},
+})
+
 # --- pickaxe tag ----------------------------------------------------------------------------------
 values = []
 for machine in MACHINES + SINGLES:
@@ -130,6 +144,7 @@ EN_NAMES = {
     'fluid_injector': 'Fluid Injector',
     'item_collector': 'Item Collector',
     'wind_fusion': 'Wind Generator Fusion',
+    'machine_resetter': 'Machine Resetter',
 }
 JA_NAMES = {
     'potion_brewer': '\u30dd\u30fc\u30b7\u30e7\u30f3\u91b8\u9020\u6a5f',
@@ -139,6 +154,7 @@ JA_NAMES = {
     'fluid_injector': '\u6d41\u4f53\u6ce8\u5165\u6a5f',
     'item_collector': '\u30a2\u30a4\u30c6\u30e0\u53ce\u96c6\u6a5f',
     'wind_fusion': '\u98a8\u529b\u767a\u96fb\u878d\u5408\u6a5f',
+    'machine_resetter': '\u6a5f\u68b0\u30ea\u30bb\u30c3\u30c8\u6a5f',
 }
 for lang, tier_names, machine_names in (('en_us', EN_TIER, EN_NAMES), ('ja_jp', JA_TIER, JA_NAMES)):
     path = f'{ASSETS}/lang/{lang}.json'

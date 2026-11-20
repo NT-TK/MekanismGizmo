@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "active=false,facing=north": {
+      "model": "mekanismgizmo:block/machine_resetter"
+    },
+    "active=false,facing=south": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 180
+    },
+    "active=false,facing=west": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 270
+    },
+    "active=false,facing=east": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 90
+    },
+    "active=true,facing=north": {
+      "model": "mekanismgizmo:block/machine_resetter"
+    },
+    "active=true,facing=south": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 180
+    },
+    "active=true,facing=west": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 270
+    },
+    "active=true,facing=east": {
+      "model": "mekanismgizmo:block/machine_resetter",
+      "y": 90
+    }
+  }
+}
