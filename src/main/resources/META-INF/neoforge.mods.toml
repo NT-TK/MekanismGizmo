@@ -73,3 +73,13 @@ type="optional"
 versionRange="[0.1,)"
 ordering="AFTER"
 side="BOTH"
+
+# Optional: Mekanism: More Machine (CurseForge project 1275257, mod id "mekmm"). Nothing is compiled against it and no
+# integration code is needed - the machine items it adds are Mekanism machine items, so the Machine Resetter already
+# accepts them - this entry only states that the two mods are meant to be used together.
+[[dependencies.${mod_id}]]
+modId="mekmm"
+type="optional"
+versionRange="[1.4,)"
+ordering="AFTER"
+side="BOTH"

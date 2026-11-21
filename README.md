@@ -239,6 +239,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | Mekanism | 10.7.19.x |
 | Mekanism Generators | 10.7.19.x (required by the Wind Generator Fusion) |
 | Compact Mekanism Machines | optional (its compressed wind generators can go into the Wind Generator Fusion) |
+| Mekanism: More Machine | optional (no integration needed: its machine items are machine items, so the Machine Resetter cleans them like any other) |
 | JEI | optional (client side only) |
 | EMI | optional (client side only) |
 | AE2 | optional (pattern encoding) |
@@ -521,6 +522,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 | Mekanism | 10.7.19.x |
 | Mekanism Generators | 10.7.19.x（風力発電融合機で必須） |
 | Compact Mekanism Machines | 任意（圧縮風力発電機を風力発電融合機に入れられます） |
+| Mekanism: More Machine | 任意（連携不要：追加される機械アイテムもMekanismの機械アイテムなので、機械リセット機でそのままリセットできます） |
 | JEI | 任意（クライアント側のみ） |
 | EMI | 任意（クライアント側のみ） |
 | AE2 | 任意（パターン作成連携） |
