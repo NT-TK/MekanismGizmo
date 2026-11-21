@@ -7,14 +7,15 @@ import mekanism.generators.common.registries.GeneratorsBlocks;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * One holder of the wind generator fusion machine. A slot holds exactly one wind generator: the machine fuses at most
- * {@link WindFusionBlockEntity#SLOT_COUNT} of them, and every one of them produces on its own. Like Mekanism's machine
- * input slots, items can be put in by hand and by pipes, but pipes cannot pull the generators back out.
+ * One holder of the wind generator fusion machine. A slot holds a full stack of wind generators, so a full machine fuses
+ * {@link WindFusionBlockEntity#MAX_GENERATORS} of them and every single one produces on its own. The slots are a plain
+ * internal storage rather than an input: the player can put generators in and take them out, but pipes can neither
+ * insert nor extract them.
  */
 public class WindGeneratorSlot extends BasicInventorySlot {
 
     public WindGeneratorSlot(IContentsListener listener, int x, int y) {
-        super(1, ConstantPredicates.notExternal(), ConstantPredicates.alwaysTrueBi(),
+        super(WindFusionBlockEntity.MAX_STACK, ConstantPredicates.notExternal(), ConstantPredicates.notExternal(),
               WindGeneratorSlot::isWindGenerator, listener, x, y);
     }
 

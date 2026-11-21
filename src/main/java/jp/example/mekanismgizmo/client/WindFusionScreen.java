@@ -39,7 +39,7 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
         renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         guiGraphics.drawString(font, Component.translatable("gui.mekanismgizmo.wind_fusion.info",
-              tile.getActiveGenerators(), WindFusionBlockEntity.SLOT_COUNT,
+              tile.getActiveGenerators(), WindFusionBlockEntity.MAX_GENERATORS,
               (long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced()),
               WindFusionBlockEntity.SLOT_X, WindFusionBlockEntity.INFO_Y, 0x404040, false);
     }

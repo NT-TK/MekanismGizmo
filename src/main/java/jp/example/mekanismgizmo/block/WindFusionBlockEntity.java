@@ -41,13 +41,16 @@ import net.minecraft.world.level.block.state.BlockState;
  * screen - comes from Mekanism's configurable machine base.
  */
 public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
-    /** Number of wind generators one block can fuse: three rows of nine, one generator per slot. */
+    /** Number of wind generator slots: three rows of nine. */
     public static final int SLOT_COUNT = 27;
     public static final int COLUMNS = 9;
     public static final int ROWS = SLOT_COUNT / COLUMNS;
-    /** Energy the machine can buffer: Mekanism's own wind generator storage, once per fused generator. */
+    /** Every slot holds a full stack of wind generators, so a full machine fuses 27 x 64 of them. */
+    public static final int MAX_STACK = 64;
+    public static final int MAX_GENERATORS = SLOT_COUNT * MAX_STACK;
+    /** Energy the machine can buffer: Mekanism's own wind generator storage, once per fusable generator. */
     public static final long BUFFER_PER_GENERATOR = 200_000L;
-    public static final long ENERGY_CAPACITY = BUFFER_PER_GENERATOR * SLOT_COUNT;
+    public static final long ENERGY_CAPACITY = BUFFER_PER_GENERATOR * MAX_GENERATORS;
     /** How often the position dependent multiplier is recalculated (Mekanism uses the same interval). */
     public static final int REFRESH_INTERVAL = 20;
     /** Height above the machine that has to see the sky for it to catch wind, like Mekanism's wind generator. */
@@ -80,7 +83,9 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
 
     public WindFusionBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
         super(block, pos, state);
-        configComponent.setupItemIOConfig(List.of(generatorSlots), List.of(), energySlot, false);
+        // The generator slots are internal storage: they are not part of the item configuration, so pipes can only
+        // reach the energy slot
+        configComponent.setupItemIOConfig(List.of(), List.of(), energySlot, false);
         // The machine is a generator: its energy leaves through every side that is configured as "Energy"
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         // The machine has no item or fluid outputs, but the configurable machine base expects the component

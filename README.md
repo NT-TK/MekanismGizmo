@@ -21,7 +21,7 @@ Mekanism's own machines.
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
 | Machine Resetter | `mekanismgizmo:machine_resetter` | Strips every stored value from a machine item: owner, security, item/fluid/gas contents, stored energy, upgrades and side configuration. The result is exactly the item you get from crafting it. |
-| Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses up to 27 Mekanism wind generators into one block. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 27 times that. |
+| Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses Mekanism wind generators into one block: 27 slots that each hold a stack, so up to 1,728 generators. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 1,728 times that. |
 
 ## Tiers
 
@@ -114,12 +114,15 @@ The Wind Generator Fusion machine is a single tier machine that works like a com
 generators into its 3 x 9 slot grid and each one produces exactly what a Mekanism wind generator would produce at the
 same position.
 
-- 1 generator = 1 generator's output, 2 = twice that, a full machine (27) = 27 times that
+- every slot holds a full stack of 64, so a full machine fuses 1,728 wind generators
+- 1 generator = 1 generator's output, 2 = twice that, a full machine (1,728) = 1,728 times that
+- the slots are internal storage, not an input: you fill them by hand and pipes can neither insert nor extract them
+  (the back face still lets cables charge or drain items through the energy slot)
 - the output uses Mekanism's own wind formula (`windGenerationMin` -> `windGenerationMax` between `windGenerationMinY`
   and `windGenerationMaxY`), so height, sky access and the dimension behave like a real wind generator
 - the machine only counts what is actually inside, so a partly filled machine produces partially
-- 5,400,000 FE internal buffer (Mekanism's wind generator storage of 200,000 FE, once per fused generator), energy is
-  exported on every face that is configured as `Energy`
+- 345,600,000 FE internal buffer (Mekanism's wind generator storage of 200,000 FE, once per fusable generator), energy
+  is exported on every face that is configured as `Energy`
 - an energy slot lets the buffer charge items, and the screen shows the fused count and the current FE/t
 
 ## Machine Resetter
@@ -281,7 +284,7 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
 | アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−５〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 || 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
 | 機械リセット機 | `mekanismgizmo:machine_resetter` | 機械アイテムに保存されたデータ（所有者・セキュリティ・中身・液体・ガス・エネルギー・アップグレード・面設定）をすべて消去します。クラフトしたてのアイテムとまったく同じ状態になります。 |
-| 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を最大27台まで1ブロックに融合します。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、27台なら27台分になります。 |
+| 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、満杯なら1,728台分になります。 |
 
 ## ティア
 
@@ -372,10 +375,13 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 風力発電融合機は、風力発電機をまとめる「融合器」のような単一ティアの機械です。3×9のスロットに風力発電機を入れると、
 入れた1台ごとに、Mekanismの風力発電機をその場所に置いたときと同じ発電量を出します。
 
-- 1台＝風力発電機1台分、2台＝2台分、満杯（27台）＝27台分
+- 1スロットに64個（スタック）まで入るので、満杯で1,728台
+- 1台＝風力発電機1台分、2台＝2台分、満杯（1,728台）＝1,728台分
+- スロットは「入力」ではなく機械の内部収納です。手で出し入れする専用で、パイプは出し入れできません
+  （背面だけはケーブルからエネルギースロット経由でアイテムを充放電できます）
 - 発電量は Mekanism 本体の計算式（`windGenerationMin`〜`windGenerationMax` を `windGenerationMinY`〜`windGenerationMaxY` で補間）をそのまま使うため、高さ・天空・ディメンションの扱いも本家と同じです
 - 実際に入っている台数だけ発電するので、途中までしか入っていなければその分だけ発電します
-- 内部バッファは 5,400,000 FE（風力発電機の蓄電 200,000 FE × 最大27台）。`Energy` に設定したすべての面から出力します
+- 内部バッファは 345,600,000 FE（風力発電機の蓄電 200,000 FE × 最大1,728台）。`Energy` に設定したすべての面から出力します
 - エネルギースロットでバッファからアイテムを充電でき、画面には融合中の台数と現在の発電量（FE/t）を表示します
 
 ## 機械リセット機

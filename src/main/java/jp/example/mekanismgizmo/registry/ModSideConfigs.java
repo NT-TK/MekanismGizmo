@@ -100,16 +100,16 @@ public final class ModSideConfigs {
           TransmissionType.ENERGY, all(DataType.INPUT)));
 
     /**
-     * Wind generators go in through the front and the machine sides, and the produced energy leaves through every face
-     * of the block; the back is kept free of item transport like the other machines.
+     * The wind generators are internal storage that only the player can fill, so no side exposes item transport except
+     * the back (the energy slot). The produced energy leaves through every face of the block.
      */
     public static final AttachedSideConfig WIND_FUSION = new AttachedSideConfig(config(
           TransmissionType.ITEM, item(map(
-                RelativeSide.FRONT, DataType.INPUT,
-                RelativeSide.LEFT, DataType.INPUT,
-                RelativeSide.RIGHT, DataType.INPUT,
-                RelativeSide.TOP, DataType.INPUT,
-                RelativeSide.BOTTOM, DataType.INPUT,
+                RelativeSide.FRONT, DataType.NONE,
+                RelativeSide.LEFT, DataType.NONE,
+                RelativeSide.RIGHT, DataType.NONE,
+                RelativeSide.TOP, DataType.NONE,
+                RelativeSide.BOTTOM, DataType.NONE,
                 RelativeSide.BACK, DataType.ENERGY)),
           TransmissionType.ENERGY, all(DataType.OUTPUT)));
 
