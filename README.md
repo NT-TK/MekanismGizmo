@@ -1,6 +1,6 @@
 # Mekanism Gizmo
 
-A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds eight machines built on Mekanism's own machine
+A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds ten machines built on Mekanism's own machine
 framework, so the GUI, side configuration, upgrades, security, ownership and JEI integration all behave exactly like
 Mekanism's own machines.
 
@@ -20,12 +20,14 @@ Mekanism's own machines.
 | Electric Basalt Generator | `mekanismgizmo:basalt_generator` | Produces basalt from energy only - no items or fluids needed. |
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
+| Liquid Heater | `mekanismgizmo:liquid_heater` | Heats sodium into superheated sodium with energy only: one operation turns 500 mB of sodium into 500 mB of superheated sodium and every tier runs one more operation in parallel. |
 | Machine Resetter | `mekanismgizmo:machine_resetter` | Strips every stored value from a machine item: owner, security, item/fluid/gas contents, stored energy, upgrades and side configuration. The result is exactly the item you get from crafting it. |
 | Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses Mekanism wind generators into one block: 27 slots that each hold a stack, so up to 1,728 generators. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 1,728 times that. Compressed wind generators (Compact Mekanism Machines, x2 - x532480) count as the generators they replace. |
+| Improved Gas Generator | `mekanismgizmo:improved_gas_generator` | A gas burning generator with 100 times the fuel tank (1,800,000 mB) and 100 times the internal buffer (20,000,000 FE) of Mekanism's own: the fuller the tank, the better the fuel is burned, from 20% efficiency when nearly empty up to 100% when full. |
 
 ## Tiers
 
-Every machine except the Item Collector, the Wind Generator Fusion and the Machine Resetter comes in **five steps**: the plain machine you
+Every machine except the Item Collector, the Wind Generator Fusion, the Machine Resetter and the Improved Gas Generator comes in **five steps**: the plain machine you
 craft first, then Mekanism's four tiers. The tier is stored with Mekanism's own tier attributes, so **Mekanism's tier installers upgrade the machine
 in place** and keep the contents, energy, tanks, side configuration, owner and upgrades.
 
@@ -37,8 +39,8 @@ in place** and keep the contents, energy, tanks, side configuration, owner and u
 | Elite | `elite_ice_maker` | 4 | `mekanism:ultimate_tier_installer` |
 | Ultimate | `ultimate_ice_maker` | 5 | - |
 
-(The example above uses the Ice Maker; the Potion Brewer, Cobblestone Generator, Basalt Generator and Fluid Injector
-follow the same pattern.) Higher tiers can also be crafted directly from the previous step.
+(The example above uses the Ice Maker; the Potion Brewer, Cobblestone Generator, Basalt Generator, Fluid Injector and
+Liquid Heater follow the same pattern.) Higher tiers can also be crafted directly from the previous step.
 
 ### What increases per tier
 
@@ -46,7 +48,7 @@ follow the same pattern.) Higher tiers can also be crafted directly from the pre
 - **Energy use** (FE/t) and the **internal energy buffer** scale with the same ratio, so the **cost per item stays
   constant** (ice 2,000 FE / cobblestone 200 FE / basalt 200 FE / potion 400 FE / container 25 FE)
 - **Tank capacity** scales as well: ice maker water 4,000 -> 20,000 mB, fluid injector 16,000 -> 80,000 mB,
-  brewer gas 1,000 -> 5,000 mB
+  brewer gas 1,000 -> 5,000 mB, liquid heater 20,000 -> 100,000 mB per tank
 - **Slots**: every tier adds the parallel slots (the brewer adds a whole brewing row of three bottles and three outputs)
 
 #### Ice Maker
@@ -106,7 +108,22 @@ and three potion output slots**.
 | Ultimate | 5 | 125 | 60,000 | 80,000 | 11 | 5 containers / tick (6,000/min) | x5 |
 
 The Item Collector is a single tier machine (10 FE/t, 12,000 FE buffer, 27 output slots, area of 1-9 blocks per axis
-with a -5..+5 offset).
+with a -5..+5 offset). The Wind Generator Fusion, the Machine Resetter and the Improved Gas Generator are single tier
+machines as well.
+
+#### Liquid Heater
+
+| Tier | Parallel | FE/t | Buffer | Sodium tank | Superheated tank | Throughput | vs untiered |
+|---|---|---|---|---|---|---|---|
+| Untiered | 1 | 625 | 12,000 | 20,000 | 20,000 | 500 mB / s (25 mB/t) | x1 |
+| Basic | 2 | 1,250 | 24,000 | 40,000 | 40,000 | 1,000 mB / s (50 mB/t) | x2 |
+| Advanced | 3 | 1,875 | 36,000 | 60,000 | 60,000 | 1,500 mB / s (75 mB/t) | x3 |
+| Elite | 4 | 2,500 | 48,000 | 80,000 | 80,000 | 2,000 mB / s (100 mB/t) | x4 |
+| Ultimate | 5 | 3,125 | 60,000 | 100,000 | 100,000 | 2,500 mB / s (125 mB/t) | x5 |
+
+The conversion is **25 FE per mB** (25,600 FE per bucket) and always 1:1, so a bucket of sodium becomes a bucket of
+superheated sodium. Sodium is normally only obtainable from a fission reactor's coolant loop, so the machine is a way
+to produce superheated sodium (for a Thermoelectric Boiler) without a reactor.
 
 ## Wind Generator Fusion
 
@@ -145,6 +162,32 @@ The Machine Resetter takes such an item, spends 200 FE on it and hands back the 
 - the result is the item's own default instance, so nothing of the old machine survives - not even the owner
 - 200 FE and 20 ticks at base speed per operation, with the usual SPEED and ENERGY upgrades; a whole stack is reset in
   one operation
+
+## Improved Gas Generator
+
+A gas burning generator with the fuel tank and the internal energy buffer scaled up a hundred times compared to
+Mekanism's own gas generator, and with the combustion behaviour of the reactor in
+[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines): **the more fuel in the tank, the
+better it is burned**.
+
+| | Mekanism gas generator | Improved Gas Generator |
+|---|---|---|
+| Fuel tank | 18,000 mB | 1,800,000 mB |
+| Energy buffer | 200,000 FE | 20,000,000 FE |
+| Burn rate | fuel value per tick | 20 mB per tick while the buffer has room |
+| Efficiency | 100% | 20% (nearly empty) to 100% (full), linear with the fill level |
+
+- the fuel value per mB is read from Mekanism's own `chemicalFuel` data map (with the legacy chemical attribute as the
+  fallback), so every gas Mekanism accepts works here with exactly its own value - hydrogen 200 FE/mB, ethene
+  28,200 FE/mB, and anything another mod adds to that data map
+- the **combustion efficiency** multiplies that value: an empty tank only gets a fifth of it, a full tank gets all of
+  it. With hydrogen that is 4,000 FE/t from a full tank and 2,400 FE/t at half a tank (60%), with ethene 563,950 FE/t
+  from a full tank
+- fuel is only burned when the buffer has room, so nothing is wasted on a full buffer
+- gas is accepted on every face and through the gas container slot, the produced energy is exported on every face
+  configured as `Energy`, and an energy slot lets the buffer charge items (MUFFLING upgrade supported)
+- recipe: `ACA` / `GXG` / `ACA` - A = atomic alloy, C = ultimate control circuit, G = gas burning generator,
+  X = steel casing
 
 ## Pipettes (gauge droppers)
 
@@ -185,6 +228,8 @@ The base machines use Mekanism's machine recipe ingredients: a steel casing in t
 | Fluid Injector | `ABA` / `CXF` / `ABA` - B = glass bottle, F = basic fluid tank |
 | Wind Generator Fusion | `AWA` / `WPW` / `AWA` - A = redstone, W = wind generator, P = steel casing |
 | Machine Resetter | `ACA` / `WXW` / `ACA` - A = redstone, C = basic control circuit, W = sponge, X = steel casing |
+| Liquid Heater | `ACA` / `HXH` / `ACA` - A = infused alloy, C = advanced control circuit, H = magma block, X = steel casing |
+| Improved Gas Generator | `ACA` / `GXG` / `ACA` - A = atomic alloy, C = ultimate control circuit, G = gas burning generator, X = steel casing |
 
 Tier upgrades follow Mekanism's factory tier recipes (`ACA` / `IPI` / `ACA`, P = previous machine):
 
@@ -290,13 +335,16 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 製氷機 | `mekanismgizmo:ice_maker` | 水1,000 mBから氷ブロック1個を作ります。バケツ・パイプ・タンクから給水できます。 |
 | 電動丸石製造機 | `mekanismgizmo:cobblestone_generator` | 電力だけで丸石を作り続けます（アイテム・液体の入力は不要）。 |
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
-| アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−５〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 || 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
+| アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−5〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 |
+| 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
+| 液体加熱器 | `mekanismgizmo:liquid_heater` | 電力だけでナトリウムを加熱し、加熱されたナトリウム（SUPERHEATED_SODIUM）を作ります。1回の操作でナトリウム500 mBを加熱されたナトリウム500 mBに変換し、ティアが上がるごとに並列数が増えます。 |
 | 機械リセット機 | `mekanismgizmo:machine_resetter` | 機械アイテムに保存されたデータ（所有者・セキュリティ・中身・液体・ガス・エネルギー・アップグレード・面設定）をすべて消去します。クラフトしたてのアイテムとまったく同じ状態になります。 |
 | 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、満杯なら1,728台分になります。Compact Mekanism Machines の圧縮風力発電機（x2〜x532480）は、それが代替する台数分として数えます。 |
+| 改良型ガス発電機 | `mekanismgizmo:improved_gas_generator` | Mekanismのガス発電機のガスタンクと内部バッファを100倍（1,800,000 mB / 20,000,000 FE）にしたガス発電機。タンクに燃料が残っているほど燃焼効率が上がり、空に近いと20%、満タンで100%になります。 |
 
 ## ティア
 
-アイテム収集機・風力発電融合機・機械リセット機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
+アイテム収集機・風力発電融合機・機械リセット機・改良型ガス発電機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
 最初にクラフトするのはティアなしの機械で、以後は **Mekanismのティアインストーラーでそのまま昇格**できます
 （中身・エネルギー・タンク・面設定・所有者・アップグレードは保持されます）。
 
@@ -308,16 +356,16 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 精鋭 | `elite_ice_maker` | 4 | `mekanism:ultimate_tier_installer` |
 | 究極 | `ultimate_ice_maker` | 5 | — |
 
-（例は製氷機。ポーション醸造機・電動丸石製造機・電動玄武岩製造機・流体注入機も同じ構成です。）
+（例は製氷機。ポーション醸造機・電動丸石製造機・電動玄武岩製造機・流体注入機・液体加熱器も同じ構成です。）
 各段階は前の段階の機械からクラフトすることもできます。
 
 ### ティアごとに増えるもの
 
 - **並列数** 1 → 2 → 3 → 4 → 5（処理量も 1 → 5倍）
 - **FE/t と内部バッファ**も同じ比率で増えるため、**1個あたりのコストは全ティアで一定**
-  （氷 2,000 FE / 丸石 200 FE / 玄武岩 200 FE / ポーション 400 FE / コンテナ 25 FE）
+  （氷 2,000 FE / 丸石 200 FE / 玄武岩 200 FE / ポーション 400 FE / コンテナ 25 FE / ナトリウム 1 mB あたり 25 FE）
 - **タンク容量**も並列数に比例（製氷機の水 4,000 → 20,000 mB、流体注入機 16,000 → 80,000 mB、
-  醸造機のガス 1,000 → 5,000 mB）
+  醸造機のガス 1,000 → 5,000 mB、液体加熱器のタンク 20,000 → 100,000 mB）
 - **スロット**は並列数ぶん増加（醸造機は「瓶3本＋出力3本」の行が1段ごとに増えます）
 
 ### ティアごとの数値
@@ -376,7 +424,43 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 精鋭 | 4 | 100 | 48,000 | 64,000 | 9 | 4個 / tick（4,800/分） | ×4 |
 | 究極 | 5 | 125 | 60,000 | 80,000 | 11 | 5個 / tick（6,000/分） | ×5 |
 
-アイテム収集機は単一ティアです（10 FE/t、内部バッファ 12,000 FE、出力27スロット、範囲は各軸1〜9・オフセット−5〜+5）。
+アイテム収集機・風力発電融合機・機械リセット機・改良型ガス発電機は単一ティアです。アイテム収集機は 10 FE/t、内部バッファ 12,000 FE、出力27スロット、範囲は各軸1〜9・オフセット−5〜+5 です。
+
+#### 液体加熱器
+
+| ティア | 並列数 | FE/t | 内部バッファ | ナトリウムタンク | 加熱ナトリウムタンク | 処理量 | ティアなし比 |
+|---|---|---|---|---|---|---|---|
+| ティアなし | 1 | 625 | 12,000 | 20,000 | 20,000 | 500 mB / 秒（25 mB/t） | x1 |
+| 基本 | 2 | 1,250 | 24,000 | 40,000 | 40,000 | 1,000 mB / 秒（50 mB/t） | x2 |
+| 発展 | 3 | 1,875 | 36,000 | 60,000 | 60,000 | 1,500 mB / 秒（75 mB/t） | x3 |
+| 精鋭 | 4 | 2,500 | 48,000 | 80,000 | 80,000 | 2,000 mB / 秒（100 mB/t） | x4 |
+| 究極 | 5 | 3,125 | 60,000 | 100,000 | 100,000 | 2,500 mB / 秒（125 mB/t） | x5 |
+
+変換は **1 mB あたり 25 FE**（バケツ1杯で 25,600 FE）で、ナトリウムと加熱されたナトリウムは常に 1:1 です。
+ナトリウムは本来なら核分裂炉の冷却材ループでしか得られないので、この機械は原子炉なしで加熱されたナトリウム
+（熱電ボイラー用）を作る手段になります。ナトリウムは前面以外の面（化学物質設定で `Input` の面）からパイプで入れ、
+加熱されたナトリウムは `Output` の面から取り出します。
+
+## 改良型ガス発電機
+
+Mekanismのガス発電機のガスタンクと内部バッファを100倍にし、[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines)
+の原子炉と同じく **燃料が多いほど燃焼効率が上がる** ガス発電機です。
+
+| | Mekanismのガス発電機 | 改良型ガス発電機 |
+|---|---|---|
+| ガスタンク | 18,000 mB | 1,800,000 mB |
+| 内部バッファ | 200,000 FE | 20,000,000 FE |
+| 燃焼量 | 燃料の値に依存 | 内部バッファに空きがある間、毎tick 20 mB |
+| 燃焼効率 | 100% | 空に近いと20%、満タンで100%（残量に比例） |
+
+- 燃料1 mBあたりのエネルギーは Mekanism 本体の `chemicalFuel` データマップ（旧ケミカル属性もフォールバック）から
+  読むので、Mekanism が受け入れるガスはすべて本家とまったく同じ値で使えます（水素 200 FE/mB、エチレン 28,200 FE/mB）
+- **燃焼効率**をその値に掛けます。水素なら満タンで 4,000 FE/t、半分（効率60%）で 2,400 FE/t、
+  エチレンなら満タンで 563,950 FE/t です
+- 内部バッファに空きがあるときだけ燃やすので、満タンで燃料を無駄にしません
+- ガスはどの面からでも（ガス容器スロットからも）入れられ、発電したエネルギーは `Energy` に設定したすべての面から出力します。
+  エネルギースロットでバッファからアイテムを充電できます（MUFFLINGアップグレード対応）
+- レシピ: `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング
 
 ## 風力発電融合機
 
@@ -445,6 +529,8 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 | 流体注入機 | `ABA` / `CXF` / `ABA` — B=ガラス瓶, F=基本液体タンク |
 | 風力発電融合機 | `AWA` / `WPW` / `AWA` — A=赤石, W=風力発電機, P=鋼ケーシング |
 | 機械リセット機 | `ACA` / `WXW` / `ACA` — A=赤石, C=基礎制御回路, W=スポンジ, X=鋼ケーシング |
+| 液体加熱器 | `ACA` / `HXH` / `ACA` — A=強化合金, C=発展制御回路, H=マグマブロック, X=鋼ケーシング |
+| 改良型ガス発電機 | `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング |
 
 ティア昇格は Mekanism の工場ティアレシピと同じ `ACA` / `IPI` / `ACA`（P＝前のティアの機械）です。
 

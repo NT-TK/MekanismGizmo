@@ -26,6 +26,7 @@ MACHINES = {
     'cobblestone_generator': 'cobble',
     'basalt_generator': 'basalt',
     'fluid_injector': 'injector',
+    'liquid_heater': 'heater',
 }
 
 # Tier LED colours, taken from mekanism:block/factory/led.png (the four strips of that texture)
@@ -48,6 +49,8 @@ ACCENT = {
     'injector': ((90, 190, 235), (46, 134, 184), (214, 242, 255)),
     'wind': ((198, 220, 233), (118, 146, 164), (241, 251, 255)),
     'resetter': ((230, 205, 96), (176, 148, 48), (252, 238, 168)),
+    'heater': ((255, 132, 62), (188, 68, 26), (255, 208, 156)),
+    'gasgen': ((176, 236, 96), (104, 166, 40), (232, 255, 186)),
 }
 
 # Our own micro palette for the panel and the icons (kept in Mekanism's grey range)
@@ -217,6 +220,31 @@ def icon_droplet(img):
         put(img, x, 12, C['shadow'])
 
 
+def icon_heater(img):
+    """Three glowing heating bars with a coil between them: sodium going in gets hot."""
+    bright, dark, hi = ACCENT['heater']
+    for y in (4, 6, 8, 10):
+        for x in range(4, 12):
+            put(img, x, y, bright if 4 < x < 11 else dark)
+    # the coil that connects the bars, zig-zagging from one side to the other
+    for x, y in ((10, 5), (5, 7), (10, 9), (5, 11)):
+        put(img, x, y, dark)
+    for x, y in ((7, 5), (8, 5), (6, 7), (9, 7), (8, 9), (7, 9)):
+        put(img, x, y, hi)
+
+
+def icon_gasgen(img):
+    """A flame: the gas that goes in is burned for power."""
+    bright, dark, hi = ACCENT['gasgen']
+    rows = {4: (7, 8), 5: (6, 9), 6: (6, 9), 7: (5, 10), 8: (5, 10), 9: (5, 10), 10: (6, 9), 11: (7, 8)}
+    for y, (a, b) in rows.items():
+        for x in range(a, b + 1):
+            colour = dark if (x == a or x == b) and y > 5 else bright
+            put(img, x, y, colour)
+    for x, y in ((7, 8), (8, 8), (7, 9), (8, 9), (7, 10), (8, 10)):
+        put(img, x, y, hi)
+
+
 ICONS = {
     'potion': icon_potion,
     'ice': icon_ice,
@@ -226,6 +254,8 @@ ICONS = {
     'injector': icon_droplet,
     'wind': icon_wind,
     'resetter': icon_sponge,
+    'heater': icon_heater,
+    'gasgen': icon_gasgen,
 }
 
 
@@ -337,7 +367,8 @@ def main():
             bottom_face(base).save(OUT / f'{base}_bottom.png')
             count += 5
     # The single tier machines (the item collector, the wind generator fusion and the machine resetter)
-    for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind'), ('machine_resetter', 'resetter')):
+    for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind'), ('machine_resetter', 'resetter'),
+                         ('improved_gas_generator', 'gasgen')):
         front_face(base, accent, '').save(OUT / f'{base}_front.png')
         side_face(base).save(OUT / f'{base}_side.png')
         top_face(base, accent).save(OUT / f'{base}_top.png')

@@ -40,6 +40,12 @@ public final class ModCreativeTabs {
                     output.accept(ModBlocks.FLUID_INJECTOR_ADVANCED.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR_ELITE.asItem());
                     output.accept(ModBlocks.FLUID_INJECTOR_ULTIMATE.asItem());
+                    output.accept(ModBlocks.LIQUID_HEATER.asItem());
+                    output.accept(ModBlocks.LIQUID_HEATER_BASIC.asItem());
+                    output.accept(ModBlocks.LIQUID_HEATER_ADVANCED.asItem());
+                    output.accept(ModBlocks.LIQUID_HEATER_ELITE.asItem());
+                    output.accept(ModBlocks.LIQUID_HEATER_ULTIMATE.asItem());
+                    output.accept(ModBlocks.IMPROVED_GAS_GENERATOR.asItem());
                     output.accept(ModBlocks.ITEM_COLLECTOR.asItem());
                     output.accept(ModBlocks.WIND_FUSION.asItem());
                     output.accept(ModBlocks.MACHINE_RESETTER.asItem());

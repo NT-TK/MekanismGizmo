@@ -22,6 +22,8 @@ public final class ClientModEvents {
         event.register(ModMenus.BASALT_GENERATOR.get(), BasaltGeneratorScreen::new);
         event.register(ModMenus.FLUID_INJECTOR.get(), FluidInjectorScreen::new);
         event.register(ModMenus.ITEM_COLLECTOR.get(), ItemCollectorScreen::new);
+        event.register(ModMenus.LIQUID_HEATER.get(), LiquidHeaterScreen::new);
+        event.register(ModMenus.IMPROVED_GAS_GENERATOR.get(), ImprovedGasGeneratorScreen::new);
         event.register(ModMenus.WIND_FUSION.get(), WindFusionScreen::new);
         event.register(ModMenus.MACHINE_RESETTER.get(), MachineResetterScreen::new);
     }

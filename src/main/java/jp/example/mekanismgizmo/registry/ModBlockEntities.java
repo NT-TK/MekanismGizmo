@@ -5,7 +5,9 @@ import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
+import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
 import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
@@ -51,6 +53,19 @@ public final class ModBlockEntities {
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR_ADVANCED = fluidInjector(ModBlocks.FLUID_INJECTOR_ADVANCED);
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR_ELITE = fluidInjector(ModBlocks.FLUID_INJECTOR_ELITE);
     public static final TileEntityTypeRegistryObject<FluidInjectorBlockEntity> FLUID_INJECTOR_ULTIMATE = fluidInjector(ModBlocks.FLUID_INJECTOR_ULTIMATE);
+
+    public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER = liquidHeater(ModBlocks.LIQUID_HEATER);
+    public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER_BASIC = liquidHeater(ModBlocks.LIQUID_HEATER_BASIC);
+    public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER_ADVANCED = liquidHeater(ModBlocks.LIQUID_HEATER_ADVANCED);
+    public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER_ELITE = liquidHeater(ModBlocks.LIQUID_HEATER_ELITE);
+    public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER_ULTIMATE = liquidHeater(ModBlocks.LIQUID_HEATER_ULTIMATE);
+
+    public static final TileEntityTypeRegistryObject<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = TILE_ENTITIES
+          .mekBuilder(ModBlocks.IMPROVED_GAS_GENERATOR,
+                (pos, state) -> new ImprovedGasGeneratorBlockEntity(ModBlocks.IMPROVED_GAS_GENERATOR, pos, state))
+          .clientTicker(TileEntityMekanism::tickClient)
+          .serverTicker(TileEntityMekanism::tickServer)
+          .build();
 
     public static final TileEntityTypeRegistryObject<ItemCollectorBlockEntity> ITEM_COLLECTOR = TILE_ENTITIES
           .mekBuilder(ModBlocks.ITEM_COLLECTOR, (pos, state) -> new ItemCollectorBlockEntity(ModBlocks.ITEM_COLLECTOR, pos, state))
@@ -100,6 +115,13 @@ public final class ModBlockEntities {
 
     private static TileEntityTypeRegistryObject<FluidInjectorBlockEntity> fluidInjector(BlockRegistryObject<?, ?> block) {
         return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new FluidInjectorBlockEntity(block, pos, state))
+              .clientTicker(TileEntityMekanism::tickClient)
+              .serverTicker(TileEntityMekanism::tickServer)
+              .build();
+    }
+
+    private static TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> liquidHeater(BlockRegistryObject<?, ?> block) {
+        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new LiquidHeaterBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
               .build();

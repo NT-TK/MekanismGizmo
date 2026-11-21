@@ -7,9 +7,9 @@ import json
 import os
 
 TIERS = ['', 'basic_', 'advanced_', 'elite_', 'ultimate_']
-MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'basalt_generator', 'fluid_injector']
+MACHINES = ['potion_brewer', 'ice_maker', 'cobblestone_generator', 'basalt_generator', 'fluid_injector', 'liquid_heater']
 # Machines that exist only once, without tiers
-SINGLES = ['item_collector', 'wind_fusion', 'machine_resetter']
+SINGLES = ['item_collector', 'wind_fusion', 'machine_resetter', 'improved_gas_generator']
 ASSETS = 'src/main/resources/assets/mekanismgizmo'
 DATA = 'src/main/resources/data/mekanismgizmo'
 COMPONENTS = ['mekanism:ejector', 'mekanism:owner', 'mekanism:redstone_control', 'mekanism:security',
@@ -145,6 +145,8 @@ EN_NAMES = {
     'item_collector': 'Item Collector',
     'wind_fusion': 'Wind Generator Fusion',
     'machine_resetter': 'Machine Resetter',
+    'liquid_heater': 'Liquid Heater',
+    'improved_gas_generator': 'Improved Gas Generator',
 }
 JA_NAMES = {
     'potion_brewer': '\u30dd\u30fc\u30b7\u30e7\u30f3\u91b8\u9020\u6a5f',
@@ -155,6 +157,8 @@ JA_NAMES = {
     'item_collector': '\u30a2\u30a4\u30c6\u30e0\u53ce\u96c6\u6a5f',
     'wind_fusion': '\u98a8\u529b\u767a\u96fb\u878d\u5408\u6a5f',
     'machine_resetter': '\u6a5f\u68b0\u30ea\u30bb\u30c3\u30c8\u6a5f',
+    'liquid_heater': '\u6db2\u4f53\u52a0\u71b1\u5668',
+    'improved_gas_generator': '\u6539\u826f\u578b\u30ac\u30b9\u767a\u96fb\u6a5f',
 }
 for lang, tier_names, machine_names in (('en_us', EN_TIER, EN_NAMES), ('ja_jp', JA_TIER, JA_NAMES)):
     path = f'{ASSETS}/lang/{lang}.json'

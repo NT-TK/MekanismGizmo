@@ -25,8 +25,14 @@
     "mekanismgizmo:advanced_fluid_injector",
     "mekanismgizmo:elite_fluid_injector",
     "mekanismgizmo:ultimate_fluid_injector",
+    "mekanismgizmo:liquid_heater",
+    "mekanismgizmo:basic_liquid_heater",
+    "mekanismgizmo:advanced_liquid_heater",
+    "mekanismgizmo:elite_liquid_heater",
+    "mekanismgizmo:ultimate_liquid_heater",
     "mekanismgizmo:item_collector",
     "mekanismgizmo:wind_fusion",
-    "mekanismgizmo:machine_resetter"
+    "mekanismgizmo:machine_resetter",
+    "mekanismgizmo:improved_gas_generator"
   ]
 }

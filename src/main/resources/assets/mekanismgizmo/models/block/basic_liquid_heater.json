@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/basic_liquid_heater_front",
+    "down": "mekanismgizmo:block/basic_liquid_heater_bottom",
+    "up": "mekanismgizmo:block/basic_liquid_heater_top",
+    "north": "mekanismgizmo:block/basic_liquid_heater_front",
+    "south": "mekanismgizmo:block/basic_liquid_heater_back",
+    "east": "mekanismgizmo:block/basic_liquid_heater_side",
+    "west": "mekanismgizmo:block/basic_liquid_heater_side"
+  }
+}

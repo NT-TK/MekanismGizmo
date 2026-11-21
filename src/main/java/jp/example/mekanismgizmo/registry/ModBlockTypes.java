@@ -5,7 +5,9 @@ import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
+import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
 import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
@@ -94,6 +96,29 @@ public final class ModBlockTypes {
     public static final Machine<FluidInjectorBlockEntity> FLUID_INJECTOR_ULTIMATE = fluidInjector(MachineTier.ULTIMATE,
           () -> ModBlockEntities.FLUID_INJECTOR_ULTIMATE, null);
 
+    // --- liquid heater ---
+    public static final Machine<LiquidHeaterBlockEntity> LIQUID_HEATER = liquidHeater(MachineTier.UNTIERED,
+          () -> ModBlockEntities.LIQUID_HEATER, () -> ModBlocks.LIQUID_HEATER_BASIC);
+    public static final Machine<LiquidHeaterBlockEntity> LIQUID_HEATER_BASIC = liquidHeater(MachineTier.BASIC,
+          () -> ModBlockEntities.LIQUID_HEATER_BASIC, () -> ModBlocks.LIQUID_HEATER_ADVANCED);
+    public static final Machine<LiquidHeaterBlockEntity> LIQUID_HEATER_ADVANCED = liquidHeater(MachineTier.ADVANCED,
+          () -> ModBlockEntities.LIQUID_HEATER_ADVANCED, () -> ModBlocks.LIQUID_HEATER_ELITE);
+    public static final Machine<LiquidHeaterBlockEntity> LIQUID_HEATER_ELITE = liquidHeater(MachineTier.ELITE,
+          () -> ModBlockEntities.LIQUID_HEATER_ELITE, () -> ModBlocks.LIQUID_HEATER_ULTIMATE);
+    public static final Machine<LiquidHeaterBlockEntity> LIQUID_HEATER_ULTIMATE = liquidHeater(MachineTier.ULTIMATE,
+          () -> ModBlockEntities.LIQUID_HEATER_ULTIMATE, null);
+
+    // --- improved gas generator (single tier) ---
+    public static final Machine<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = Machine.MachineBuilder
+          .createMachine(() -> ModBlockEntities.IMPROVED_GAS_GENERATOR, ModLang.DESCRIPTION_IMPROVED_GAS_GENERATOR)
+          .withGui(() -> ModMenus.IMPROVED_GAS_GENERATOR)
+          // Storage only: the machine produces energy instead of using it
+          .withEnergyConfig(() -> ImprovedGasGeneratorBlockEntity.ENERGY_CAPACITY)
+          .withSupportedUpgrades(Upgrade.MUFFLING)
+          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.CHEMICAL))
+          .replace(Attributes.ACTIVE)
+          .build();
+
     // --- item collector (single tier) ---
     public static final Machine<ItemCollectorBlockEntity> ITEM_COLLECTOR = Machine.MachineBuilder
           .createMachine(() -> ModBlockEntities.ITEM_COLLECTOR, ModLang.DESCRIPTION_ITEM_COLLECTOR)
@@ -172,6 +197,20 @@ public final class ModBlockTypes {
               .withEnergyConfig(() -> 10L * tier.getParallel(), () -> 12_000L * tier.getParallel())
               .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
               .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+              .replace(Attributes.ACTIVE);
+        addTier(builder, tier, next);
+        return builder.build();
+    }
+
+    private static Machine<LiquidHeaterBlockEntity> liquidHeater(MachineTier tier,
+          Supplier<TileEntityTypeRegistryObject<LiquidHeaterBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
+        Machine.MachineBuilder<Machine<LiquidHeaterBlockEntity>, LiquidHeaterBlockEntity, ?> builder = Machine.MachineBuilder
+              .createMachine(be, ModLang.DESCRIPTION_LIQUID_HEATER)
+              .withGui(() -> ModMenus.LIQUID_HEATER)
+              // 25 FE per mB of sodium: 500 mB per operation and 20 ticks per operation at tier one
+              .withEnergyConfig(() -> 625L * tier.getParallel(), () -> 12_000L * tier.getParallel())
+              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
+              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.CHEMICAL))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();

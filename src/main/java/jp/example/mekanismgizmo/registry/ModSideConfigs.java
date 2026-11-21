@@ -77,6 +77,30 @@ public final class ModSideConfigs {
           TransmissionType.FLUID, all(DataType.INPUT_OUTPUT),
           TransmissionType.ENERGY, all(DataType.INPUT)));
 
+    /** Sodium comes in as a chemical, the superheated sodium leaves on the front and the right side. */
+    public static final AttachedSideConfig LIQUID_HEATER = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.OUTPUT,
+                RelativeSide.LEFT, DataType.INPUT,
+                RelativeSide.RIGHT, DataType.OUTPUT,
+                RelativeSide.TOP, DataType.INPUT,
+                RelativeSide.BOTTOM, DataType.INPUT,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.CHEMICAL, all(DataType.INPUT_OUTPUT),
+          TransmissionType.ENERGY, all(DataType.INPUT)));
+
+    /** Fuel goes in on every face, the produced energy leaves through every face as well. */
+    public static final AttachedSideConfig IMPROVED_GAS_GENERATOR = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.NONE,
+                RelativeSide.LEFT, DataType.NONE,
+                RelativeSide.RIGHT, DataType.NONE,
+                RelativeSide.TOP, DataType.NONE,
+                RelativeSide.BOTTOM, DataType.NONE,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.CHEMICAL, all(DataType.INPUT),
+          TransmissionType.ENERGY, all(DataType.OUTPUT)));
+
     /** The collector pushes what it picked up out to every face except the energy port. */
     public static final AttachedSideConfig ITEM_COLLECTOR = new AttachedSideConfig(config(
           TransmissionType.ITEM, item(map(

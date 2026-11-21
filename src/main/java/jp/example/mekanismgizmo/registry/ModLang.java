@@ -16,6 +16,8 @@ public enum ModLang implements ILangEntry {
     DESCRIPTION_FLUID_INJECTOR("description", "fluid_injector"),
     DESCRIPTION_WIND_FUSION("description", "wind_fusion"),
     DESCRIPTION_MACHINE_RESETTER("description", "machine_resetter"),
+    DESCRIPTION_LIQUID_HEATER("description", "liquid_heater"),
+    DESCRIPTION_IMPROVED_GAS_GENERATOR("description", "improved_gas_generator"),
     TOOLTIP_CONTAINER_MODE("tooltip", "container_mode");
 
     private final String key;

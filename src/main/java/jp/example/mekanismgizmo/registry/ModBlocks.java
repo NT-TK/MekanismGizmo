@@ -9,8 +9,12 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlock;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlock;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlock;
+import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlock;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
+import jp.example.mekanismgizmo.block.LiquidHeaterBlock;
+import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
 import jp.example.mekanismgizmo.block.MachineResetterBlock;
 import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlock;
@@ -100,6 +104,32 @@ public final class ModBlocks {
     public static final BlockRegistryObject<FluidInjectorBlock, ItemBlockTooltip<FluidInjectorBlock>> FLUID_INJECTOR_ULTIMATE =
           fluidInjector("ultimate_fluid_injector", ModBlockTypes.FLUID_INJECTOR_ULTIMATE, MachineTier.ULTIMATE);
 
+    // --- liquid heater ---
+    public static final BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> LIQUID_HEATER =
+          liquidHeater("liquid_heater", ModBlockTypes.LIQUID_HEATER, MachineTier.UNTIERED);
+    public static final BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> LIQUID_HEATER_BASIC =
+          liquidHeater("basic_liquid_heater", ModBlockTypes.LIQUID_HEATER_BASIC, MachineTier.BASIC);
+    public static final BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> LIQUID_HEATER_ADVANCED =
+          liquidHeater("advanced_liquid_heater", ModBlockTypes.LIQUID_HEATER_ADVANCED, MachineTier.ADVANCED);
+    public static final BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> LIQUID_HEATER_ELITE =
+          liquidHeater("elite_liquid_heater", ModBlockTypes.LIQUID_HEATER_ELITE, MachineTier.ELITE);
+    public static final BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> LIQUID_HEATER_ULTIMATE =
+          liquidHeater("ultimate_liquid_heater", ModBlockTypes.LIQUID_HEATER_ULTIMATE, MachineTier.ULTIMATE);
+
+    // --- improved gas generator (single tier) ---
+    public static final BlockRegistryObject<ImprovedGasGeneratorBlock, ItemBlockTooltip<ImprovedGasGeneratorBlock>> IMPROVED_GAS_GENERATOR = BLOCKS
+          .register("improved_gas_generator", () -> new ImprovedGasGeneratorBlock(ModBlockTypes.IMPROVED_GAS_GENERATOR),
+                (block, properties) -> machineItem(block, properties, ModSideConfigs.IMPROVED_GAS_GENERATOR))
+          .forItemHolder(item -> item
+                // Fuel container slot + energy slot
+                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                      .addInput(1)
+                      .addEnergy()
+                      .build())
+                .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
+                      .addBasic(ImprovedGasGeneratorBlockEntity.GAS_CAPACITY)
+                      .build()));
+
     // --- item collector (single tier) ---
     public static final BlockRegistryObject<ItemCollectorBlock, ItemBlockTooltip<ItemCollectorBlock>> ITEM_COLLECTOR = BLOCKS
           .register("item_collector", () -> new ItemCollectorBlock(ModBlockTypes.ITEM_COLLECTOR),
@@ -180,6 +210,23 @@ public final class ModBlocks {
                     .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
                           .addOutput(parallel)
                           .addEnergy()
+                          .build()));
+    }
+
+    private static BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> liquidHeater(
+          String name, Machine<LiquidHeaterBlockEntity> type, MachineTier tier) {
+        int parallel = tier.getParallel();
+        return BLOCKS.register(name, () -> new LiquidHeaterBlock(type, tier),
+                    (block, properties) -> machineItem(block, properties, ModSideConfigs.LIQUID_HEATER))
+              .forItemHolder(item -> item
+                    // Energy slot only; the chemicals are piped in and out
+                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                          .addEnergy()
+                          .build())
+                    // Sodium tank first, superheated sodium tank second (same order as the block entity)
+                    .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
+                          .addBasic(LiquidHeaterBlockEntity.tankCapacity(parallel))
+                          .addBasic(LiquidHeaterBlockEntity.tankCapacity(parallel))
                           .build()));
     }
 
