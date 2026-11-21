@@ -32,6 +32,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -176,7 +177,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
 
     /** Cycles Both -&gt; Fill -&gt; Empty -&gt; Both. */
     public void cycleContainerMode() {
-        setContainerMode(ContainerEditMode.BY_ID.apply((containerMode.ordinal() + 1) % ContainerEditMode.values().length));
+        setContainerMode(modeFromOrdinal((containerMode.ordinal() + 1) % ContainerEditMode.values().length));
     }
 
     @Override
@@ -350,7 +351,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     public void addContainerTrackers(MekanismContainer container) {
         super.addContainerTrackers(container);
         container.track(SyncableInt.create(() -> containerMode.ordinal(),
-              ordinal -> containerMode = ContainerEditMode.BY_ID.apply(ordinal)));
+              ordinal -> containerMode = modeFromOrdinal(ordinal)));
     }
 
     /** True when there is a container in the input slot that could be converted right now. */
@@ -371,10 +372,19 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         return tag;
     }
 
+    /**
+     * Reads a mode from a stored ordinal. Older saves, a corrupted tag or a value written by another mod must not crash
+     * the machine, so out of range ordinals fall back to the closest valid mode.
+     */
+    private static ContainerEditMode modeFromOrdinal(int ordinal) {
+        ContainerEditMode[] modes = ContainerEditMode.values();
+        return modes[Mth.clamp(ordinal, 0, modes.length - 1)];
+    }
+
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
-        containerMode = ContainerEditMode.BY_ID.apply(tag.getInt("ContainerMode"));
+        containerMode = modeFromOrdinal(tag.getInt("ContainerMode"));
     }
 
     @Override
@@ -387,6 +397,6 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.FLUID_INJECTOR);
-        containerMode = ContainerEditMode.BY_ID.apply(tag.getInt("ContainerMode"));
+        containerMode = modeFromOrdinal(tag.getInt("ContainerMode"));
     }
 }

@@ -39,10 +39,23 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
         renderTitleText(guiGraphics);
         renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
-        guiGraphics.drawString(font, Component.translatable("gui.mekanismgizmo.wind_fusion.info",
+        Component info = Component.translatable("gui.mekanismgizmo.wind_fusion.info",
               AmountFormat.format(tile.getActiveGenerators()), AmountFormat.format(tile.getMaxGenerators()),
-              AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced())),
-              WindFusionBlockEntity.SLOT_X, WindFusionBlockEntity.INFO_Y, 0x404040, false);
+              AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced()));
+        // A full machine of compressed wind generators has long numbers, and translations differ in width, so the
+        // line is scaled down instead of running over the power bar
+        int available = WindFusionBlockEntity.POWER_BAR_X - WindFusionBlockEntity.SLOT_X - 4;
+        int width = font.width(info);
+        if (width > available) {
+            float scale = (float) available / width;
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().scale(scale, scale, 1F);
+            guiGraphics.drawString(font, info, Math.round(WindFusionBlockEntity.SLOT_X / scale),
+                  Math.round(WindFusionBlockEntity.INFO_Y / scale), 0x404040, false);
+            guiGraphics.pose().popPose();
+        } else {
+            guiGraphics.drawString(font, info, WindFusionBlockEntity.SLOT_X, WindFusionBlockEntity.INFO_Y, 0x404040, false);
+        }
     }
 
     @Override

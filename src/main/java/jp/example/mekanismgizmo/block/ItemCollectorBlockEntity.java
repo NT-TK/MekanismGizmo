@@ -71,7 +71,8 @@ public class ItemCollectorBlockEntity extends TileEntityConfigurableMachine {
     private MachineEnergyContainer<ItemCollectorBlockEntity> energyContainer;
     private EnergyInventorySlot energySlot;
 
-    private int ticker;
+    /** Ticks since the last scan. Not to be confused with {@code TileEntityMekanism.ticker}, which counts machine ticks. */
+    private int scanTicker;
     private boolean hadItems;
     /** Whether the collection area preview is rendered in the world (client side value, synced from the server). */
     private boolean renderArea;
@@ -212,8 +213,8 @@ public class ItemCollectorBlockEntity extends TileEntityConfigurableMachine {
         boolean sendUpdatePacket = super.onUpdateServer();
         energySlot.fillContainerOrConvert();
         boolean active = hadItems;
-        if (canFunction() && ++ticker >= getScanInterval()) {
-            ticker = 0;
+        if (canFunction() && ++scanTicker >= getScanInterval()) {
+            scanTicker = 0;
             long cost = getScanCost();
             if (energyContainer.extract(cost, Action.SIMULATE, AutomationType.INTERNAL) == cost) {
                 int found = collectItems();

@@ -143,7 +143,8 @@ The Machine Resetter takes such an item, spends 200 FE on it and hands back the 
 - the input must be a Mekanism machine item (a block item that carries machine data); casings, ordinary items and
   items with only fluid or gas tanks such as the pipettes are rejected
 - the result is the item's own default instance, so nothing of the old machine survives - not even the owner
-- 200 FE per item, 20 ticks at base speed, with the usual SPEED and ENERGY upgrades
+- 200 FE and 20 ticks at base speed per operation, with the usual SPEED and ENERGY upgrades; a whole stack is reset in
+  one operation
 
 ## Pipettes (gauge droppers)
 
@@ -403,7 +404,7 @@ Minecraft 1.21 以降の Mekanism は、機械の中身（所有者・セキュ�
 - 入力スロット（機械アイテム）→ 進捗矢印 → 出力スロット（リセット済みアイテム）
 - 入力できるのは Mekanism の機械アイテム（機械データを持つブロックアイテム）のみ。鋼ケーシングや普通のアイテム、スポイトのような液体・ガスタンクだけのアイテムは入りません
 - 出力は「そのアイテムのデフォルト状態」そのものなので、所有者を含めて古いデータは一切残りません
-- 1個あたり 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）
+- 1回の処理で 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）。スタックで入れた場合はまとめて1回で処理します
 
 ## スポイト（ゲージドロッパー）
 
