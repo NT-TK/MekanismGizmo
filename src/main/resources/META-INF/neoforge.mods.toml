@@ -8,7 +8,7 @@ version="${mod_version}"
 displayName="${mod_name}"
 authors="NT-TK"
 logoFile="logo.png"
-description='''Mekanismアドオン。ポーション醸造機・製氷機・電動丸石製造機・電動玄武岩製造機・流体注入機・液体加熱器・アイテム収集機・風力発電融合機・機械リセット機・改良型ガス発電機と、ティア付きスポイトを追加します。
+description='''Mekanismアドオン。ポーション醸造機・製氷機・電動丸石製造機・電動玄武岩製造機・流体注入機・液体加熱器・アイテム収集機・風力発電融合機・熱発電融合機・機械リセット機・改良型ガス発電機と、ティア付きスポイトを追加します。
 各機械（アイテム収集機・風力発電融合機・機械リセット機・改良型ガス発電機を除く）はティアなし＋Mekanismの基本/発展/精鋭/究極ティアに対応し、ティアが上がるほど並列処理数・エネルギー・タンク容量が増えます。'''
 
 [[dependencies.${mod_id}]]
@@ -30,7 +30,7 @@ versionRange="[10.7.19,10.7.20)"
 ordering="AFTER"
 side="BOTH"
 
-# Required: the wind generator fusion machine stores and mirrors Mekanism's wind generators
+# Required: the fusion machines store and mirror Mekanism's wind and heat generators
 [[dependencies.${mod_id}]]
 modId="mekanismgenerators"
 type="required"

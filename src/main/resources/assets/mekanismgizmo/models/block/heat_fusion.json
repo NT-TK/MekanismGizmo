@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekanismgizmo:block/heat_fusion_front",
+    "down": "mekanismgizmo:block/heat_fusion_bottom",
+    "up": "mekanismgizmo:block/heat_fusion_top",
+    "north": "mekanismgizmo:block/heat_fusion_front",
+    "south": "mekanismgizmo:block/heat_fusion_back",
+    "east": "mekanismgizmo:block/heat_fusion_side",
+    "west": "mekanismgizmo:block/heat_fusion_side"
+  }
+}

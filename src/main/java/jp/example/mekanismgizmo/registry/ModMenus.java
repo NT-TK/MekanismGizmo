@@ -5,6 +5,7 @@ import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.HeatFusionBlockEntity;
 import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
@@ -15,6 +16,7 @@ import jp.example.mekanismgizmo.menu.BasaltGeneratorMenu;
 import jp.example.mekanismgizmo.menu.CobblestoneGeneratorMenu;
 import jp.example.mekanismgizmo.menu.FluidInjectorMenu;
 import jp.example.mekanismgizmo.menu.IceMakerMenu;
+import jp.example.mekanismgizmo.menu.HeatFusionMenu;
 import jp.example.mekanismgizmo.menu.ImprovedGasGeneratorMenu;
 import jp.example.mekanismgizmo.menu.ItemCollectorMenu;
 import jp.example.mekanismgizmo.menu.LiquidHeaterMenu;
@@ -47,6 +49,9 @@ public final class ModMenus {
 
     public static final ContainerTypeRegistryObject<MekanismTileContainer<ImprovedGasGeneratorBlockEntity>> IMPROVED_GAS_GENERATOR = CONTAINER_TYPES
           .register("improved_gas_generator", ImprovedGasGeneratorBlockEntity.class, ImprovedGasGeneratorMenu::new);
+
+    public static final ContainerTypeRegistryObject<MekanismTileContainer<HeatFusionBlockEntity>> HEAT_FUSION = CONTAINER_TYPES
+          .register("heat_fusion", HeatFusionBlockEntity.class, HeatFusionMenu::new);
 
     public static final ContainerTypeRegistryObject<MekanismTileContainer<ItemCollectorBlockEntity>> ITEM_COLLECTOR = CONTAINER_TYPES
           .register("item_collector", ItemCollectorBlockEntity.class, ItemCollectorMenu::new);

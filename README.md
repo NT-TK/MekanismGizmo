@@ -23,11 +23,12 @@ Mekanism's own machines.
 | Liquid Heater | `mekanismgizmo:liquid_heater` | Heats sodium into superheated sodium with energy only: one operation turns 500 mB of sodium into 500 mB of superheated sodium and every tier runs one more operation in parallel. |
 | Machine Resetter | `mekanismgizmo:machine_resetter` | Strips every stored value from a machine item: owner, security, item/fluid/gas contents, stored energy, upgrades and side configuration. The result is exactly the item you get from crafting it. |
 | Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses Mekanism wind generators into one block: 27 slots that each hold a stack, so up to 1,728 generators. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 1,728 times that. Compressed wind generators (Compact Mekanism Machines, x2 - x532480) count as the generators they replace. |
-| Improved Gas Generator | `mekanismgizmo:improved_gas_generator` | A gas burning generator with 100 times the fuel tank (1,800,000 mB) and 100 times the internal buffer (20,000,000 FE) of Mekanism's own: the fuller the tank, the better the fuel is burned, from 20% efficiency when nearly empty up to 100% when full. |
+| Improved Gas Generator | `mekanismgizmo:improved_gas_generator` | A gas burning generator with 100 times the fuel tank (1,800,000 mB) and 100 times the internal buffer (20,000,000 FE) of Mekanism's own, burning with Mekanism's own formula with a ten times higher ceiling: a full ethene tank burns 64 mB/t instead of 6.4 mB/t. |
+| Heat Generator Fusion | `mekanismgizmo:heat_fusion` | Fuses Mekanism heat generators into one block: 27 slots that each hold a stack, so up to 1,728 generators, and every one of them produces what a heat generator produces at that position from the surrounding lava and the lava in the tank. Compressed heat generators (Compact Mekanism Machines) count as the generators they replace. |
 
 ## Tiers
 
-Every machine except the Item Collector, the Wind Generator Fusion, the Machine Resetter and the Improved Gas Generator comes in **five steps**: the plain machine you
+Every machine except the Item Collector, the Wind Generator Fusion, the Heat Generator Fusion, the Machine Resetter and the Improved Gas Generator comes in **five steps**: the plain machine you
 craft first, then Mekanism's four tiers. The tier is stored with Mekanism's own tier attributes, so **Mekanism's tier installers upgrade the machine
 in place** and keep the contents, energy, tanks, side configuration, owner and upgrades.
 
@@ -165,40 +166,81 @@ The Machine Resetter takes such an item, spends 200 FE on it and hands back the 
 
 ## Improved Gas Generator
 
-A gas burning generator with the fuel tank and the internal energy buffer scaled up a hundred times compared to
-Mekanism's own gas generator - so it is built to be worth **100 gas generators** - and, like the reactor of
-[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines), it burns **the more fuel the faster**:
-the burn rate follows how full the tank is.
+A gas burning generator with a hundred times the fuel tank and a hundred times the internal energy buffer of
+Mekanism's gas generator, burning its fuel with **Mekanism's own formula** - only with a higher ceiling, so a full
+tank tops out at 64 mB/t instead of Mekanism's 6.4 mB/t.
 
-Every number comes from Mekanism's own gas generator, so the screen reports the same values a gas generator reports.
+Mekanism's `TileEntityGasGenerator#getToUse()` in one place:
+
+```
+burnTicksPerTick = ceil(cap * fill)                 // cap = 256 in Mekanism, 2,560 here
+toUse = min(fuel inside, burnTicksPerTick)          // limited by what is in the tank
+toUse = min(toUse, bufferRoom / energyPerTick)      // limited by the energy buffer
+energy = energyPerTick * toUse                      // one burn tick is one tick of generation
+burnRate = toUse / burnTicks                        // the mB/t the screen shows
+```
 
 | | Mekanism gas generator | Improved Gas Generator |
 |---|---|---|
 | Fuel tank | 18,000 mB | 1,800,000 mB |
 | Energy buffer | 200,000 FE | 20,000,000 FE |
+| Burn tick ceiling | 256 per tick | 2,560 per tick |
+| Burn rate at a full tank | hydrogen 256 mB/t, ethene 6.4 mB/t | hydrogen 2,560 mB/t, ethene 64 mB/t |
 | Energy per mB | the fuel's own value | the same value (hydrogen 200 FE/mB, ethene 28,200 FE/mB) |
-| Burn rate | 1 mB every `burnTicks` ticks (hydrogen 1 mB/t, ethene 0.025 mB/t) | 100 / `burnTicks` mB per tick (hydrogen 100 mB/t, ethene 2.5 mB/t), scaled by the fill level |
-| Output | 200 FE/t (hydrogen), 705 FE/t (ethene) | 100 times that at a full tank, proportionally less with less fuel |
 
-| Fuel (Mekanism's own numbers) | Full tank | Half a tank | Quarter tank |
+| Fuel | Full tank | Half a tank | Quarter tank |
 |---|---|---|---|
-| Hydrogen - 1 mB/t, 200 FE/mB | 100 mB/t - 20,000 FE/t | 50 mB/t - 10,000 FE/t | 25 mB/t - 5,000 FE/t |
-| Ethene - 0.025 mB/t, 28,200 FE/mB | 2.5 mB/t - 70,500 FE/t | 1.25 mB/t - 35,250 FE/t | 0.625 mB/t - 17,625 FE/t |
+| Hydrogen - 200 FE/mB | 2,560 mB/t - 512,000 FE/t | 1,280 mB/t - 256,000 FE/t | 640 mB/t - 128,000 FE/t |
+| Ethene - 28,200 FE/mB | 64 mB/t - 1,804,800 FE/t | 32 mB/t - 902,400 FE/t | 16 mB/t - 451,200 FE/t |
 
 - the fuel value per mB is read from Mekanism's own `chemicalFuel` data map (with the legacy chemical attribute as the
   fallback), so every gas Mekanism accepts works here with exactly its own value and its own burn time - hydrogen
   200 FE/mB, ethene 28,200 FE/mB, and anything another mod adds to that data map
-- the burn rate of the tank is **proportional to the fill level**, the energy per mB never changes: a full tank burns
-  100 generators' worth, an almost empty tank only simmers along
-- the screen shows a **burn rate in mB/t** and the produced FE/t next to Mekanism's FE per mB for the stored gas (for
-  example `Burn Rate: 49.9 mB/t` and `9,990 FE/t - 200 FE/mB`), and the energy tab repeats the output
+- **the burn rate grows with the fill level**, because that is what Mekanism's own formula does
+  (`ceil(256 * stored / capacity)`): a full tank burns at the full rate, a quarter tank at a quarter of it
+- the screen shows a **burn rate in mB/t** and the produced FE/t next to Mekanism's FE per mB (for example
+  `Burn Rate: 32.0 mB/t` and `902,400 FE/t - 28,200 FE/mB`), and the energy tab repeats the output
+- **SPEED** upgrades multiply the burn ceiling with Mekanism's own speed formula (eight upgrades = x10, so a full
+  ethene tank burns 640 mB/t = 18,048,000 FE/t); MUFFLING is supported as well
 - gas is accepted on every face and through the gas container slot, the produced energy is exported on every face
-  configured as `Energy`, and an energy slot lets the buffer charge items (MUFFLING upgrade supported)
-- fuel is only burned when the buffer has room, so nothing is wasted on a full buffer
-- `GENERATOR_PARALLEL` in `ImprovedGasGeneratorBlockEntity` sets how many gas generators the machine is worth, if 100
-  turns out to be too much for a pack
+  configured as `Energy`, and an energy slot lets the buffer charge items
+- fuel is only burned while the buffer has room, so nothing is wasted
+- the ceiling is the single constant `BURN_TICKS_PER_TICK` in `ImprovedGasGeneratorBlockEntity`: 2,560 gives the numbers
+  above, Mekanism's own 256 gives exactly a gas generator's numbers (ethene 6.4 mB/t)
 - recipe: `ACA` / `GXG` / `ACA` - A = atomic alloy, C = ultimate control circuit, G = gas burning generator,
   X = steel casing
+
+## Heat Generator Fusion
+
+The wind fusion machine's counterpart for Mekanism's **heat generator**. Each inserted heat generator produces exactly
+what a heat generator produces at this position, so one inserted generator gives one generator's worth of power and a
+full machine gives 1,728 times that (27 slots, a full stack each). Compressed heat generators of Compact Mekanism
+Machines count as the number of generators they replace, so one stack of them can be worth far more than 64.
+
+Heating is Mekanism's own, taken from `GeneratorsConfig`: every lava block next to the machine adds
+`heatGenerationLava` (30), an ultra warm dimension adds `heatGenerationNether` (100), and lava in the internal tank is
+burned at `heatGenerationFluidRate` (10 mB/t) for `heatGeneration` (200) - so the classic setup (lava under the machine
+plus a lava tank) gives one generator's real output instead of an invented number.
+
+| | Value |
+|---|---|
+| Slots | 27 (3 rows of 9), a full stack each |
+| Generators in a full machine | 1,728 (more with compressed generators) |
+| Lava tank | 1,536,000 mB (64 heat generator tanks) |
+| Energy buffer | 160,000 FE per fused generator |
+| Measured output, lava below + lava in the tank | 139 FE/t per generator |
+| Measured temperature | ~739 K (a real heat generator sits around 751 K) |
+| 64 generators | 8,896 FE/t |
+| A full machine (1,728) | 240,192 FE/t |
+
+- the temperature, the heat capacity and the losses are a single heat generator's, so the machine's temperature behaves
+  like a real heat generator's and the power is simply multiplied by the number of fused generators
+- lava is accepted on every face, the produced energy is exported on every face configured as `Energy`, and an energy
+  slot on the back lets the buffer charge items
+- the generator slots are **internal storage**: pipes cannot pull the generators back out, only the player can
+- **MUFFLING** is supported; the machine has no energy cost of its own
+- the screen shows how many generators are fused out of how many could be, the current output and the temperature
+- recipe: `AHA` / `HPH` / `AHA` - A = basic alloy, H = heat generator, P = steel casing
 
 ## Pipettes (gauge droppers)
 
@@ -241,6 +283,7 @@ The base machines use Mekanism's machine recipe ingredients: a steel casing in t
 | Machine Resetter | `ACA` / `WXW` / `ACA` - A = redstone, C = basic control circuit, W = sponge, X = steel casing |
 | Liquid Heater | `ACA` / `HXH` / `ACA` - A = infused alloy, C = advanced control circuit, H = magma block, X = steel casing |
 | Improved Gas Generator | `ACA` / `GXG` / `ACA` - A = atomic alloy, C = ultimate control circuit, G = gas burning generator, X = steel casing |
+| Heat Generator Fusion | `AHA` / `HPH` / `AHA` - A = basic alloy, H = heat generator, P = steel casing |
 
 Tier upgrades follow Mekanism's factory tier recipes (`ACA` / `IPI` / `ACA`, P = previous machine):
 
@@ -351,11 +394,12 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 液体加熱器 | `mekanismgizmo:liquid_heater` | 電力だけでナトリウムを加熱し、加熱されたナトリウム（SUPERHEATED_SODIUM）を作ります。1回の操作でナトリウム500 mBを加熱されたナトリウム500 mBに変換し、ティアが上がるごとに並列数が増えます。 |
 | 機械リセット機 | `mekanismgizmo:machine_resetter` | 機械アイテムに保存されたデータ（所有者・セキュリティ・中身・液体・ガス・エネルギー・アップグレード・面設定）をすべて消去します。クラフトしたてのアイテムとまったく同じ状態になります。 |
 | 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、満杯なら1,728台分になります。Compact Mekanism Machines の圧縮風力発電機（x2〜x532480）は、それが代替する台数分として数えます。 |
-| 改良型ガス発電機 | `mekanismgizmo:improved_gas_generator` | Mekanismのガス発電機のガスタンクと内部バッファを100倍（1,800,000 mB / 20,000,000 FE）にしたガス発電機。タンクに燃料が残っているほど燃焼効率が上がり、空に近いと20%、満タンで100%になります。 |
+| 改良型ガス発電機 | `mekanismgizmo:improved_gas_generator` | Mekanismのガス発電機のガスタンクと内部バッファを100倍（1,800,000 mB / 20,000,000 FE）にしたガス発電機。燃焼の計算式はMekanism本体のままで上限だけ10倍にしてあり、エチレン満タンで 64 mB/t（本家は6.4 mB/t）燃やします。 |
+| 熱発電融合機 | `mekanismgizmo:heat_fusion` | Mekanismの熱発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた1台ごとに、周囲の溶岩とタンクの溶岩から、その場所での熱発電機1台分の発電をします。Compact Mekanism Machines の圧縮熱発電機は、それが代替する台数分として数えます。 |
 
 ## ティア
 
-アイテム収集機・風力発電融合機・機械リセット機・改良型ガス発電機以外の5機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
+アイテム収集機・風力発電融合機・熱発電融合機・機械リセット機・改良型ガス発電機以外の6機械は **「ティアなし → 基本 → 発展 → 精鋭 → 究極」の5段階**です。
 最初にクラフトするのはティアなしの機械で、以後は **Mekanismのティアインストーラーでそのまま昇格**できます
 （中身・エネルギー・タンク・面設定・所有者・アップグレードは保持されます）。
 
@@ -454,33 +498,45 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 
 ## 改良型ガス発電機
 
-Mekanismのガス発電機のガスタンクと内部バッファを100倍にした、**ガス発電機100台分**のガス発電機です。[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines)
-の原子炉と同じく **燃料が多いほど燃焼速度が上がる** ので、タンクの残量に比例して燃焼量（mB/t）が変わります。
+Mekanismのガス発電機のガスタンクと内部バッファを100倍にし、燃焼は **Mekanism本体と同じ計算式** で行うガス発電機です。
+違うのは上限だけで、満タン時の燃焼速度は本家の 6.4 mB/t に対して **64 mB/t** になります。
 
-数値はすべて Mekanism 本体のガス発電機から取っているので、画面には本家と同じ項目（mB/t・FE/t）が並びます。
+Mekanism の `TileEntityGasGenerator#getToUse()` はこの1か所に集約されています:
+
+```
+burnTicksPerTick = ceil(cap * fill)                 // cap は本家 256、当MODは 2,560
+toUse = min(タンク残量, burnTicksPerTick)            // タンクに入っている分まで
+toUse = min(toUse, バッファの空き / energyPerTick)    // 内部バッファに入る分まで
+energy = energyPerTick * toUse                      // burn tick 1 = 発電1tick分
+burnRate = toUse / burnTicks                        // 画面に出る mB/t
+```
 
 | | Mekanismのガス発電機 | 改良型ガス発電機 |
 |---|---|---|
 | ガスタンク | 18,000 mB | 1,800,000 mB |
 | 内部バッファ | 200,000 FE | 20,000,000 FE |
+| burn tick 上限 | 毎tick 256 | 毎tick 2,560 |
+| 満タン時の燃焼速度 | 水素 256 mB/t、エチレン 6.4 mB/t | 水素 2,560 mB/t、エチレン 64 mB/t |
 | 1 mBあたりのエネルギー | 燃料本来の値 | 同じ値（水素 200 FE/mB、エチレン 28,200 FE/mB） |
-| 燃焼速度 | `burnTicks` tickごとに 1 mB（水素 1 mB/t、エチレン 0.025 mB/t） | 100 / `burnTicks` mB/t（水素 100 mB/t、エチレン 2.5 mB/t）を残量で比例配分 |
-| 発電量 | 水素 200 FE/t、エチレン 705 FE/t | 満タンでその100倍、残量が減るとその分だけ低下 |
 
-| 燃料（本家の値） | 満タン | 半分 | 1/4 |
+| 燃料 | 満タン | 半分 | 1/4 |
 |---|---|---|---|
-| 水素 — 1 mB/t・200 FE/mB | 100 mB/t・20,000 FE/t | 50 mB/t・10,000 FE/t | 25 mB/t・5,000 FE/t |
-| エチレン — 0.025 mB/t・28,200 FE/mB | 2.5 mB/t・70,500 FE/t | 1.25 mB/t・35,250 FE/t | 0.625 mB/t・17,625 FE/t |
+| 水素 — 200 FE/mB | 2,560 mB/t・512,000 FE/t | 1,280 mB/t・256,000 FE/t | 640 mB/t・128,000 FE/t |
+| エチレン — 28,200 FE/mB | 64 mB/t・1,804,800 FE/t | 32 mB/t・902,400 FE/t | 16 mB/t・451,200 FE/t |
 
 - 燃料1 mBあたりのエネルギーは Mekanism 本体の `chemicalFuel` データマップ（旧ケミカル属性もフォールバック）から
   読むので、Mekanism が受け入れるガスはすべて本家と同じ値・同じ燃焼時間で使えます
-- **燃焼速度（mB/t）だけがタンクの残量に比例**し、1 mBあたりのエネルギーは変わりません
+- **燃焼速度はタンク残量に比例して上がります**。これは本家の式（`ceil(256 * stored / capacity)`）そのもので、
+  満タンなら上限、1/4なら上限の1/4になります
 - 画面には本家と同じく **燃焼速度（mB/t）** と **発電量（FE/t）・1 mBあたりの FE** を表示します
-  （例: 「燃焼速度: 49.9 mB/t」「9,990 FE/t・200 FE/mB」）。エネルギー情報タブにも現在の発電量を表示します
-- 内部バッファに空きがあるときだけ燃やすので、満タンで燃料を無駄にしません
+  （例: 「燃焼速度: 32.0 mB/t」「902,400 FE/t・28,200 FE/mB」）。エネルギー情報タブにも現在の発電量を表示します
+- **SPEEDアップグレード**はMekanismの速度式で上限を掛けます（8個で×10、満タンのエチレンで 640 mB/t・18,048,000 FE/t）。
+  MUFFLINGアップグレードにも対応しています
 - ガスはどの面からでも（ガス容器スロットからも）入れられ、発電したエネルギーは `Energy` に設定したすべての面から出力します。
-  エネルギースロットでバッファからアイテムを充電できます（MUFFLINGアップグレード対応）
-- 100台分が強すぎる場合は `ImprovedGasGeneratorBlockEntity.GENERATOR_PARALLEL` を下げれば、燃焼速度と発電量が同じ比率で下がります
+  エネルギースロットでバッファからアイテムを充電できます
+- 内部バッファに空きがあるときだけ燃やすので、満タンで燃料を無駄にしません
+- 上限は `ImprovedGasGeneratorBlockEntity.BURN_TICKS_PER_TICK` の1定数だけです（2,560 で上表、本家と同じ 256 にすると
+  エチレン 6.4 mB/t の本家と完全に同じ数値になります）
 - レシピ: `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング
 
 ## 風力発電融合機
@@ -500,6 +556,35 @@ Mekanismのガス発電機のガスタンクと内部バッファを100倍にし
 - 実際に入っている台数だけ発電するので、途中までしか入っていなければその分だけ発電します
 - 内部バッファは 184,025,088,000,000 FE（風力発電機の蓄電 200,000 FE × 最大台数分。最大圧縮の発電機を27スタック入れられる量）。`Energy` に設定したすべての面から出力します
 - エネルギースロットでバッファからアイテムを充電でき、画面には融合中の台数と現在の発電量（FE/t）を表示します
+
+## 熱発電融合機
+
+風力発電融合機の熱発電機版です。入れた熱発電機1台ごとに、Mekanismの熱発電機をその場所に置いたときと同じ発電をします。
+満杯（3×9スロット × 64個 = 1,728台）で1,728台分の発電になります。Compact Mekanism Machines の圧縮熱発電機は
+「その台数分」として数えるので、1スタックで64台を大きく超えることもあります。
+
+加熱の仕様は Mekanism 本体の `GeneratorsConfig` の値をそのまま使います。隣接する溶岩1ブロックにつき
+`heatGenerationLava`（30）、超高温ディメンションで `heatGenerationNether`（100）、内部タンクの溶岩は
+`heatGenerationFluidRate`（10 mB/t）で燃やして `heatGeneration`（200）です。つまり「真下に溶岩＋タンクに溶岩」
+という定番の置き方で、本家の熱発電機と同じ数値になります。
+
+| | 値 |
+|---|---|
+| スロット | 27（9×3）、1スロット64個まで |
+| 満杯時の台数 | 1,728台（圧縮版を入れればさらに増加） |
+| 溶岩タンク | 1,536,000 mB（熱発電機のタンク24,000 mB × 64） |
+| 内部バッファ | 融合1台につき 160,000 FE |
+| 実測（真下に溶岩＋タンクに溶岩） | 1台あたり 139 FE/t |
+| 実測温度 | 約739 K（本家の熱発電機は約751 K） |
+| 64台 | 8,896 FE/t |
+| 満杯（1,728台） | 240,192 FE/t |
+
+- 熱容量・放熱・温度計算は熱発電機1台分をそのまま使い、発電量だけを台数倍するので、温度は本家の熱発電機と同じように振る舞います
+- 溶岩はどの面からでも受け入れ、発電したエネルギーは `Energy` に設定したすべての面から出力します。背面のエネルギースロットでバッファからアイテムを充電できます
+- 発電機スロットは**内部収納**です。パイプで抜き取ることはできず、手で出し入れする専用です
+- **MUFFLING** に対応しています（機械自身はエネルギーを使いません）
+- 画面には「融合中の台数 / 最大台数」、現在の発電量、温度を表示します
+- レシピ: `AHA` / `HPH` / `AHA` — A=基本合金, H=熱発電機, P=鋼ケーシング
 
 ## 機械リセット機
 
@@ -552,6 +637,7 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 | 機械リセット機 | `ACA` / `WXW` / `ACA` — A=赤石, C=基礎制御回路, W=スポンジ, X=鋼ケーシング |
 | 液体加熱器 | `ACA` / `HXH` / `ACA` — A=強化合金, C=発展制御回路, H=マグマブロック, X=鋼ケーシング |
 | 改良型ガス発電機 | `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング |
+| 熱発電融合機 | `AHA` / `HPH` / `AHA` — A=基本合金, H=熱発電機, P=鋼ケーシング |
 
 ティア昇格は Mekanism の工場ティアレシピと同じ `ACA` / `IPI` / `ACA`（P＝前のティアの機械）です。
 

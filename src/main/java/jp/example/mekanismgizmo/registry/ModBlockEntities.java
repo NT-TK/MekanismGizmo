@@ -5,6 +5,7 @@ import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.HeatFusionBlockEntity;
 import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
@@ -63,6 +64,12 @@ public final class ModBlockEntities {
     public static final TileEntityTypeRegistryObject<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = TILE_ENTITIES
           .mekBuilder(ModBlocks.IMPROVED_GAS_GENERATOR,
                 (pos, state) -> new ImprovedGasGeneratorBlockEntity(ModBlocks.IMPROVED_GAS_GENERATOR, pos, state))
+          .clientTicker(TileEntityMekanism::tickClient)
+          .serverTicker(TileEntityMekanism::tickServer)
+          .build();
+
+    public static final TileEntityTypeRegistryObject<HeatFusionBlockEntity> HEAT_FUSION = TILE_ENTITIES
+          .mekBuilder(ModBlocks.HEAT_FUSION, (pos, state) -> new HeatFusionBlockEntity(ModBlocks.HEAT_FUSION, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
           .build();

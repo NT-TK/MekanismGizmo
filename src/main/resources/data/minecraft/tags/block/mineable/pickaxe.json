@@ -33,6 +33,7 @@
     "mekanismgizmo:item_collector",
     "mekanismgizmo:wind_fusion",
     "mekanismgizmo:machine_resetter",
-    "mekanismgizmo:improved_gas_generator"
+    "mekanismgizmo:improved_gas_generator",
+    "mekanismgizmo:heat_fusion"
   ]
 }

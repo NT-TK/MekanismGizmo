@@ -9,6 +9,8 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlock;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlock;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.HeatFusionBlock;
+import jp.example.mekanismgizmo.block.HeatFusionBlockEntity;
 import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlock;
 import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlock;
@@ -128,6 +130,20 @@ public final class ModBlocks {
                       .build())
                 .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
                       .addBasic(ImprovedGasGeneratorBlockEntity.GAS_CAPACITY)
+                      .build()));
+
+    // --- heat generator fusion (single tier) ---
+    public static final BlockRegistryObject<HeatFusionBlock, ItemBlockTooltip<HeatFusionBlock>> HEAT_FUSION = BLOCKS
+          .register("heat_fusion", () -> new HeatFusionBlock(ModBlockTypes.HEAT_FUSION),
+                (block, properties) -> machineItem(block, properties, ModSideConfigs.HEAT_FUSION))
+          .forItemHolder(item -> item
+                // 3x9 heat generator slots + energy slot, the same layout as the block entity
+                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
+                      .addInput(HeatFusionBlockEntity.SLOT_COUNT)
+                      .addEnergy()
+                      .build())
+                .addAttachmentOnlyContainers(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
+                      .addBasic(HeatFusionBlockEntity.LAVA_CAPACITY)
                       .build()));
 
     // --- item collector (single tier) ---

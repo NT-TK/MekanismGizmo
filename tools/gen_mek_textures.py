@@ -51,6 +51,7 @@ ACCENT = {
     'resetter': ((230, 205, 96), (176, 148, 48), (252, 238, 168)),
     'heater': ((255, 132, 62), (188, 68, 26), (255, 208, 156)),
     'gasgen': ((176, 236, 96), (104, 166, 40), (232, 255, 186)),
+    'heat': ((255, 96, 48), (170, 44, 20), (255, 192, 120)),
 }
 
 # Our own micro palette for the panel and the icons (kept in Mekanism's grey range)
@@ -233,6 +234,22 @@ def icon_heater(img):
         put(img, x, y, hi)
 
 
+def icon_heat(img):
+    """A thermometer: heat going in is turned into power."""
+    bright, dark, hi = ACCENT['heat']
+    for y in range(4, 11):
+        for x in (7, 8):
+            put(img, x, y, hi if x == 7 else bright)
+    for y in range(11, 13):
+        for x in (6, 7, 8, 9):
+            put(img, x, y, bright if y == 11 else dark)
+    # the bulb
+    for x, y in ((5, 9), (10, 9), (5, 10), (10, 10), (4, 11), (11, 11)):
+        put(img, x, y, bright)
+    for x, y in ((6, 12), (9, 12)):
+        put(img, x, y, hi)
+
+
 def icon_gasgen(img):
     """A flame: the gas that goes in is burned for power."""
     bright, dark, hi = ACCENT['gasgen']
@@ -256,6 +273,7 @@ ICONS = {
     'resetter': icon_sponge,
     'heater': icon_heater,
     'gasgen': icon_gasgen,
+    'heat': icon_heat,
 }
 
 
@@ -368,7 +386,8 @@ def main():
             count += 5
     # The single tier machines (the item collector, the wind generator fusion and the machine resetter)
     for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind'), ('machine_resetter', 'resetter'),
-                         ('improved_gas_generator', 'gasgen')):
+                         ('improved_gas_generator', 'gasgen'),
+                         ('heat_fusion', 'heat')):
         front_face(base, accent, '').save(OUT / f'{base}_front.png')
         side_face(base).save(OUT / f'{base}_side.png')
         top_face(base, accent).save(OUT / f'{base}_top.png')

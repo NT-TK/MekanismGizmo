@@ -101,6 +101,21 @@ public final class ModSideConfigs {
           TransmissionType.CHEMICAL, all(DataType.INPUT),
           TransmissionType.ENERGY, all(DataType.OUTPUT)));
 
+    /**
+     * The heat generators are internal storage that only the player can fill, so no side exposes item transport except
+     * the back (the energy slot). Lava is piped in on every side and the produced energy leaves through every face.
+     */
+    public static final AttachedSideConfig HEAT_FUSION = new AttachedSideConfig(config(
+          TransmissionType.ITEM, item(map(
+                RelativeSide.FRONT, DataType.NONE,
+                RelativeSide.LEFT, DataType.NONE,
+                RelativeSide.RIGHT, DataType.NONE,
+                RelativeSide.TOP, DataType.NONE,
+                RelativeSide.BOTTOM, DataType.NONE,
+                RelativeSide.BACK, DataType.ENERGY)),
+          TransmissionType.FLUID, all(DataType.INPUT),
+          TransmissionType.ENERGY, all(DataType.OUTPUT)));
+
     /** The collector pushes what it picked up out to every face except the energy port. */
     public static final AttachedSideConfig ITEM_COLLECTOR = new AttachedSideConfig(config(
           TransmissionType.ITEM, item(map(

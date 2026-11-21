@@ -5,6 +5,7 @@ import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.block.IceMakerBlockEntity;
+import jp.example.mekanismgizmo.block.HeatFusionBlockEntity;
 import jp.example.mekanismgizmo.block.ImprovedGasGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.ItemCollectorBlockEntity;
 import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
@@ -114,7 +115,8 @@ public final class ModBlockTypes {
           .withGui(() -> ModMenus.IMPROVED_GAS_GENERATOR)
           // Storage only: the machine produces energy instead of using it
           .withEnergyConfig(() -> ImprovedGasGeneratorBlockEntity.ENERGY_CAPACITY)
-          .withSupportedUpgrades(Upgrade.MUFFLING)
+          // SPEED raises the burn rate (and with it the fuel consumption and the output), MUFFLING quiets the machine
+          .withSupportedUpgrades(Upgrade.SPEED, Upgrade.MUFFLING)
           .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.CHEMICAL))
           .replace(Attributes.ACTIVE)
           .build();
@@ -137,6 +139,17 @@ public final class ModBlockTypes {
           .withEnergyConfig(() -> WindFusionBlockEntity.ENERGY_CAPACITY)
           .withSupportedUpgrades(Upgrade.MUFFLING)
           .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .replace(Attributes.ACTIVE)
+          .build();
+
+    // --- heat generator fusion (single tier) ---
+    public static final Machine<HeatFusionBlockEntity> HEAT_FUSION = Machine.MachineBuilder
+          .createMachine(() -> ModBlockEntities.HEAT_FUSION, ModLang.DESCRIPTION_HEAT_FUSION)
+          .withGui(() -> ModMenus.HEAT_FUSION)
+          // Storage only: the machine produces energy instead of using it
+          .withEnergyConfig(() -> HeatFusionBlockEntity.ENERGY_CAPACITY)
+          .withSupportedUpgrades(Upgrade.MUFFLING)
+          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.FLUID))
           .replace(Attributes.ACTIVE)
           .build();
 

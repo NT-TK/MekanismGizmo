@@ -46,6 +46,7 @@ public final class ModCreativeTabs {
                     output.accept(ModBlocks.LIQUID_HEATER_ELITE.asItem());
                     output.accept(ModBlocks.LIQUID_HEATER_ULTIMATE.asItem());
                     output.accept(ModBlocks.IMPROVED_GAS_GENERATOR.asItem());
+                    output.accept(ModBlocks.HEAT_FUSION.asItem());
                     output.accept(ModBlocks.ITEM_COLLECTOR.asItem());
                     output.accept(ModBlocks.WIND_FUSION.asItem());
                     output.accept(ModBlocks.MACHINE_RESETTER.asItem());
