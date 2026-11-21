@@ -1,6 +1,7 @@
 package jp.example.mekanismgizmo.client;
 
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
+import jp.example.mekanismgizmo.util.AmountFormat;
 import java.util.List;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
@@ -39,8 +40,8 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
         renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         guiGraphics.drawString(font, Component.translatable("gui.mekanismgizmo.wind_fusion.info",
-              tile.getActiveGenerators(), WindFusionBlockEntity.MAX_GENERATORS,
-              (long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced()),
+              AmountFormat.format(tile.getActiveGenerators()), AmountFormat.format(tile.getMaxGenerators()),
+              AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced())),
               WindFusionBlockEntity.SLOT_X, WindFusionBlockEntity.INFO_Y, 0x404040, false);
     }
 
@@ -56,8 +57,8 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
     private List<Component> getEnergyInfo() {
         return List.of(
               Component.translatable("gui.mekanismgizmo.wind_fusion.energy",
-                    tile.getEnergyContainer().getEnergy(), WindFusionBlockEntity.ENERGY_CAPACITY),
+                    AmountFormat.format(tile.getEnergyContainer().getEnergy()), AmountFormat.format(WindFusionBlockEntity.ENERGY_CAPACITY)),
               Component.translatable("gui.mekanismgizmo.wind_fusion.output",
-                    (long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced()));
+                    AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced())));
     }
 }

@@ -3,6 +3,7 @@ package jp.example.mekanismgizmo.block;
 import java.util.List;
 import jp.example.mekanismgizmo.registry.ModSideConfigs;
 import jp.example.mekanismgizmo.util.MachineSideDefaults;
+import jp.example.mekanismgizmo.util.WindGeneratorUnits;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
@@ -33,8 +34,10 @@ import net.minecraft.world.level.block.state.BlockState;
  * <p>
  * The block fuses up to {@link #SLOT_COUNT} Mekanism wind generators into a single machine: every inserted wind
  * generator produces exactly what the same wind generator would produce at this position, so one generator gives one
- * generator worth of power, two give twice that, and a full machine gives twenty-seven times that. Like Mekanism's own
- * wind generator the output depends on the height of the machine (and therefore on the sky, the weather and the
+ * generator worth of power, two give twice that, and a full machine gives twenty-seven times that. The compressed wind
+ * generators of Compact Mekanism Machines are accepted as well and count as the number of generators they replace (an
+ * {@code x532480} block counts as 532480 generators), because that is exactly what they produce on their own. Like
+ * Mekanism's own wind generator the output depends on the height of the machine (and therefore on the sky and the
  * dimension), and the produced energy is stored in an internal buffer and pushed to cables on every side.
  * <p>
  * Everything else - the side configuration, redstone control, security, the energy item slot and the data synced to the
@@ -47,10 +50,14 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     public static final int ROWS = SLOT_COUNT / COLUMNS;
     /** Every slot holds a full stack of wind generators, so a full machine fuses 27 x 64 of them. */
     public static final int MAX_STACK = 64;
-    public static final int MAX_GENERATORS = SLOT_COUNT * MAX_STACK;
+    /**
+     * Largest number of generators the machine can hold: 27 stacks of the most compressed wind generator there is
+     * ({@code x532480}).
+     */
+    public static final long MAX_UNITS = (long) SLOT_COUNT * MAX_STACK * WindGeneratorUnits.LARGEST_COMPRESSION;
     /** Energy the machine can buffer: Mekanism's own wind generator storage, once per fusable generator. */
     public static final long BUFFER_PER_GENERATOR = 200_000L;
-    public static final long ENERGY_CAPACITY = BUFFER_PER_GENERATOR * MAX_GENERATORS;
+    public static final long ENERGY_CAPACITY = BUFFER_PER_GENERATOR * MAX_UNITS;
     /** How often the position dependent multiplier is recalculated (Mekanism uses the same interval). */
     public static final int REFRESH_INTERVAL = 20;
     /** Height above the machine that has to see the sky for it to catch wind, like Mekanism's wind generator. */
@@ -76,9 +83,11 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     /** Wind strength multiplier at this position, 0 when the machine cannot catch any wind. */
     private double multiplier;
     /** Number of fused generators, synced to the screen. */
-    private int activeGenerators;
+    private int activeUnits;
+    /** Number of generators the machine could hold with the items it contains, synced to the screen. */
+    private int maxUnits = SLOT_COUNT * MAX_STACK;
     /** Power one fused generator produces here, synced to the screen. */
-    private int generationPerGenerator;
+    private int generationPerUnit;
     private boolean blacklistDimension;
 
     public WindFusionBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
@@ -141,36 +150,55 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
         boolean sendUpdatePacket = super.onUpdateServer();
         energySlot.drainContainer();
 
-        activeGenerators = countGenerators();
+        countUnits();
         if (ticker % REFRESH_INTERVAL == 0) {
             // The output only changes when the height, the sky or the weather changes, so Mekanism recalculates it
             // once a second as well
             multiplier = getMultiplier();
-            generationPerGenerator = getGenerationPerGenerator();
+            generationPerUnit = getGenerationPerUnit();
         }
-        boolean generating = canFunction() && !blacklistDimension && activeGenerators > 0 && generationPerGenerator > 0;
+        boolean generating = canFunction() && !blacklistDimension && activeUnits > 0 && generationPerUnit > 0;
         setActive(generating);
         if (generating && energyContainer.getNeeded() > 0) {
             // One generator worth per fused generator: a full machine produces 27 times a single wind generator
-            energyContainer.insert((long) activeGenerators * generationPerGenerator, Action.EXECUTE, AutomationType.INTERNAL);
+            energyContainer.insert((long) activeUnits * generationPerUnit, Action.EXECUTE, AutomationType.INTERNAL);
         }
         return sendUpdatePacket;
     }
 
-    /** Number of wind generators inside the machine. */
-    public int countGenerators() {
+    /**
+     * Recounts the wind generators inside the machine. Compressed wind generators count as the number of generators
+     * they replace, and the displayed maximum follows the most compressed item inside, so a machine full of
+     * compressed generators is not shown as "37 / 1,728".
+     */
+    private void countUnits() {
         if (generatorSlots == null) {
-            return 0;
+            activeUnits = 0;
+            maxUnits = SLOT_COUNT * MAX_STACK;
+            return;
         }
-        int count = 0;
+        long units = 0;
+        int largest = 1;
         for (WindGeneratorSlot slot : generatorSlots) {
-            count += slot.getCount();
+            if (slot.isEmpty()) {
+                continue;
+            }
+            int perItem = WindGeneratorUnits.of(slot.getStack());
+            largest = Math.max(largest, perItem);
+            units += (long) perItem * slot.getCount();
         }
-        return count;
+        activeUnits = (int) Math.min(units, Integer.MAX_VALUE);
+        maxUnits = (int) Math.min((long) SLOT_COUNT * MAX_STACK * largest, Integer.MAX_VALUE);
+    }
+
+    /** Number of wind generators (compressed ones counted as what they replace) inside the machine. */
+    public int countGenerators() {
+        countUnits();
+        return activeUnits;
     }
 
     /** Power a single fused generator produces at this position, mirroring Mekanism's wind generator. */
-    public int getGenerationPerGenerator() {
+    public int getGenerationPerUnit() {
         return (int) MathUtils.clampToLong(MekanismGeneratorsConfig.generators.windGenerationMin.get() * multiplier);
     }
 
@@ -209,12 +237,17 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
 
     /** Number of fused generators the screen shows. */
     public int getActiveGenerators() {
-        return activeGenerators;
+        return activeUnits;
+    }
+
+    /** Number of generators the machine could hold with the items it contains, as shown on the screen. */
+    public int getMaxGenerators() {
+        return maxUnits;
     }
 
     /** Power one fused generator produces here, as shown on the screen. */
     public int getGenerationPerGeneratorSynced() {
-        return generationPerGenerator;
+        return generationPerUnit;
     }
 
     public WindGeneratorSlot[] getGeneratorSlots() {
@@ -224,8 +257,9 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     @Override
     public void addContainerTrackers(MekanismContainer container) {
         super.addContainerTrackers(container);
-        container.track(SyncableInt.create(() -> activeGenerators, value -> activeGenerators = value));
-        container.track(SyncableInt.create(() -> generationPerGenerator, value -> generationPerGenerator = value));
+        container.track(SyncableInt.create(() -> activeUnits, value -> activeUnits = value));
+        container.track(SyncableInt.create(() -> maxUnits, value -> maxUnits = value));
+        container.track(SyncableInt.create(() -> generationPerUnit, value -> generationPerUnit = value));
         container.track(SyncableBoolean.create(() -> blacklistDimension, value -> blacklistDimension = value));
     }
 }

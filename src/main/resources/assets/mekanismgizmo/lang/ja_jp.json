@@ -63,7 +63,7 @@
   "description.mekanismgizmo.item_collector": "設定した範囲に落ちているアイテムを回収する機械",
   "description.mekanismgizmo.machine_resetter": "機械アイテムに保存されたデータ（所有者・セキュリティ・中身・エネルギー・アップグレード・面設定）をすべて消去します",
   "description.mekanismgizmo.potion_brewer": "ポーションを醸造する機械",
-  "description.mekanismgizmo.wind_fusion": "風力発電機を最大 27 台まで 1 ブロックに融合する機械。入れた風力発電機 1 台ごとに、その場所での発電量を発電します",
+  "description.mekanismgizmo.wind_fusion": "風力発電機を最大 27 スタックまで 1 ブロックに融合する機械。入れた風力発電機 1 台ごとに、その場所での発電量を発電します。Compact Mekanism Machines の圧縮風力発電機は、それが代替する台数分として数えます",
   "emi.category.mekanismgizmo.basalt_generator": "電動玄武岩製造機",
   "emi.category.mekanismgizmo.cobblestone_generator": "電動丸石製造機",
   "emi.category.mekanismgizmo.fluid_injector": "流体注入機",

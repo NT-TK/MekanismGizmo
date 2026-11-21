@@ -63,7 +63,7 @@
   "description.mekanismgizmo.item_collector": "Collects dropped items in a configurable area around the machine",
   "description.mekanismgizmo.machine_resetter": "Strips every stored value from a machine item: owner, security, item/fluid/gas contents, energy, upgrades and the side configuration",
   "description.mekanismgizmo.potion_brewer": "Brews potions using blaze powder gas",
-  "description.mekanismgizmo.wind_fusion": "Fuses up to 27 wind generators into a single block: every inserted wind generator produces the power it would produce at this position",
+  "description.mekanismgizmo.wind_fusion": "Fuses up to 27 stacks of wind generators into a single block: every inserted wind generator produces the power it would produce at this position, and compressed wind generators from Compact Mekanism Machines count as the generators they replace",
   "emi.category.mekanismgizmo.basalt_generator": "Electric Basalt Generator",
   "emi.category.mekanismgizmo.cobblestone_generator": "Electric Cobblestone Generator",
   "emi.category.mekanismgizmo.fluid_injector": "Fluid Injector",

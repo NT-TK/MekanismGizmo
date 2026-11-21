@@ -63,3 +63,13 @@ type="optional"
 versionRange="[19.2,)"
 ordering="AFTER"
 side="BOTH"
+
+# Optional: the wind generator fusion machine also accepts the compressed wind generators of Compact Mekanism Machines
+# and counts each of them as the generators it replaces. Nothing is compiled against that mod - its items are matched
+# by registry name - so this entry only tells mod lists why the two work well together.
+[[dependencies.${mod_id}]]
+modId="compactmekanismmachines"
+type="optional"
+versionRange="[0.1,)"
+ordering="AFTER"
+side="BOTH"

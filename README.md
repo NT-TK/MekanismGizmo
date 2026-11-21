@@ -21,7 +21,7 @@ Mekanism's own machines.
 | Item Collector | `mekanismgizmo:item_collector` | Collects dropped items in a configurable n x n x n box (1-9 blocks per axis with a -5..+5 offset), 27 output slots and an in-world area preview. |
 | Fluid Injector | `mekanismgizmo:fluid_injector` | Fills or empties buckets, Mekanism fluid tanks and vanilla bottles from its internal tank (Fill / Empty / Both modes). |
 | Machine Resetter | `mekanismgizmo:machine_resetter` | Strips every stored value from a machine item: owner, security, item/fluid/gas contents, stored energy, upgrades and side configuration. The result is exactly the item you get from crafting it. |
-| Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses Mekanism wind generators into one block: 27 slots that each hold a stack, so up to 1,728 generators. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 1,728 times that. |
+| Wind Generator Fusion | `mekanismgizmo:wind_fusion` | Fuses Mekanism wind generators into one block: 27 slots that each hold a stack, so up to 1,728 generators. Every generator inside produces exactly the power it would produce at that position, so 3 generators give 3 generators' worth of power and a full machine gives 1,728 times that. Compressed wind generators (Compact Mekanism Machines, x2 - x532480) count as the generators they replace. |
 
 ## Tiers
 
@@ -116,13 +116,18 @@ same position.
 
 - every slot holds a full stack of 64, so a full machine fuses 1,728 wind generators
 - 1 generator = 1 generator's output, 2 = twice that, a full machine (1,728) = 1,728 times that
+- the compressed wind generators of [Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines)
+  are accepted too (`compressed_wind_generator_x2` up to `_x532480`, and the older `wind_generator_xN` names). Because
+  those blocks produce exactly N times what a wind generator produces at the same position, each one counts as N
+  generators, and the maximum on the screen follows the most compressed item inside
 - the slots are internal storage, not an input: you fill them by hand and pipes can neither insert nor extract them
   (the back face still lets cables charge or drain items through the energy slot)
 - the output uses Mekanism's own wind formula (`windGenerationMin` -> `windGenerationMax` between `windGenerationMinY`
   and `windGenerationMaxY`), so height, sky access and the dimension behave like a real wind generator
 - the machine only counts what is actually inside, so a partly filled machine produces partially
-- 345,600,000 FE internal buffer (Mekanism's wind generator storage of 200,000 FE, once per fusable generator), energy
-  is exported on every face that is configured as `Energy`
+- 184,025,088,000,000 FE internal buffer (Mekanism's wind generator storage of 200,000 FE, once per fusable
+  generator, so 27 stacks of the largest compressed generator fit), energy is exported on every face that is
+  configured as `Energy`
 - an energy slot lets the buffer charge items, and the screen shows the fused count and the current FE/t
 
 ## Machine Resetter
@@ -232,6 +237,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | NeoForge | 21.1.194 or newer |
 | Mekanism | 10.7.19.x |
 | Mekanism Generators | 10.7.19.x (required by the Wind Generator Fusion) |
+| Compact Mekanism Machines | optional (its compressed wind generators can go into the Wind Generator Fusion) |
 | JEI | optional (client side only) |
 | EMI | optional (client side only) |
 | AE2 | optional (pattern encoding) |
@@ -284,7 +290,7 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
 | アイテム収集機 | `mekanismgizmo:item_collector` | 設定した n×n×n の範囲（各軸1〜9、オフセット−５〜+5）に落ちているアイテムを回収します。出力27枠、範囲プレビュー付き。 || 流体注入機 | `mekanismgizmo:fluid_injector` | 内部タンクからバケツ・Mekanismの液体タンク・バニラの瓶を「注入／回収／両方」で出し入れします。 |
 | 機械リセット機 | `mekanismgizmo:machine_resetter` | 機械アイテムに保存されたデータ（所有者・セキュリティ・中身・液体・ガス・エネルギー・アップグレード・面設定）をすべて消去します。クラフトしたてのアイテムとまったく同じ状態になります。 |
-| 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、満杯なら1,728台分になります。 |
+| 風力発電融合機 | `mekanismgizmo:wind_fusion` | Mekanismの風力発電機を1ブロックに融合します。スロットは27個でそれぞれスタック（64個）まで入るので、最大1,728台。入れた発電機1台ごとに、その場所での風力発電機1台分の発電をするので、3台なら3台分、満杯なら1,728台分になります。Compact Mekanism Machines の圧縮風力発電機（x2〜x532480）は、それが代替する台数分として数えます。 |
 
 ## ティア
 
@@ -376,12 +382,16 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 入れた1台ごとに、Mekanismの風力発電機をその場所に置いたときと同じ発電量を出します。
 
 - 1スロットに64個（スタック）まで入るので、満杯で1,728台
+- [Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines) の圧縮風力発電機
+  （`compressed_wind_generator_x2`〜`_x532480`、旧名の `wind_generator_xN` も可）も入ります。圧縮発電機は
+  「その場所での風力発電機 N 台分」をそのまま発電するので、1個＝N台分として数えます。画面の最大値も、入っている
+  中で最も圧縮率の高いアイテムに合わせて変わります
 - 1台＝風力発電機1台分、2台＝2台分、満杯（1,728台）＝1,728台分
 - スロットは「入力」ではなく機械の内部収納です。手で出し入れする専用で、パイプは出し入れできません
   （背面だけはケーブルからエネルギースロット経由でアイテムを充放電できます）
 - 発電量は Mekanism 本体の計算式（`windGenerationMin`〜`windGenerationMax` を `windGenerationMinY`〜`windGenerationMaxY` で補間）をそのまま使うため、高さ・天空・ディメンションの扱いも本家と同じです
 - 実際に入っている台数だけ発電するので、途中までしか入っていなければその分だけ発電します
-- 内部バッファは 345,600,000 FE（風力発電機の蓄電 200,000 FE × 最大1,728台）。`Energy` に設定したすべての面から出力します
+- 内部バッファは 184,025,088,000,000 FE（風力発電機の蓄電 200,000 FE × 最大台数分。最大圧縮の発電機を27スタック入れられる量）。`Energy` に設定したすべての面から出力します
 - エネルギースロットでバッファからアイテムを充電でき、画面には融合中の台数と現在の発電量（FE/t）を表示します
 
 ## 機械リセット機
@@ -509,6 +519,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 | NeoForge | 21.1.194 以降 |
 | Mekanism | 10.7.19.x |
 | Mekanism Generators | 10.7.19.x（風力発電融合機で必須） |
+| Compact Mekanism Machines | 任意（圧縮風力発電機を風力発電融合機に入れられます） |
 | JEI | 任意（クライアント側のみ） |
 | EMI | 任意（クライアント側のみ） |
 | AE2 | 任意（パターン作成連携） |
