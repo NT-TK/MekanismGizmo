@@ -166,26 +166,37 @@ The Machine Resetter takes such an item, spends 200 FE on it and hands back the 
 ## Improved Gas Generator
 
 A gas burning generator with the fuel tank and the internal energy buffer scaled up a hundred times compared to
-Mekanism's own gas generator, and with the combustion behaviour of the reactor in
-[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines): **the more fuel in the tank, the
-better it is burned**.
+Mekanism's own gas generator - so it is built to be worth **100 gas generators** - and, like the reactor of
+[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines), it burns **the more fuel the faster**:
+the burn rate follows how full the tank is.
+
+Every number comes from Mekanism's own gas generator, so the screen reports the same values a gas generator reports.
 
 | | Mekanism gas generator | Improved Gas Generator |
 |---|---|---|
 | Fuel tank | 18,000 mB | 1,800,000 mB |
 | Energy buffer | 200,000 FE | 20,000,000 FE |
-| Burn rate | fuel value per tick | 20 mB per tick while the buffer has room |
-| Efficiency | 100% | 20% (nearly empty) to 100% (full), linear with the fill level |
+| Energy per mB | the fuel's own value | the same value (hydrogen 200 FE/mB, ethene 28,200 FE/mB) |
+| Burn rate | 1 mB every `burnTicks` ticks (hydrogen 1 mB/t, ethene 0.025 mB/t) | 100 / `burnTicks` mB per tick (hydrogen 100 mB/t, ethene 2.5 mB/t), scaled by the fill level |
+| Output | 200 FE/t (hydrogen), 705 FE/t (ethene) | 100 times that at a full tank, proportionally less with less fuel |
+
+| Fuel (Mekanism's own numbers) | Full tank | Half a tank | Quarter tank |
+|---|---|---|---|
+| Hydrogen - 1 mB/t, 200 FE/mB | 100 mB/t - 20,000 FE/t | 50 mB/t - 10,000 FE/t | 25 mB/t - 5,000 FE/t |
+| Ethene - 0.025 mB/t, 28,200 FE/mB | 2.5 mB/t - 70,500 FE/t | 1.25 mB/t - 35,250 FE/t | 0.625 mB/t - 17,625 FE/t |
 
 - the fuel value per mB is read from Mekanism's own `chemicalFuel` data map (with the legacy chemical attribute as the
-  fallback), so every gas Mekanism accepts works here with exactly its own value - hydrogen 200 FE/mB, ethene
-  28,200 FE/mB, and anything another mod adds to that data map
-- the **combustion efficiency** multiplies that value: an empty tank only gets a fifth of it, a full tank gets all of
-  it. With hydrogen that is 4,000 FE/t from a full tank and 2,400 FE/t at half a tank (60%), with ethene 563,950 FE/t
-  from a full tank
-- fuel is only burned when the buffer has room, so nothing is wasted on a full buffer
+  fallback), so every gas Mekanism accepts works here with exactly its own value and its own burn time - hydrogen
+  200 FE/mB, ethene 28,200 FE/mB, and anything another mod adds to that data map
+- the burn rate of the tank is **proportional to the fill level**, the energy per mB never changes: a full tank burns
+  100 generators' worth, an almost empty tank only simmers along
+- the screen shows a **burn rate in mB/t** and the produced FE/t next to Mekanism's FE per mB for the stored gas (for
+  example `Burn Rate: 49.9 mB/t` and `9,990 FE/t - 200 FE/mB`), and the energy tab repeats the output
 - gas is accepted on every face and through the gas container slot, the produced energy is exported on every face
   configured as `Energy`, and an energy slot lets the buffer charge items (MUFFLING upgrade supported)
+- fuel is only burned when the buffer has room, so nothing is wasted on a full buffer
+- `GENERATOR_PARALLEL` in `ImprovedGasGeneratorBlockEntity` sets how many gas generators the machine is worth, if 100
+  turns out to be too much for a pack
 - recipe: `ACA` / `GXG` / `ACA` - A = atomic alloy, C = ultimate control circuit, G = gas burning generator,
   X = steel casing
 
@@ -443,23 +454,33 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 
 ## 改良型ガス発電機
 
-Mekanismのガス発電機のガスタンクと内部バッファを100倍にし、[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines)
-の原子炉と同じく **燃料が多いほど燃焼効率が上がる** ガス発電機です。
+Mekanismのガス発電機のガスタンクと内部バッファを100倍にした、**ガス発電機100台分**のガス発電機です。[Compact Mekanism Machines](https://github.com/nanaios/CompactMekaniasmMachines)
+の原子炉と同じく **燃料が多いほど燃焼速度が上がる** ので、タンクの残量に比例して燃焼量（mB/t）が変わります。
+
+数値はすべて Mekanism 本体のガス発電機から取っているので、画面には本家と同じ項目（mB/t・FE/t）が並びます。
 
 | | Mekanismのガス発電機 | 改良型ガス発電機 |
 |---|---|---|
 | ガスタンク | 18,000 mB | 1,800,000 mB |
 | 内部バッファ | 200,000 FE | 20,000,000 FE |
-| 燃焼量 | 燃料の値に依存 | 内部バッファに空きがある間、毎tick 20 mB |
-| 燃焼効率 | 100% | 空に近いと20%、満タンで100%（残量に比例） |
+| 1 mBあたりのエネルギー | 燃料本来の値 | 同じ値（水素 200 FE/mB、エチレン 28,200 FE/mB） |
+| 燃焼速度 | `burnTicks` tickごとに 1 mB（水素 1 mB/t、エチレン 0.025 mB/t） | 100 / `burnTicks` mB/t（水素 100 mB/t、エチレン 2.5 mB/t）を残量で比例配分 |
+| 発電量 | 水素 200 FE/t、エチレン 705 FE/t | 満タンでその100倍、残量が減るとその分だけ低下 |
+
+| 燃料（本家の値） | 満タン | 半分 | 1/4 |
+|---|---|---|---|
+| 水素 — 1 mB/t・200 FE/mB | 100 mB/t・20,000 FE/t | 50 mB/t・10,000 FE/t | 25 mB/t・5,000 FE/t |
+| エチレン — 0.025 mB/t・28,200 FE/mB | 2.5 mB/t・70,500 FE/t | 1.25 mB/t・35,250 FE/t | 0.625 mB/t・17,625 FE/t |
 
 - 燃料1 mBあたりのエネルギーは Mekanism 本体の `chemicalFuel` データマップ（旧ケミカル属性もフォールバック）から
-  読むので、Mekanism が受け入れるガスはすべて本家とまったく同じ値で使えます（水素 200 FE/mB、エチレン 28,200 FE/mB）
-- **燃焼効率**をその値に掛けます。水素なら満タンで 4,000 FE/t、半分（効率60%）で 2,400 FE/t、
-  エチレンなら満タンで 563,950 FE/t です
+  読むので、Mekanism が受け入れるガスはすべて本家と同じ値・同じ燃焼時間で使えます
+- **燃焼速度（mB/t）だけがタンクの残量に比例**し、1 mBあたりのエネルギーは変わりません
+- 画面には本家と同じく **燃焼速度（mB/t）** と **発電量（FE/t）・1 mBあたりの FE** を表示します
+  （例: 「燃焼速度: 49.9 mB/t」「9,990 FE/t・200 FE/mB」）。エネルギー情報タブにも現在の発電量を表示します
 - 内部バッファに空きがあるときだけ燃やすので、満タンで燃料を無駄にしません
 - ガスはどの面からでも（ガス容器スロットからも）入れられ、発電したエネルギーは `Energy` に設定したすべての面から出力します。
   エネルギースロットでバッファからアイテムを充電できます（MUFFLINGアップグレード対応）
+- 100台分が強すぎる場合は `ImprovedGasGeneratorBlockEntity.GENERATOR_PARALLEL` を下げれば、燃焼速度と発電量が同じ比率で下がります
 - レシピ: `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング
 
 ## 風力発電融合機

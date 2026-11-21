@@ -40,23 +40,32 @@ import net.minecraft.world.level.block.state.BlockState;
  * <p>
  * A gas burning generator with a hundred times the fuel tank and a hundred times the internal energy buffer of
  * Mekanism's gas generator ({@link #GAS_CAPACITY} mB and {@link #ENERGY_CAPACITY} FE instead of 18,000 mB and
- * 200,000 FE). On top of that it burns its fuel the way the reactor of Compact Mekanism Machines works: the fuller the
- * tank, the better the fuel is used. A full tank burns a fuel at exactly the value Mekanism's own gas generator gives
- * it (200 FE per mB for hydrogen), while an almost empty tank only gets {@link #MIN_EFFICIENCY} of that.
+ * 200,000 FE), and therefore built to be worth {@link #GENERATOR_PARALLEL} of them at once.
+ * <p>
+ * Everything the machine does is expressed with Mekanism's own numbers, so the screen can show the same values as a gas
+ * generator's screen:
+ * <ul>
+ *     <li>the energy per mB is exactly {@code ChemicalFuel#energyDensity()} (hydrogen 200 FE/mB, ethene 28,200 FE/mB),
+ *     the value Mekanism's own gas generator burns the fuel at;</li>
+ *     <li>the maximum burn rate is {@link #GENERATOR_PARALLEL} times Mekanism's burn rate for that fuel, which burns one
+ *     mB every {@code ChemicalFuel#burnTicks()} ticks: 100 mB/t for hydrogen (1 tick per mB) and 2.5 mB/t for ethene
+ *     (40 ticks per mB), i.e. exactly the fuel consumption of 100 gas generators.</li>
+ * </ul>
+ * The burn rate follows the fill level of the tank - it is proportional to how much fuel is inside, so a full tank is
+ * burned at the full rate and an almost empty tank only simmers along - and the energy per mB never changes. Fuel is
+ * only burned while the internal buffer has room, so nothing is wasted.
  * <p>
  * The fuel value is read from Mekanism's own {@code chemicalFuel} data map (with the legacy chemical attribute as the
  * fallback), so every gas Mekanism accepts - and every gas another mod adds to that data map - works here with exactly
- * its own value.
+ * its own value and its own burn time.
  */
 public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachine {
     /** Hundred times the 18,000 mB tank of Mekanism's gas generator. */
     public static final long GAS_CAPACITY = 1_800_000L;
     /** Hundred times the 200,000 FE buffer of Mekanism's gas generator. */
     public static final long ENERGY_CAPACITY = 20_000_000L;
-    /** Fuel burned per tick while there is room in the buffer. */
-    public static final int BURN_RATE = 20;
-    /** Efficiency of a nearly empty tank; a full tank reaches 100%, which is Mekanism's own fuel value. */
-    public static final double MIN_EFFICIENCY = 0.2D;
+    /** How many Mekanism gas generators this machine is worth at a full tank (the tank and buffer scale is 100 as well). */
+    public static final int GENERATOR_PARALLEL = 100;
 
     // --- screen layout ---
     public static final int GAUGE_X = 6;
@@ -74,10 +83,14 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
     private ChemicalInventorySlot fuelSlot;
     private EnergyInventorySlot energySlot;
 
+    /** Fractional part of the burn rate, so a rate like 2.5 mB/t really burns 5 mB every two ticks. */
+    private double burnAccumulator;
+    /** Burn rate in hundredths of a mB per tick, synced to the screen. */
+    private int burnRateHundredths;
+    /** Mekanism's value of the stored gas in FE per mB, synced to the screen. */
+    private int energyPerMb;
     /** Energy produced in the last tick, synced to the screen. */
     private int generationRate;
-    /** Combustion efficiency in percent, synced to the screen. */
-    private int efficiency;
 
     public ImprovedGasGeneratorBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
         super(block, pos, state);
@@ -124,37 +137,60 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
     }
 
     /**
-     * Energy Mekanism's gas generator produces from one mB of this chemical, or 0 when it is not a fuel. The value
-     * comes from Mekanism's {@code chemicalFuel} data map, with the legacy chemical attribute as the fallback - the
-     * same two places Mekanism's own gas generator reads.
+     * The fuel data Mekanism's own gas generator uses for this chemical, or null when it is not a fuel. The value comes
+     * from Mekanism's {@code chemicalFuel} data map, with the legacy chemical attribute as the fallback - the same two
+     * places Mekanism's gas generator reads.
      */
-    public static long fuelValue(ChemicalStack stack) {
+    public static ChemicalFuel fuelData(ChemicalStack stack) {
         if (stack.isEmpty()) {
-            return 0;
+            return null;
         }
         ChemicalFuel fuel = stack.getData(IMekanismDataMapTypes.INSTANCE.chemicalFuel());
         if (fuel != null) {
-            return fuel.energyDensity();
+            return fuel;
         }
         ChemicalAttributes.Fuel legacy = stack.getLegacy(ChemicalAttributes.Fuel.class);
-        return legacy == null ? 0 : legacy.asModern().energyDensity();
+        return legacy == null ? null : legacy.asModern();
     }
 
     /**
-     * Combustion efficiency between {@link #MIN_EFFICIENCY} and 1: an almost empty tank only gets a fifth of the fuel
-     * value, and a full tank gets all of it.
+     * Energy Mekanism's gas generator produces from one mB of this chemical (200 for hydrogen, 28,200 for ethene), or 0
+     * when it is not a fuel.
      */
-    public double getEfficiency() {
-        if (gasTank == null || gasTank.getCapacity() <= 0) {
-            return MIN_EFFICIENCY;
-        }
-        double fill = (double) gasTank.getStored() / gasTank.getCapacity();
-        return MIN_EFFICIENCY + (1D - MIN_EFFICIENCY) * Math.min(1D, Math.max(0D, fill));
+    public static long fuelValue(ChemicalStack stack) {
+        ChemicalFuel fuel = fuelData(stack);
+        return fuel == null ? 0 : fuel.energyDensity();
     }
 
-    /** Energy one mB of the stored gas produces right now (fuel value times the combustion efficiency). */
+    /**
+     * Fuel consumption of {@link #GENERATOR_PARALLEL} Mekanism gas generators burning this chemical: Mekanism burns one
+     * mB every {@code burnTicks} ticks, so 100 generators burn {@code 100 / burnTicks} mB per tick - 100 mB/t for
+     * hydrogen, 2.5 mB/t for ethene.
+     */
+    public static double maxBurnRate(ChemicalStack stack) {
+        ChemicalFuel fuel = fuelData(stack);
+        if (fuel == null) {
+            return 0;
+        }
+        return GENERATOR_PARALLEL / (double) Math.max(1, fuel.burnTicks());
+    }
+
+    /** How full the gas tank is, 0 when empty and 1 when full. */
+    public double getFillLevel() {
+        if (gasTank == null || gasTank.getCapacity() <= 0) {
+            return 0;
+        }
+        return Math.min(1D, (double) gasTank.getStored() / gasTank.getCapacity());
+    }
+
+    /** Current burn rate in mB per tick: the full rate scaled by how much fuel is left in the tank. */
+    public double getBurnRate() {
+        return maxBurnRate(gasTank.getStack()) * getFillLevel();
+    }
+
+    /** Energy per mB of the stored gas - Mekanism's own value, independent of the fill level. */
     public long getEnergyPerMb() {
-        return Math.round(fuelValue(gasTank.getStack()) * getEfficiency());
+        return fuelValue(gasTank.getStack());
     }
 
     @Override
@@ -164,12 +200,17 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
         energySlot.drainContainer();
 
         long perMb = getEnergyPerMb();
+        double rate = perMb > 0 ? getBurnRate() : 0;
         int produced = 0;
-        if (canFunction() && perMb > 0) {
+        if (canFunction() && perMb > 0 && rate > 0) {
             long needed = energyContainer.getNeeded();
             if (needed > 0) {
+                // Fractional rates are carried over, so a rate of 2.5 mB/t burns 5 mB every two ticks
+                burnAccumulator += rate;
+                int whole = (int) Math.min(Integer.MAX_VALUE, Math.floor(burnAccumulator));
+                burnAccumulator -= whole;
                 // Never burn more than the buffer can take, so no fuel is wasted on a full buffer
-                int burn = (int) Math.min(Math.min(BURN_RATE, gasTank.getStored()), (needed + perMb - 1) / perMb);
+                int burn = (int) Math.min(Math.min(whole, gasTank.getStored()), Math.max(1, (needed + perMb - 1) / perMb));
                 if (burn > 0) {
                     if (gasTank.extract(burn, Action.EXECUTE, AutomationType.INTERNAL).getAmount() == burn) {
                         produced = (int) Math.min(needed, burn * perMb);
@@ -178,8 +219,13 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
                 }
             }
         }
+        if (produced == 0) {
+            // Nothing was burned this tick, so do not bank a burst for later
+            burnAccumulator = Math.min(burnAccumulator, 1D);
+        }
         generationRate = produced;
-        efficiency = (int) Math.round(getEfficiency() * 100);
+        burnRateHundredths = (int) Math.round(rate * 100);
+        energyPerMb = (int) Math.min(Integer.MAX_VALUE, perMb);
         setActive(produced > 0);
         return sendUpdatePacket;
     }
@@ -192,32 +238,47 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
         return energyContainer;
     }
 
+    /** Burn rate in hundredths of a mB per tick, as shown on the screen. */
+    public int getBurnRateHundredths() {
+        return burnRateHundredths;
+    }
+
+    /** Burn rate formatted the way Mekanism formats it: one decimal from 10 mB/t, two below that. */
+    public static String formatBurnRate(int hundredths) {
+        double rate = hundredths / 100D;
+        return String.format(java.util.Locale.ROOT, rate >= 10 ? "%.1f" : "%.2f", rate);
+    }
+
+    /** Energy per mB of the stored gas, as shown on the screen. */
+    public int getSyncedEnergyPerMb() {
+        return energyPerMb;
+    }
+
     /** Energy produced in the last tick, as shown on the screen. */
     public int getGenerationRate() {
         return generationRate;
     }
 
-    /** Combustion efficiency in percent, as shown on the screen. */
-    public int getEfficiencyPercent() {
-        return efficiency;
-    }
-
-    /** Value of the stored fuel at the current efficiency, as shown on the screen. */
-    public long getSyncedEnergyPerMb() {
-        return getEnergyPerMb();
+    /** Name of the gas in the tank, as shown on the screen. */
+    public Component getStoredGasName() {
+        return gasTank.isEmpty() ? Component.translatable("gui.mekanismgizmo.improved_gas_generator.no_fuel")
+              : gasTank.getStack().getTextComponent();
     }
 
     @Override
     public List<Component> getInfo(Upgrade upgrade) {
         return List.of(
-              Component.translatable("gui.mekanismgizmo.improved_gas_generator.efficiency", efficiency),
-              Component.translatable("gui.mekanismgizmo.improved_gas_generator.fuel", AmountFormat.format(getSyncedEnergyPerMb())));
+              Component.translatable("gui.mekanismgizmo.improved_gas_generator.burn_rate",
+                    formatBurnRate(burnRateHundredths)),
+              Component.translatable("gui.mekanismgizmo.improved_gas_generator.output",
+                    AmountFormat.format(generationRate), AmountFormat.format(energyPerMb)));
     }
 
     @Override
     public void addContainerTrackers(MekanismContainer container) {
         super.addContainerTrackers(container);
         container.track(SyncableInt.create(this::getGenerationRate, value -> generationRate = value));
-        container.track(SyncableInt.create(this::getEfficiencyPercent, value -> efficiency = value));
+        container.track(SyncableInt.create(this::getBurnRateHundredths, value -> burnRateHundredths = value));
+        container.track(SyncableInt.create(this::getSyncedEnergyPerMb, value -> energyPerMb = value));
     }
 }
