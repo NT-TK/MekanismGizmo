@@ -1,6 +1,8 @@
 plugins {
-    id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.107'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
 group = mod_group
@@ -11,40 +13,50 @@ base {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-neoForge {
-    version = neo_version
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+    copyIdeResources = true
 
     runs {
         client {
-            client()
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
         }
         server {
-            server()
-            programArgument '--nogui'
-        }
-    }
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--nogui'
 
-    mods {
-        "${mod_id}" {
-            sourceSet sourceSets.main
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }
 
 repositories {
     mavenCentral()
-    // JEI (RecipeTypes / IModPlugin) - only needed for compilation, JEI itself stays optional at runtime
+    maven {
+        name = 'MinecraftForge'
+        url = 'https://maven.minecraftforge.net/'
+    }
     maven {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com/'
     }
-    // Modrinth's Maven: Mekanism is fetched from here, so no third party jars live in the repository.
-    // Prefer CurseMaven? Add `maven { name = 'CurseMaven'; url = 'https://cursemaven.com' }` and use
-    // `implementation 'curse.maven:mekanism-268560:<file-id>'` with the file id from the CurseForge file page
-    // (`curse.maven:mekanism-additions-268566:<file-id>` etc. for the optional modules).
     maven {
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -55,21 +67,14 @@ repositories {
 }
 
 dependencies {
-    // Mekanism: compile + runtime, fetched from Modrinth's Maven (no jars in the repository)
-    implementation 'maven.modrinth:mekanism:10.7.19.85'
-    // Mekanism Generators: the wind generator fusion machine stores wind generators and mirrors their generation
-    implementation 'maven.modrinth:mekanism-generators:10.7.19.85'
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Mekanism 1.20.1 Forge, fetched from Modrinth's Maven.
+    implementation fg.deobf('maven.modrinth:mekanism:10.4.16.80')
+    implementation fg.deobf('maven.modrinth:mekanism-generators:10.4.16.80')
+
     // Optional integration: JEI is not bundled and is not required at runtime.
-    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.21.0.247"
-    // Optional integration: AE2's JEI pattern encoding (compile only, never bundled, not required at runtime)
-    compileOnly 'maven.modrinth:ae2:19.2.20'
-    // Optional integration: EMI (compile only, never bundled, not required at runtime)
-    compileOnly 'maven.modrinth:emi:1.1.24+1.21.1+neoforge'
-    // Uncomment to test the JEI integration in the dev client
-    // runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.21.0.247"
-    // The remaining optional Mekanism modules are only needed by the development client
-    runtimeOnly 'maven.modrinth:mekanism-additions:10.7.19.85'
-    runtimeOnly 'maven.modrinth:mekanism-tools:10.7.19.85'
+    compileOnly "mezz.jei:jei-1.20.1-forge-api:15.20.0.106"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -78,10 +83,10 @@ tasks.withType(JavaCompile).configureEach {
 
 processResources {
     def properties = [mod_id: mod_id, mod_name: mod_name, mod_version: mod_version,
-                      minecraft_version: minecraft_version, neo_version: neo_version]
+                      minecraft_version: minecraft_version, forge_version: forge_version]
     inputs.properties properties
     filteringCharset = 'UTF-8'
-    filesMatching('META-INF/neoforge.mods.toml') {
+    filesMatching('META-INF/mods.toml') {
         expand properties
     }
 }
@@ -91,7 +96,6 @@ tasks.named('jar', Jar).configure {
     from('LICENSE') {
         into ''
     }
-    // Development helpers (self tests / audits) must never reach a released jar: one of them used to halt the
-    // integrated server four ticks after a world loaded, which made every world unplayable.
+    // Development helpers (self tests / audits) must never reach a released jar.
     exclude 'jp/example/mekanismgizmo/Debug*'
 }

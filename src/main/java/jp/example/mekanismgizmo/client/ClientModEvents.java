@@ -4,14 +4,14 @@ import jp.example.mekanismgizmo.MekanismGizmo;
 import jp.example.mekanismgizmo.registry.ModBlockEntities;
 import jp.example.mekanismgizmo.registry.ModItems;
 import jp.example.mekanismgizmo.registry.ModMenus;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import mekanism.common.registries.MekanismDataComponents;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterMenuScreensEvent;
 
 @EventBusSubscriber(modid = MekanismGizmo.MOD_ID, value = Dist.CLIENT)
 public final class ClientModEvents {

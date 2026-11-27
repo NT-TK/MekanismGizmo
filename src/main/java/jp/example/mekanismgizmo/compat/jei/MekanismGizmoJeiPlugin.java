@@ -28,8 +28,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * Optional JEI integration. JEI is only a compile time dependency, so this class is never loaded when JEI is not

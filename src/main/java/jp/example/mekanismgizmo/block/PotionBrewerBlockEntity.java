@@ -46,7 +46,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraftforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**

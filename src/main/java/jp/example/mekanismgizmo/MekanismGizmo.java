@@ -6,8 +6,8 @@ import jp.example.mekanismgizmo.registry.ModChemicals;
 import jp.example.mekanismgizmo.registry.ModCreativeTabs;
 import jp.example.mekanismgizmo.registry.ModItems;
 import jp.example.mekanismgizmo.registry.ModMenus;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 
 @Mod(MekanismGizmo.MOD_ID)
 public final class MekanismGizmo {
