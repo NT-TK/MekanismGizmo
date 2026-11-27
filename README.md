@@ -20,7 +20,7 @@ Mekanism's own machines. It also adds four tiered pipettes, an improved portable
 
 The NeoForge 1.21.1 jar is attached to releases tagged `v<version>-neoforge-1.21.1`; see the
 [NeoForge 1.21.1 releases](https://github.com/NT-TK/MekanismGizmo/releases?q=neoforge-1.21.1). Download
-`mekanismgizmo-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.21.1 with NeoForge and Mekanism
+`mekanismgizmo-1.21.1-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.21.1 with NeoForge and Mekanism
 10.7.19 installed. The Minecraft 1.20.1 Forge edition is published separately from the `1.20.1` branch, so do not
 install its jar on 1.21.1. See [Requirements](#requirements) and [Installation](#installation) for details.
 
@@ -475,7 +475,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 
 1. Install NeoForge 21.1.x for Minecraft 1.21.1
 2. Install Mekanism 10.7.19
-3. Put the NeoForge 1.21.1 `mekanismgizmo-<version>.jar` from a `v<version>-neoforge-1.21.1` release into your `mods` folder
+3. Put the NeoForge 1.21.1 `mekanismgizmo-1.21.1-<version>.jar` from a `v<version>-neoforge-1.21.1` release into your `mods` folder
 
 ## Building
 
@@ -483,7 +483,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 gradlew.bat build
 ```
 
-The jar is written to `build/libs/mekanismgizmo-<version>.jar`.
+The jar is written to `build/libs/mekanismgizmo-1.21.1-<version>.jar`.
 
 All dependencies are resolved automatically: NeoForge/Minecraft via ModDevGradle, Mekanism from
 **Modrinth's Maven** (`maven.modrinth:mekanism:10.7.19.85`) and JEI (compile only) from BlameJared. No third party jars
@@ -960,7 +960,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 
 1. Minecraft 1.21.1 用の NeoForge 21.1.x を導入
 2. Mekanism 10.7.19 を導入
-3. `v<version>-neoforge-1.21.1` リリースの NeoForge 1.21.1 用 `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
+3. `v<version>-neoforge-1.21.1` リリースの NeoForge 1.21.1 用 `mekanismgizmo-1.21.1-<version>.jar` を `mods` フォルダに入れる
 
 ## ビルド
 
@@ -968,7 +968,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 gradlew.bat build
 ```
 
-生成Jar: `build/libs/mekanismgizmo-<version>.jar`
+生成Jar: `build/libs/mekanismgizmo-1.21.1-<version>.jar`
 
 依存はすべて自動解決されます（NeoForge/MinecraftはModDevGradle、Mekanismは**ModrinthのMaven**
 `maven.modrinth:mekanism:10.7.19.85`、JEIはコンパイル時のみBlameJaredから）。リポジトリに第三者のJarは置いていません。

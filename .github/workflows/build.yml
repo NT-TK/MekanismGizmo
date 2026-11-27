@@ -39,5 +39,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mekanismgizmo-neoforge-1.21.1-jar
-          path: build/libs/mekanismgizmo-*.jar
+          path: build/libs/mekanismgizmo-1.21.1-*.jar
           if-no-files-found: error

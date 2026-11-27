@@ -13,7 +13,7 @@ Use a distinct tag for each edition. Both tags match their branch's Release work
 
 1. Set `mod_version` in `gradle.properties` to the version being released.
 2. Add the same version to `CHANGELOG.md` and update the README if the requirements changed.
-3. Run `gradlew.bat build` and check `build/libs/mekanismgizmo-<version>.jar`.
+3. Run `gradlew.bat build` and check `build/libs/mekanismgizmo-1.21.1-<version>.jar`.
 4. Commit the changes and push the `1.21.1` branch. Wait for the **Build** workflow to pass with Java 21.
 5. Create and push an annotated tag:
 
@@ -24,7 +24,7 @@ Use a distinct tag for each edition. Both tags match their branch's Release work
 
 6. The **Release** workflow builds the jar and creates the GitHub release with the changelog. This release is created
    with `--latest=true`, so it is the repository's "Latest" release.
-7. Check that `mekanismgizmo-<version>.jar` is attached and that the release body names NeoForge 1.21.1.
+7. Check that `mekanismgizmo-1.21.1-<version>.jar` is attached and that the release body names NeoForge 1.21.1.
 
 ## 1.20.1 / Forge
 
@@ -34,6 +34,6 @@ a non-latest release so the 1.21.1 / NeoForge release stays the repository's "La
 ## Manual release
 
 ```bat
-gh release create v<version>-neoforge-1.21.1 build/libs/mekanismgizmo-<version>.jar ^
+gh release create v<version>-neoforge-1.21.1 build/libs/mekanismgizmo-1.21.1-<version>.jar ^
   --title "Mekanism Gizmo <version> (NeoForge 1.21.1)" --notes-file CHANGELOG.md --latest
 ```

@@ -49,4 +49,4 @@ published separately from the `1.20.1` branch.
 
 - Minecraft 1.21.1, NeoForge 21.1.194+, Mekanism 10.7.19.x.
 - Use the **1.20.1** branch and its `v<version>-forge-1.20.1` release for Minecraft 1.20.1 / Forge. Do not mix the two jars.
-- The release tag is `v0.3.1-neoforge-1.21.1`; the release jar is `mekanismgizmo-0.3.1.jar`.
+- The release tag is `v0.3.1-neoforge-1.21.1`; the release jar is `mekanismgizmo-1.21.1-0.3.1.jar`.
