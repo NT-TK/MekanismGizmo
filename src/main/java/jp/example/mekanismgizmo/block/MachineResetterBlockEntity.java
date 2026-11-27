@@ -21,7 +21,6 @@ import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.registries.MekanismDataComponents;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
@@ -44,7 +43,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * be cleaned by hand. This machine does that: insert the machine item, pay a little energy, and the result is the same
  * item with its defaults only - exactly the item you would get from crafting it.
  */
-public class MachineResetterBlockEntity extends TileEntityConfigurableMachine {
+public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     /** Ticks one machine item needs at base speed. */
     public static final int BASE_TICKS_REQUIRED = 20;
 
@@ -123,15 +122,17 @@ public class MachineResetterBlockEntity extends TileEntityConfigurableMachine {
               || stack.get(MekanismDataComponents.REDSTONE_CONTROL.value()) != null;
     }
 
-    /** The clean copy the machine produces for the current input (same item, same amount, no stored data). */
+    /**
+     * The clean copy the machine produces for the current input (same item, no stored data). One machine item is
+     * processed per cycle: the energy cost of a cycle is fixed, so a stack of sixty-four machines has to run sixty-four
+     * cycles instead of being reset for the price of one.
+     */
     public ItemStack getResult() {
         ItemStack input = inputSlot.getStack();
         if (!isMachineItem(input)) {
             return ItemStack.EMPTY;
         }
-        ItemStack result = input.getItem().getDefaultInstance();
-        result.setCount(input.getCount());
-        return result;
+        return input.getItem().getDefaultInstance();
     }
 
     private boolean canAcceptResult(ItemStack result) {
@@ -203,7 +204,12 @@ public class MachineResetterBlockEntity extends TileEntityConfigurableMachine {
     private void finishReset() {
         progress = 0;
         ItemStack result = getResult();
-        if (result.isEmpty()) {
+        if (result.isEmpty() || !canAcceptResult(result)) {
+            return;
+        }
+        // Consume the input before inserting the clean item: if extraction ever failed, inserting first would duplicate
+        ItemStack extracted = inputSlot.extractItem(1, Action.EXECUTE, AutomationType.INTERNAL);
+        if (extracted.isEmpty()) {
             return;
         }
         ItemStack output = outputSlot.getStack();
@@ -213,10 +219,9 @@ public class MachineResetterBlockEntity extends TileEntityConfigurableMachine {
             output.setCount(output.getCount() + result.getCount());
             outputSlot.setStack(output);
         } else {
-            // The output changed while the reset was running; wait for room instead of voiding the result
-            return;
+            // The output changed while the reset was running; put the machine item back instead of voiding it
+            inputSlot.insertItem(extracted, Action.EXECUTE, AutomationType.INTERNAL);
         }
-        inputSlot.setEmpty();
     }
 
     /** True while the machine is running but the output slot has no room (Mekanism warning hook). */

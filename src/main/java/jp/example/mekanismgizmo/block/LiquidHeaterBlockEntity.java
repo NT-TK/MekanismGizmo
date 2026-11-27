@@ -48,7 +48,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * base.
  */
 public class LiquidHeaterBlockEntity extends TieredMachineBlockEntity {
-    /** Tank size per tier: twenty operations worth of sodium, so a full tank keeps the machine busy for a while. */
+    /** Tank size per tier: forty operations worth of sodium, so a full tank keeps the machine busy for a while. */
     public static final int TANK_CAPACITY = 20_000;
     /** Sodium converted per operation (multiplied by the parallel operations of the tier). */
     public static final int SODIUM_PER_OPERATION = 500;
@@ -207,11 +207,16 @@ public class LiquidHeaterBlockEntity extends TieredMachineBlockEntity {
     private void finishHeating() {
         heatTicks = 0;
         int amount = operationAmount();
+        var superheated = MekanismChemicals.SUPERHEATED_SODIUM.asStack(amount);
+        // Check the output before touching the input: if the tank cannot take the whole operation, nothing is lost
+        if (!superheatedTank.insert(superheated, Action.SIMULATE, AutomationType.INTERNAL).isEmpty()) {
+            return;
+        }
         // Take the sodium first so a failure cannot duplicate anything, then fill the output tank
         if (sodiumTank.extract(amount, Action.EXECUTE, AutomationType.INTERNAL).getAmount() < amount) {
             return;
         }
-        superheatedTank.insert(MekanismChemicals.SUPERHEATED_SODIUM.asStack(amount), Action.EXECUTE, AutomationType.INTERNAL);
+        superheatedTank.insert(superheated, Action.EXECUTE, AutomationType.INTERNAL);
     }
 
     @Override

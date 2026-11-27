@@ -26,7 +26,6 @@ import mekanism.common.inventory.container.sync.SyncableInt;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.util.EnumUtils;
 import mekanism.common.util.WorldUtils;
 import mekanism.generators.common.config.MekanismGeneratorsConfig;
@@ -63,7 +62,7 @@ import net.minecraft.world.level.material.Fluids;
  * Everything else - the side configuration, redstone control, security, the energy item slot and the data synced to the
  * screen - comes from Mekanism's configurable machine base.
  */
-public class HeatFusionBlockEntity extends TileEntityConfigurableMachine {
+public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
     /** Number of heat generator slots: three rows of nine. */
     public static final int SLOT_COUNT = 27;
     public static final int COLUMNS = 9;
@@ -271,14 +270,18 @@ public class HeatFusionBlockEntity extends TileEntityConfigurableMachine {
         int units = activeUnits;
         int produced = 0;
         double perGeneratorHeat = getBoost();
-        boolean burningLava = false;
         if (units > 0 && canFunction() && energyContainer.getNeeded() > 0) {
             int rate = MekanismGeneratorsConfig.generators.heatGenerationFluidRate.get();
             long needed = (long) rate * units;
-            if (lavaTank.extract((int) Math.min(Integer.MAX_VALUE, needed), Action.SIMULATE, AutomationType.INTERNAL).getAmount() == needed) {
-                lavaTank.extract((int) needed, Action.EXECUTE, AutomationType.INTERNAL);
-                perGeneratorHeat += MekanismGeneratorsConfig.generators.heatGeneration.get();
-                burningLava = true;
+            if (needed > 0) {
+                // A full machine of compressed generators needs more lava than the tank can hold. Burn what is
+                // there and heat the same fraction of the generators instead of refusing to burn anything.
+                int request = (int) Math.min(needed, lavaTank.getFluidAmount());
+                if (request > 0 && lavaTank.extract(request, Action.SIMULATE, AutomationType.INTERNAL).getAmount() == request) {
+                    lavaTank.extract(request, Action.EXECUTE, AutomationType.INTERNAL);
+                    perGeneratorHeat += MekanismGeneratorsConfig.generators.heatGeneration.get()
+                          * (request / (double) needed);
+                }
             }
         }
         if (units > 0) {
@@ -299,12 +302,30 @@ public class HeatFusionBlockEntity extends TileEntityConfigurableMachine {
             // Mekanism's own losses, so the steady state temperature matches a real heat generator
             simulateEnvironment();
             simulateAdjacent();
+        } else {
+            // With no generators there is nothing to heat: discard the old capacitor charge instead of freezing it.
+            // Otherwise removing every generator and reinserting them later would release the stored heat multiplied
+            // by the new generator count.
+            double ambientHeat = ambientTemperature.getAsDouble() * heatCapacitor.getHeatCapacity();
+            if (heatCapacitor.getHeat() > ambientHeat) {
+                heatCapacitor.setHeat(ambientHeat);
+            }
         }
 
         generationRate = produced;
         temperatureTenths = (int) Math.round(getTotalTemperature() * 10D);
-        setActive(units > 0 && burningLava);
+        // Lava around the block also produces power, so "active" must follow the real output, not the tank burner
+        setActive(produced > 0);
+        if (canFunction()) {
+            emitEnergy(energyContainer, getMaxOutput());
+        }
         return sendUpdatePacket;
+    }
+
+    /** Upper bound for one tick of output: twice the maximum of the installed generators. */
+    private long getMaxOutput() {
+        return MathUtils.multiplyClamped(2L,
+              MathUtils.multiplyClamped(Math.max(1, activeUnits), Math.max(1L, maxProductionPerGenerator())));
     }
 
     public BasicEnergyContainer getEnergyContainer() {

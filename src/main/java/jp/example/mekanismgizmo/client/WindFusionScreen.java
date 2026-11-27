@@ -41,7 +41,7 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         Component info = Component.translatable("gui.mekanismgizmo.wind_fusion.info",
               AmountFormat.format(tile.getActiveGenerators()), AmountFormat.format(tile.getMaxGenerators()),
-              AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced()));
+              AmountFormat.format(tile.getDisplayedGeneration()));
         // A full machine of compressed wind generators has long numbers, and translations differ in width, so the
         // line is scaled down instead of running over the power bar
         int available = WindFusionBlockEntity.POWER_BAR_X - WindFusionBlockEntity.SLOT_X - 4;
@@ -72,6 +72,6 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
               Component.translatable("gui.mekanismgizmo.wind_fusion.energy",
                     AmountFormat.format(tile.getEnergyContainer().getEnergy()), AmountFormat.format(WindFusionBlockEntity.ENERGY_CAPACITY)),
               Component.translatable("gui.mekanismgizmo.wind_fusion.output",
-                    AmountFormat.format((long) tile.getActiveGenerators() * tile.getGenerationPerGeneratorSynced())));
+                    AmountFormat.format(tile.getDisplayedGeneration())));
     }
 }

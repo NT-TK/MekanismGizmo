@@ -21,7 +21,6 @@ import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
@@ -48,7 +47,7 @@ import net.minecraft.world.phys.AABB;
  * eject, redstone control, upgrades (speed = shorter scan interval), security and the configuration card support all
  * come from Mekanism itself.
  */
-public class ItemCollectorBlockEntity extends TileEntityConfigurableMachine {
+public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     /** Number of internal output slots (3x9 display, same as the Digital Miner). */
     public static final int SLOT_COUNT = 27;
     /** Edge length limits of the collection box, per axis. */
@@ -241,13 +240,19 @@ public class ItemCollectorBlockEntity extends TileEntityConfigurableMachine {
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, getCollectionArea(),
               entity -> entity.isAlive() && !entity.getItem().isEmpty());
         int collected = 0;
+        boolean moved = false;
         for (ItemEntity itemEntity : items) {
+            int before = itemEntity.getItem().getCount();
             ItemStack remainder = itemEntity.getItem();
             for (OutputInventorySlot slot : outputSlots) {
                 remainder = slot.insertItem(remainder, Action.EXECUTE, AutomationType.INTERNAL);
                 if (remainder.isEmpty()) {
                     break;
                 }
+            }
+            if (remainder.getCount() < before) {
+                // A partial transfer still uses a scan; otherwise items could be moved for free when a slot is nearly full
+                moved = true;
             }
             if (remainder.isEmpty()) {
                 itemEntity.discard();
@@ -257,7 +262,7 @@ public class ItemCollectorBlockEntity extends TileEntityConfigurableMachine {
                 itemEntity.setItem(remainder);
             }
         }
-        return collected;
+        return moved ? Math.max(1, collected) : 0;
     }
 
     @Override

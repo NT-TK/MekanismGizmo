@@ -86,6 +86,7 @@
   "emi.category.mekanismgizmo.fluid_injector": "流体注入機",
   "emi.category.mekanismgizmo.ice_maker": "製氷機",
   "emi.category.mekanismgizmo.potion_brewer": "ポーション醸造機",
+  "gui.mekanismgizmo.fluid_injector.tank": "%1$s / %2$s mB",
   "gui.mekanismgizmo.heat_fusion.energy": "エネルギー: %1$s / %2$s FE",
   "gui.mekanismgizmo.heat_fusion.info": "%1$s / %2$s 台 · %3$s FE/t",
   "gui.mekanismgizmo.heat_fusion.output": "発電量: %s FE/t",
@@ -107,6 +108,8 @@
   "item.mekanismgizmo.advanced_pipette": "発展スポイト",
   "item.mekanismgizmo.basic_pipette": "基本スポイト",
   "item.mekanismgizmo.elite_pipette": "精鋭スポイト",
+  "item.mekanismgizmo.improved_configurator": "改良型設定カード",
+  "item.mekanismgizmo.improved_portable_teleporter": "改良型ポータブルテレポーター",
   "item.mekanismgizmo.ultimate_pipette": "究極スポイト",
   "itemGroup.mekanismgizmo": "Mekanism Gizmo",
   "jei.mekanismgizmo.basalt_generator": "電動玄武岩製造機",
@@ -122,6 +125,11 @@
   "jei.mekanismgizmo.info.no_input": "入力なし（電力のみ）",
   "jei.mekanismgizmo.info.time": "所要時間: %s ticks",
   "jei.mekanismgizmo.potion_brewer": "ポーション醸造機",
+  "message.mekanismgizmo.configurator.unsupported": "この機械は %s に対応していません",
+  "message.mekanismgizmo.configurator.upgrade_short": "%1$s: %2$s 個必要（所持: %3$s）",
+  "message.mekanismgizmo.configurator.upgrades_skipped": "設定は適用しましたが、アップグレードは装着していません:",
   "tooltip.mekanismgizmo.container_mode": "液体コンテナのモード（充填 / 排出 / 両方）",
+  "tooltip.mekanismgizmo.improved_configurator.miner": "デジタル採掘機のフィルター設定を含む",
+  "tooltip.mekanismgizmo.improved_configurator.upgrade": "%1$s ×%2$s",
   "tooltip.mekanismgizmo.pipette_capacity": "容量: %s mB（液体・ガス）"
 }

@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a machine, integration or quality-of-life change.
+title: '[Feature]: '
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+      description: Describe the feature and the problem it solves.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or existing mods
+      description: Is there another mod or a Mekanism feature that already does this?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, recipes or configuration examples are welcome.

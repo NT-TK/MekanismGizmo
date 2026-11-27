@@ -91,4 +91,7 @@ tasks.named('jar', Jar).configure {
     from('LICENSE') {
         into ''
     }
+    // Development helpers (self tests / audits) must never reach a released jar: one of them used to halt the
+    // integrated server four ticks after a world loaded, which made every world unplayable.
+    exclude 'jp/example/mekanismgizmo/Debug*'
 }

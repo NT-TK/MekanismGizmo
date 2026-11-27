@@ -236,6 +236,8 @@ public final class ModBlockTypes {
               .withGui(() -> ModMenus.FLUID_INJECTOR)
               .withEnergyConfig(() -> FluidInjectorBlockEntity.ENERGY_PER_OPERATION * tier.getParallel(),
                     () -> 12_000L * tier.getParallel())
+              // Throughput is set by the tier alone; SPEED/ENERGY are not used by the implementation
+              .withSupportedUpgrades(Upgrade.MUFFLING)
               .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.FLUID, TransmissionType.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);

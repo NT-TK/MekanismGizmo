@@ -33,12 +33,16 @@ public final class PotionBrewerRecipes {
             return List.of();
         }
         PotionBrewing brewing = level.potionBrewing();
-        // Every bottle the game knows: water bottle, awkward potion, and all brewable potions
+        // Every bottle the game knows: water bottle, awkward potion, and all brewable potions. Splash and lingering
+        // potions have to be included as well, otherwise recipes such as splash potion + dragon's breath would be
+        // missing from the page.
         List<ItemStack> bottles = new ArrayList<>();
         for (Holder<Potion> potion : BuiltInRegistries.POTION.holders().toList()) {
-            ItemStack bottle = new ItemStack(Items.POTION);
-            bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
-            bottles.add(bottle);
+            for (Item bottleItem : List.of(Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION)) {
+                ItemStack bottle = new ItemStack(bottleItem);
+                bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(potion));
+                bottles.add(bottle);
+            }
         }
         List<PotionBrewerJeiRecipe> recipes = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -66,9 +70,11 @@ public final class PotionBrewerRecipes {
 
     /** Unique, resource location safe id of a brewing page (shared by the JEI and the EMI pages). */
     public static ResourceLocation id(PotionBrewerJeiRecipe recipe) {
+        ResourceLocation ingredientId = BuiltInRegistries.ITEM.getKey(recipe.ingredient().getItem());
+        String ingredientName = ingredientId.getNamespace() + "_" + ingredientId.getPath().replace('/', '_');
         return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID,
               "potion_brewer/" + potionName(recipe.input())
-                    + "/" + BuiltInRegistries.ITEM.getKey(recipe.ingredient().getItem()).getPath()
+                    + "/" + ingredientName
                     + "/" + potionName(recipe.output()));
     }
 
@@ -77,14 +83,23 @@ public final class PotionBrewerRecipes {
         if (contents == null) {
             return "none";
         }
-        return contents.potion()
-              .flatMap(holder -> holder.unwrapKey().map(key -> key.location().getPath()))
-              .map(path -> path.replace('/', '_'))
-              .orElse("custom" + contents.customEffects().size());
+        // Include the item (potion, splash potion, lingering potion) as well as the potion itself: both can differ
+        // between two otherwise identical recipes, and recipe ids have to stay unique.
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        String itemName = itemId.getNamespace() + "_" + itemId.getPath().replace('/', '_');
+        // Include the namespace: two mods can register a potion with the same path. The hash also separates custom
+        // effects/colours, which have no registry name and would otherwise all share the "custom<count>" name.
+        String base = contents.potion()
+              .flatMap(holder -> holder.unwrapKey().map(key -> {
+                  ResourceLocation location = key.location();
+                  return location.getNamespace() + "_" + location.getPath().replace('/', '_');
+              }))
+              .orElse("custom");
+        return itemName + "_" + base + "_" + Integer.toUnsignedString(contents.hashCode(), 16);
     }
 
     private static String key(ItemStack input, ItemStack ingredient, ItemStack output) {
         return input.getItem() + "|" + input.get(DataComponents.POTION_CONTENTS) + "|" + ingredient.getItem() + "|"
-              + output.get(DataComponents.POTION_CONTENTS);
+              + output.getItem() + "|" + output.get(DataComponents.POTION_CONTENTS);
     }
 }

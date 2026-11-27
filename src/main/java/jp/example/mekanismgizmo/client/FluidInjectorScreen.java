@@ -3,6 +3,7 @@ package jp.example.mekanismgizmo.client;
 import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.menu.FluidInjectorMenu;
 import jp.example.mekanismgizmo.registry.ModLang;
+import jp.example.mekanismgizmo.util.AmountFormat;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
 import mekanism.client.gui.element.button.MekanismButton;
@@ -22,7 +23,7 @@ public class FluidInjectorScreen extends GuiConfigurableTile<FluidInjectorBlockE
     public FluidInjectorScreen(MekanismTileContainer<FluidInjectorBlockEntity> container, Inventory inv, Component title) {
         super(container, inv, title);
         dynamicSlots = true;
-        // Every tier adds one more container slot pair, so the screen grows downwards
+        // Every tier adds one more container slot pair; the screen only grows once the slots pass the fixed elements
         imageHeight = FluidInjectorBlockEntity.guiHeight(tile.parallel());
     }
 
@@ -41,19 +42,46 @@ public class FluidInjectorScreen extends GuiConfigurableTile<FluidInjectorBlockE
         renderTitleText(guiGraphics);
         renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
+        // The tank reading fills the space under the mode button instead of leaving it empty
+        Component tankInfo = Component.translatable("gui.mekanismgizmo.fluid_injector.tank",
+              AmountFormat.format(tile.getFluidTank().getFluidAmount()),
+              AmountFormat.format(tile.getFluidTank().getCapacity()));
+        drawScaled(guiGraphics, tankInfo, FluidInjectorBlockEntity.MODE_BUTTON_X + 2,
+              FluidInjectorBlockEntity.MODE_BUTTON_Y + FluidInjectorBlockEntity.MODE_BUTTON_HEIGHT + 6,
+              FluidInjectorBlockEntity.POWER_BAR_X - FluidInjectorBlockEntity.MODE_BUTTON_X - 4);
+    }
+
+    /** Draws {@code text} at the given position, scaling it down when it does not fit into {@code maxWidth}. */
+    private void drawScaled(GuiGraphics guiGraphics, Component text, int x, int y, int maxWidth) {
+        int width = font.width(text);
+        if (width <= maxWidth) {
+            guiGraphics.drawString(font, text, x, y, 0x404040, false);
+            return;
+        }
+        float scale = (float) maxWidth / width;
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(scale, scale, 1F);
+        guiGraphics.drawString(font, text, Math.round(x / scale), Math.round(y / scale), 0x404040, false);
+        guiGraphics.pose().popPose();
     }
 
     @Override
     protected void addGuiElements() {
         super.addGuiElements();
-        addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(), 164, 16))
+        addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(),
+              FluidInjectorBlockEntity.POWER_BAR_X, FluidInjectorBlockEntity.POWER_BAR_Y))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.hasContainerInput()
                     && tile.getEnergyContainer().getEnergy() < FluidInjectorBlockEntity.ENERGY_PER_OPERATION);
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
+        // The tank gauge is stretched down to the last container row, so the left column is filled on every tier
         addRenderableWidget(new GuiFluidGauge(() -> tile.getFluidTank(), () -> tile.getFluidTanks(null),
-              GaugeType.STANDARD, this, 6, 13));
+              GaugeType.STANDARD, this, FluidInjectorBlockEntity.GAUGE_X, FluidInjectorBlockEntity.GAUGE_Y,
+              FluidInjectorBlockEntity.GAUGE_WIDTH, FluidInjectorBlockEntity.gaugeHeight(tile.parallel())));
         // Fill (tank -> containers) / Empty (containers -> tank) / Both, like Mekanism's fluid tank
-        containerModeButton = new MekanismButton(this, 78, 20, 60, 14, tile.getContainerMode().getTextComponent(),
+        // The button runs from the container slots to the power bar, so the top row is filled edge to edge
+        containerModeButton = new MekanismButton(this, FluidInjectorBlockEntity.MODE_BUTTON_X,
+              FluidInjectorBlockEntity.MODE_BUTTON_Y, FluidInjectorBlockEntity.MODE_BUTTON_WIDTH,
+              FluidInjectorBlockEntity.MODE_BUTTON_HEIGHT, tile.getContainerMode().getTextComponent(),
               (element, mouseX, mouseY) -> {
                   sendContainerMode();
                   return true;

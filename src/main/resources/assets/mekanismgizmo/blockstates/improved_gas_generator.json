@@ -1,33 +1,33 @@
 {
   "variants": {
     "active=false,facing=north": {
-      "model": "mekanismgizmo:block/improved_gas_generator"
+      "model": "mekanismgizmo:block/improved_gas_generator_3d"
     },
     "active=false,facing=south": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 180
     },
     "active=false,facing=west": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 270
     },
     "active=false,facing=east": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 90
     },
     "active=true,facing=north": {
-      "model": "mekanismgizmo:block/improved_gas_generator"
+      "model": "mekanismgizmo:block/improved_gas_generator_3d"
     },
     "active=true,facing=south": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 180
     },
     "active=true,facing=west": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 270
     },
     "active=true,facing=east": {
-      "model": "mekanismgizmo:block/improved_gas_generator",
+      "model": "mekanismgizmo:block/improved_gas_generator_3d",
       "y": 90
     }
   }

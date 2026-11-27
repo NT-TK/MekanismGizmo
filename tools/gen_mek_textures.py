@@ -75,6 +75,10 @@ def from_jar(path):
 def put(img, x, y, colour):
     img.putpixel((x, y), colour + (255,))
 
+
+def transparent():
+    return Image.new('RGBA', (16, 16), (0, 0, 0, 0))
+
 # --- icons: drawn inside 4..11 / 4..11 (8x8) -------------------------------------------------------
 def icon_potion(img):
     bright, dark, hi = ACCENT['potion']
@@ -299,17 +303,14 @@ def casing(seed):
     return img
 
 
-def led_bar(img, x, y, w, tier):
-    bright, dark = TIERS[tier]
-    for i in range(w):
-        put(img, x + i, y, bright if i % 2 == 0 else dark)
-
-
 def front_face(name, accent, tier):
+    """Front face: Mekanism casing with the machine's own icon.
+
+    The tier is not painted into the texture - it is the front LED ledge of Mekanism's factories, which is a real piece
+    of geometry (see LED_MODELS) so that it runs over the front *and* the top of the block.
+    """
     img = casing(name + '-front')
     ICONS[accent](img)
-    # Tier LED strip, like the front panel LED of Mekanism's factories
-    led_bar(img, 4, 13, 8, tier)
     return img
 
 
@@ -324,28 +325,15 @@ def side_face(name):
 
 
 def top_face(name, accent):
-    img = casing(name + '-top')
-    bright, dark, _ = ACCENT[accent]
-    import math
-    for y in range(3, 13):
-        for x in range(3, 13):
-            rx, ry = x - 7.5, y - 7.5
-            r = math.hypot(rx, ry)
-            if r > 4.6:
-                continue
-            put(img, x, y, C['beam'] if r > 4.0 else C['shadow'])
-    for i in range(4, 12):
-        put(img, i, 7, C['beam'])
-        put(img, i, 8, C['panelD'])
-        put(img, 7, i, C['beam'])
-        put(img, 8, i, C['panelD'])
-    for x, y in ((7, 7), (8, 7), (7, 8), (8, 8)):
-        put(img, x, y, C['steel'] if (x + y) % 2 else C['beam'])
-    # corner bolts of the fan housing
-    for x, y in ((5, 5), (10, 5), (5, 10), (10, 10)):
-        put(img, x, y, C['beam'])
-        put(img, x, y - 1 if y == 10 else y + 1, C['shadow'])
-    return img
+    """Top face: Mekanism's own concentric-plate machine top, untouched apart from a status LED.
+
+    Mekanism's cube machines (osmium compressor, crusher, enrichment chamber) all speak the same language on their top
+    face - a flat steel plate, a bevelled outer frame, a recessed ring and a raised inner plate, all in very close tonal
+    steps so the plate keeps its noise - and they are deliberately plain: you recognise a Mekanism machine from its
+    front, not from above. So this face is Mekanism's own top texture, untouched. The tier colour that runs over the top
+    of the block is the front LED ledge, exactly like on Mekanism's factories.
+    """
+    return from_jar('assets/mekanism/textures/block/osmium_compressor/top.png').copy()
 
 
 def back_face(name, accent):
@@ -372,6 +360,20 @@ def bottom_face(name):
     return img
 
 
+# The tier band of Mekanism's factories: a 16x16 strip texture with one row per tier, alternating bright and dark
+# pixels. Our rows are 0 untiered, 1 basic, 2 advanced, 3 elite, 4 ultimate and the models sample the matching row.
+LED_ROWS = ['', 'basic_', 'advanced_', 'elite_', 'ultimate_']
+
+
+def led_strip():
+    img = transparent()
+    for row, tier in enumerate(LED_ROWS):
+        bright, dark = TIERS[tier]
+        for x in range(6):
+            put(img, x, row, bright if x % 2 == 0 else dark)
+    return img
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     count = 0
@@ -388,12 +390,20 @@ def main():
     for base, accent in (('item_collector', 'collector'), ('wind_fusion', 'wind'), ('machine_resetter', 'resetter'),
                          ('improved_gas_generator', 'gasgen'),
                          ('heat_fusion', 'heat')):
-        front_face(base, accent, '').save(OUT / f'{base}_front.png')
+        if base != 'wind_fusion':
+            # the wind fusion's front is an animated strip (its rotor turns); gen_wind_animation.py writes it below
+            front_face(base, accent, '').save(OUT / f'{base}_front.png')
         side_face(base).save(OUT / f'{base}_side.png')
         top_face(base, accent).save(OUT / f'{base}_top.png')
         back_face(base, accent).save(OUT / f'{base}_back.png')
         bottom_face(base).save(OUT / f'{base}_bottom.png')
         count += 5
+    led_strip().save(OUT / 'front_led.png')
+    count += 1
+    # The rotor of the wind fusion is animated: 8 frames of 11.25 degrees plus the .mcmeta that plays them
+    import gen_wind_animation
+    gen_wind_animation.main()
+    count += 1
     print('wrote', count, 'textures to', OUT)
 
 

@@ -1,0 +1,53 @@
+name: Bug report
+description: Report a crash or a machine that does not behave as documented.
+title: '[Bug]: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Please include the exact
+        versions below and attach your `latest.log` or crash report if the game
+        crashed or the machine stopped working.
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Mekanism Gizmo version
+      description: The version shown on the jar or in the Mods list.
+      placeholder: 0.3.1
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Minecraft, NeoForge and Mekanism versions
+      placeholder: 1.21.1 / 21.1.200 / 10.7.19.85
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: Steps to reproduce, machine tier and the side configuration you used.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or crash report
+      description: Paste the relevant part here, or attach a file after creating the issue.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I am using the latest release of Mekanism Gizmo.
+          required: true
+        - label: I reproduced the problem without unrelated mods, or I listed the mods that are involved.
+          required: true

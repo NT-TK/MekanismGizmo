@@ -40,7 +40,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Containers;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
@@ -67,7 +66,7 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
     private int brewTicks;
     private int ticksRequired = BASE_TICKS_REQUIRED;
     @Nullable
-    private Item brewingIngredient;
+    private ItemStack brewingIngredient;
 
     public static final int CHEMICAL_CAPACITY = 1_000;
     public static final int CHEMICAL_PER_BREW = 5;
@@ -287,16 +286,16 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         boolean sendUpdatePacket = super.onUpdateServer();
         energySlot.fillContainerOrConvert();
 
-        ItemStack powder = blazePowderSlot.getStack();
-        if (!powder.isEmpty() && powder.is(Items.BLAZE_POWDER) && blazePowderTank.getNeeded() >= POWDER_CHEMICAL) {
-            ChemicalStack remainder = blazePowderTank.insert(
-                  ModChemicals.BLAZE_POWDER.asStack(POWDER_CHEMICAL), Action.EXECUTE, AutomationType.INTERNAL);
-            if (remainder.isEmpty()) {
-                blazePowderSlot.shrinkStack(1, Action.EXECUTE);
-            }
-        }
-
         if (canFunction()) {
+            ItemStack powder = blazePowderSlot.getStack();
+            if (!powder.isEmpty() && powder.is(Items.BLAZE_POWDER) && blazePowderTank.getNeeded() >= POWDER_CHEMICAL) {
+                ChemicalStack remainder = blazePowderTank.insert(
+                      ModChemicals.BLAZE_POWDER.asStack(POWDER_CHEMICAL), Action.EXECUTE, AutomationType.INTERNAL);
+                if (remainder.isEmpty()) {
+                    blazePowderSlot.shrinkStack(1, Action.EXECUTE);
+                }
+            }
+
             if (brewTicks > 0) {
                 if (brewingIngredientChanged()) {
                     // A different ingredient was put in: the running brew is no longer valid
@@ -312,9 +311,11 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
                         }
                     }
                 }
-            } else if (isBrewable() && blazePowderTank.getStored() >= CHEMICAL_PER_BREW) {
+            } else if (isBrewable()) {
+                // isBrewable() already checks the gas for every row that can brew, so a partly filled machine
+                // cannot start a cycle it would have to abort at the end
                 brewTicks = ticksRequired;
-                brewingIngredient = ingredientSlot.getStack().getItem();
+                brewingIngredient = ingredientSlot.getStack().copy();
             }
         }
         setActive(brewTicks > 0);
@@ -322,7 +323,11 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
     }
 
     private boolean brewingIngredientChanged() {
-        return brewingIngredient == null || !ingredientSlot.getStack().is(brewingIngredient);
+        // Compare the full stack, not just the item: a data pack or another mod can register two ingredient variants
+        // of the same item and carrying progress from one recipe over to the other would be wrong. The count is
+        // deliberately ignored, because brewing consumes the ingredient while the cycle runs.
+        return brewingIngredient == null
+              || !ItemStack.isSameItemSameComponents(brewingIngredient, ingredientSlot.getStack());
     }
 
     /** True when a valid brew exists but the matching output slot is occupied (Mekanism warning hook). */
@@ -406,30 +411,40 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
     }
 
     private void finishBrew() {
-        brewTicks = 0;
-        brewingIngredient = null;
         if (level == null || rowsWithWork() == 0) {
             // Nothing left to brew (the bottles were taken out while it ran): do not charge any gas
+            brewTicks = 0;
+            brewingIngredient = null;
             return;
         }
         int brews = brewsThisCycle();
         if (blazePowderTank.getStored() < CHEMICAL_PER_BREW * brews) {
+            // More rows were added while this cycle ran: keep the finished progress and wait for gas instead of
+            // throwing the whole cycle away.
+            brewTicks = 1;
             return;
         }
-        // The gas is only consumed once the potion is finished; one brew is charged per three bottles
-        blazePowderTank.extract(CHEMICAL_PER_BREW * brews, Action.EXECUTE, AutomationType.INTERNAL);
-        doBrew();
+        brewTicks = 0;
+        brewingIngredient = null;
+        int brewed = doBrew();
+        if (brewed > 0) {
+            // Charge only the rows that really brewed: a brew event that cancels a row must not eat the gas
+            blazePowderTank.extract(CHEMICAL_PER_BREW * Math.min(brewed, brews),
+                  Action.EXECUTE, AutomationType.INTERNAL);
+        }
     }
 
     /**
      * Brews every batch of three bottles, exactly like a brewing stand would (three bottles and one ingredient per
-     * batch). The NeoForge brewing events are fired once per batch with the four vanilla slots.
+     * batch). The NeoForge brewing events are fired once per batch with the four vanilla slots. Returns the number of
+     * rows that really brewed, so gas is charged for exactly those rows.
      */
-    private void doBrew() {
+    private int doBrew() {
         if (level == null) {
-            return;
+            return 0;
         }
         PotionBrewing potionBrewing = level.potionBrewing();
+        int brewedRows = 0;
         for (int row = 0; row < rowCount(); row++) {
             int start = row * BOTTLES_PER_BREW;
             int end = Math.min(start + BOTTLES_PER_BREW, bottleSlots.length);
@@ -449,19 +464,32 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
             }
             ItemStack ingredient = brewingItems.get(3);
             boolean[] brewed = new boolean[end - start];
+            boolean any = false;
             for (int i = start; i < end; i++) {
                 ItemStack bottle = brewingItems.get(i - start);
-                if (!bottle.isEmpty() && potionBrewing.hasMix(bottle, ingredient)) {
+                // An occupied output must never be overwritten. rowHasWork() only guarantees that at least one
+                // bottle of this row has room; the other two may still be blocked.
+                if (!bottle.isEmpty() && outputSlots[i].isEmpty() && potionBrewing.hasMix(bottle, ingredient)) {
                     brewingItems.set(i - start, potionBrewing.mix(ingredient, bottle));
                     brewed[i - start] = true;
+                    any = true;
                 }
+            }
+            if (!any) {
+                continue;
             }
             EventHooks.onPotionBrewed(brewingItems);
             for (int i = start; i < end; i++) {
                 ItemStack result = brewingItems.get(i - start);
                 if (brewed[i - start] && !result.isEmpty()) {
-                    outputSlots[i].setStack(result);
-                    bottleSlots[i].setEmpty();
+                    // Re-check the output: an event handler could have used it in the meantime. Keep the result
+                    // in the input slot instead of dropping it on top of a different item.
+                    if (outputSlots[i].isEmpty()) {
+                        outputSlots[i].setStack(result);
+                        bottleSlots[i].setEmpty();
+                    } else {
+                        bottleSlots[i].setStack(result);
+                    }
                 } else if (!brewed[i - start]) {
                     // Bottles that had no recipe for this ingredient stay in the input slot, like vanilla.
                     bottleSlots[i].setStack(result);
@@ -470,7 +498,9 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
             // One ingredient item per brewed row, taken from the machine's ingredient slot
             consumeIngredient();
             level.levelEvent(1035, worldPosition, 0);
+            brewedRows++;
         }
+        return brewedRows;
     }
 
     /** Consumes one ingredient item, keeping (or dropping) its crafting remainder, like a brewing stand. */
@@ -534,6 +564,6 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.POTION_BREWER);
         brewTicks = tag.getInt("BrewTicks");
         ticksRequired = tag.contains("TicksRequired") ? tag.getInt("TicksRequired") : BASE_TICKS_REQUIRED;
-        brewingIngredient = brewTicks > 0 && ingredientSlot != null && !ingredientSlot.isEmpty() ? ingredientSlot.getStack().getItem() : null;
+        brewingIngredient = brewTicks > 0 && ingredientSlot != null && !ingredientSlot.isEmpty() ? ingredientSlot.getStack().copy() : null;
     }
 }

@@ -2,7 +2,6 @@ package jp.example.mekanismgizmo.block;
 
 import jp.example.mekanismgizmo.util.MachineTier;
 import jp.example.mekanismgizmo.util.NbtUpgradeData;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.upgrade.IUpgradeData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -15,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * one block entity type per tier (like Mekanism's factories), and the tier installer can replace the block and move
  * the contents across.
  */
-public abstract class TieredMachineBlockEntity extends TileEntityConfigurableMachine {
+public abstract class TieredMachineBlockEntity extends GizmoMachineBlockEntity {
 
     protected TieredMachineBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
         super(block, pos, state);

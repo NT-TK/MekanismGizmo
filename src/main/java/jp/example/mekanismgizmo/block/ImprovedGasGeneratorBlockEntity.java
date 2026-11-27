@@ -2,7 +2,6 @@ package jp.example.mekanismgizmo.block;
 
 import java.util.List;
 import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.AmountFormat;
 import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
@@ -28,15 +27,18 @@ import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.chemical.ChemicalInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Improved gas generator (mekanismgizmo:improved_gas_generator).
@@ -62,7 +64,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * {@link #BURN_TICKS_PER_TICK} raises it tenfold, so the machine tops out at 64 mB/t for ethene - a full ethene tank
  * burns 64 mB/t = 1,804,800 FE/t and a full hydrogen tank 2,560 mB/t = 512,000 FE/t.
  */
-public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachine {
+public class ImprovedGasGeneratorBlockEntity extends GizmoMachineBlockEntity {
     /** Hundred times the 18,000 mB tank of Mekanism's gas generator. */
     public static final long GAS_CAPACITY = 1_800_000L;
     /** Hundred times the 200,000 FE buffer of Mekanism's gas generator. */
@@ -92,6 +94,9 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
 
     /** Fuel already "started" but not burned off yet, in burn ticks (Mekanism keeps the same remainder). */
     private long burnTicksRemaining;
+    /** Chemical the remainder belongs to; when the tank holds a different fuel the remainder is dropped. */
+    @Nullable
+    private mekanism.api.chemical.Chemical lastFuelType;
     /** Burn rate in hundredths of a mB per tick, synced to the screen. */
     private int burnRateHundredths;
     /** Mekanism's value of the stored gas in FE per mB, synced to the screen. */
@@ -194,9 +199,37 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
         return BURN_TICKS_PER_TICK * getSpeedMultiplier();
     }
 
+    /**
+     * Fuel data for the gas that is currently being burned. When the tank holds gas this is that gas; when the last
+     * mB was already moved into {@link #burnTicksRemaining} the tank is empty, but the remainder still belongs to the
+     * fuel recorded in {@link #lastFuelType} and must keep burning with that fuel's values.
+     */
+    @Nullable
+    private ChemicalFuel activeFuelData() {
+        ChemicalFuel fuel = fuelData(gasTank.getStack());
+        if (fuel == null && gasTank.isEmpty() && burnTicksRemaining > 0 && hasLastFuel()) {
+            return fuelData(new ChemicalStack(lastFuelType, 1));
+        }
+        return fuel;
+    }
+
+    /** True when a real fuel type (not the empty placeholder) is recorded for the remaining burn ticks. */
+    private boolean hasLastFuel() {
+        return lastFuelType != null && !lastFuelType.isEmptyType();
+    }
+
+    @Nullable
+    private static mekanism.api.chemical.Chemical fuelTypeOf(ChemicalStack stack) {
+        if (stack.isEmpty()) {
+            return null;
+        }
+        mekanism.api.chemical.Chemical chemical = stack.getChemical();
+        return chemical.isEmptyType() ? null : chemical;
+    }
+
     /** Highest burn rate this machine reaches with a full tank of the stored gas, in mB per tick. */
     public double getMaxBurnRate() {
-        ChemicalFuel fuel = fuelData(gasTank.getStack());
+        ChemicalFuel fuel = activeFuelData();
         if (fuel == null) {
             return 0;
         }
@@ -205,7 +238,8 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
 
     /** Energy per mB of the stored gas - Mekanism's own value. */
     public long getEnergyPerMb() {
-        return fuelValue(gasTank.getStack());
+        ChemicalFuel fuel = activeFuelData();
+        return fuel == null ? 0 : fuel.energyDensity();
     }
 
     @Override
@@ -214,23 +248,49 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
         fuelSlot.fillTank();
         energySlot.drainContainer();
 
-        ChemicalFuel fuel = fuelData(gasTank.getStack());
+        ChemicalStack stored = gasTank.getStack();
+        ChemicalFuel fuel = fuelData(stored);
+        if (!stored.isEmpty()) {
+            if (fuel == null) {
+                // A non-fuel chemical (for example from a corrupted save) must not inherit the old remainder
+                burnTicksRemaining = 0;
+                lastFuelType = null;
+            } else if (fuelTypeOf(stored) != lastFuelType) {
+                // A different fuel was put in: the partly burned mB of the old one must not be applied to the new one
+                burnTicksRemaining = 0;
+                lastFuelType = fuelTypeOf(stored);
+            }
+        } else if (burnTicksRemaining <= 0) {
+            lastFuelType = null;
+        }
+        if (fuel == null && stored.isEmpty() && burnTicksRemaining > 0 && hasLastFuel()) {
+            // The tank is empty because its last mB only partly fitted into the energy buffer. Keep burning that mB
+            // from the recorded fuel type instead of stranding the remaining burn ticks.
+            fuel = fuelData(new ChemicalStack(lastFuelType, 1));
+            if (fuel == null) {
+                burnTicksRemaining = 0;
+                lastFuelType = null;
+            }
+        }
         long produced = 0;
         double used = 0;
-        if (canFunction() && fuel != null && !gasTank.isEmpty()) {
+        if (canFunction() && fuel != null && (!stored.isEmpty() || burnTicksRemaining > 0)) {
             int maxBurnTicks = Math.max(1, fuel.burnTicks());
             long energyPerTick = Math.max(1, fuel.energyPerTick());
             long needed = energyContainer.getNeeded();
             if (needed > 0) {
-                // Mekanism's own calculation: the fuel limit grows with the fill level of the tank
-                long toUse = (long) Math.ceil(getBurnTickLimit() * getFillLevel());
+                // Mekanism's own calculation: the fuel limit grows with the fill level of the tank. With an empty tank
+                // the remainder is the only fuel left, so let it use the full limit rather than zero.
+                double fill = stored.isEmpty() ? 1D : getFillLevel();
+                long toUse = (long) Math.ceil(getBurnTickLimit() * fill);
                 long available = burnTicksRemaining + gasTank.getStored() * maxBurnTicks;
                 toUse = Math.min(available, toUse);
                 // Only burn what still fits into the buffer
                 toUse = Math.min(toUse, MathUtils.clampToLong(needed / (double) energyPerTick));
                 if (toUse > 0) {
-                    produced = energyContainer.insert(MathUtils.multiplyClamped(energyPerTick, toUse),
-                          Action.EXECUTE, AutomationType.INTERNAL);
+                    // Mekanism's insert returns what did not fit, so the production is the difference
+                    long wanted = MathUtils.multiplyClamped(energyPerTick, toUse);
+                    produced = wanted - energyContainer.insert(wanted, Action.EXECUTE, AutomationType.INTERNAL);
                     long burnAndFuel = available - toUse;
                     if (burnAndFuel > 0) {
                         gasTank.setStack(gasTank.getStack().copyWithAmount(burnAndFuel / maxBurnTicks));
@@ -246,7 +306,17 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
         burnRateHundredths = (int) Math.round(used * 100);
         energyPerMb = (int) Math.min(Integer.MAX_VALUE, getEnergyPerMb());
         setActive(produced > 0);
+        if (canFunction()) {
+            emitEnergy(energyContainer, getMaxOutput());
+        }
         return sendUpdatePacket;
+    }
+
+    /** Upper bound for one tick of output: twice the maximum burn rate, like Mekanism's generators. */
+    private long getMaxOutput() {
+        ChemicalFuel fuel = activeFuelData();
+        long energyPerTick = fuel == null ? 200L : Math.max(1L, fuel.energyPerTick());
+        return MathUtils.multiplyClamped(2L, MathUtils.clampToLong(getBurnTickLimit() * (double) energyPerTick));
     }
 
     public IChemicalTank getGasTank() {
@@ -285,20 +355,54 @@ public class ImprovedGasGeneratorBlockEntity extends TileEntityConfigurableMachi
 
     /** Name of the gas in the tank, as shown on the screen. */
     public Component getStoredGasName() {
-        return gasTank.isEmpty() ? Component.translatable("gui.mekanismgizmo.improved_gas_generator.no_fuel")
-              : gasTank.getStack().getTextComponent();
+        if (!gasTank.isEmpty()) {
+            return gasTank.getStack().getTextComponent();
+        }
+        if (burnTicksRemaining > 0 && hasLastFuel()) {
+            return new ChemicalStack(lastFuelType, 1).getTextComponent();
+        }
+        return Component.translatable("gui.mekanismgizmo.improved_gas_generator.no_fuel");
     }
 
     @Override
     public List<Component> getInfo(Upgrade upgrade) {
-        if (upgrade == Upgrade.SPEED) {
-            return UpgradeUtils.getMultScaledInfo(this, upgrade);
+        // The burn rate and the output are always drawn by the screen; this tab must only show the upgrade's effect
+        return UpgradeUtils.getMultScaledInfo(this, upgrade);
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putLong("BurnTicks", burnTicksRemaining);
+        if (hasLastFuel()) {
+            // The type is needed even when the tank is empty and only a partial mB is left
+            tag.put("LastFuel", new ChemicalStack(lastFuelType, 1).saveOptional(registries));
         }
-        return List.of(
-              Component.translatable("gui.mekanismgizmo.improved_gas_generator.burn_rate",
-                    formatBurnRate(burnRateHundredths)),
-              Component.translatable("gui.mekanismgizmo.improved_gas_generator.output",
-                    AmountFormat.format(generationRate), AmountFormat.format(energyPerMb)));
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        burnTicksRemaining = Math.max(0, tag.getLong("BurnTicks"));
+        Tag savedFuel = tag.get("LastFuel");
+        if (savedFuel != null) {
+            lastFuelType = ChemicalStack.parse(registries, savedFuel)
+                  .filter(stack -> !stack.isEmpty())
+                  .map(ImprovedGasGeneratorBlockEntity::fuelTypeOf)
+                  .orElse(null);
+        } else {
+            // Older saves did not record the type: use the tank if it still has gas. Do not treat that fuel as a
+            // fuel change on the first tick, as that would discard the saved partial burn.
+            lastFuelType = fuelTypeOf(gasTank.getStack());
+        }
+        if (lastFuelType == null && burnTicksRemaining > 0 && !gasTank.isEmpty()) {
+            lastFuelType = fuelTypeOf(gasTank.getStack());
+        }
+        if (gasTank.isEmpty() && burnTicksRemaining > 0 && lastFuelType == null) {
+            // No way to know which fuel the old remainder belonged to; dropping it is safer than applying it to
+            // whatever is inserted next.
+            burnTicksRemaining = 0;
+        }
     }
 
     @Override

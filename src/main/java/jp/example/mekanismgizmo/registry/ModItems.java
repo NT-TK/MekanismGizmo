@@ -1,6 +1,8 @@
 package jp.example.mekanismgizmo.registry;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
+import jp.example.mekanismgizmo.item.ImprovedConfiguratorItem;
+import jp.example.mekanismgizmo.item.ImprovedPortableTeleporterItem;
 import jp.example.mekanismgizmo.item.PipetteItem;
 import mekanism.common.attachments.containers.ContainerType;
 import mekanism.common.config.MekanismConfig;
@@ -23,6 +25,23 @@ public final class ModItems {
     public static final ItemRegistryObject<PipetteItem> ADVANCED_PIPETTE = pipette("advanced_pipette", ADVANCED_CAPACITY);
     public static final ItemRegistryObject<PipetteItem> ELITE_PIPETTE = pipette("elite_pipette", ELITE_CAPACITY);
     public static final ItemRegistryObject<PipetteItem> ULTIMATE_PIPETTE = pipette("ultimate_pipette", ULTIMATE_CAPACITY);
+
+    /**
+     * Mekanism's portable teleporter with a hundred times the energy buffer. The item itself is a subclass of
+     * Mekanism's, so the screen, the frequency network, the teleport packet and its distance based cost, the owner
+     * handling and the charging are all Mekanism's; only the attached energy container is ours.
+     */
+    /**
+     * Configuration card that additionally copies the installed upgrades, the machine frequencies and the digital
+     * miner's filter list, and refuses to install upgrades the player cannot pay for.
+     */
+    public static final ItemRegistryObject<ImprovedConfiguratorItem> IMPROVED_CONFIGURATOR = ITEMS
+          .registerItem("improved_configurator", ImprovedConfiguratorItem::new);
+
+    public static final ItemRegistryObject<ImprovedPortableTeleporterItem> IMPROVED_PORTABLE_TELEPORTER = ITEMS
+          .registerItem("improved_portable_teleporter", ImprovedPortableTeleporterItem::new)
+          .addAttachedContainerCapabilities(ContainerType.ENERGY, ImprovedPortableTeleporterItem::energyContainers,
+                MekanismConfig.gear);
 
     /**
      * One liquid tank and one gas tank per pipette, both sized by the tier. Mekanism's gauge dropper shares a single

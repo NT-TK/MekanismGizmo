@@ -17,10 +17,10 @@ import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.inventory.container.MekanismContainer;
 import mekanism.common.inventory.container.sync.SyncableBoolean;
 import mekanism.common.inventory.container.sync.SyncableInt;
+import mekanism.common.inventory.container.sync.SyncableLong;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
-import mekanism.common.tile.prefab.TileEntityConfigurableMachine;
 import mekanism.generators.common.config.MekanismGeneratorsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -43,7 +43,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * Everything else - the side configuration, redstone control, security, the energy item slot and the data synced to the
  * screen - comes from Mekanism's configurable machine base.
  */
-public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
+public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
     /** Number of wind generator slots: three rows of nine. */
     public static final int SLOT_COUNT = 27;
     public static final int COLUMNS = 9;
@@ -87,7 +87,7 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     /** Number of generators the machine could hold with the items it contains, synced to the screen. */
     private int maxUnits = SLOT_COUNT * MAX_STACK;
     /** Power one fused generator produces here, synced to the screen. */
-    private int generationPerUnit;
+    private long generationPerUnit;
     private boolean blacklistDimension;
 
     public WindFusionBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
@@ -161,9 +161,18 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
         setActive(generating);
         if (generating && energyContainer.getNeeded() > 0) {
             // One generator worth per fused generator: a full machine produces 27 times a single wind generator
-            energyContainer.insert((long) activeUnits * generationPerUnit, Action.EXECUTE, AutomationType.INTERNAL);
+            energyContainer.insert(MathUtils.multiplyClamped(activeUnits, generationPerUnit), Action.EXECUTE, AutomationType.INTERNAL);
+        }
+        if (canFunction()) {
+            emitEnergy(energyContainer, getMaxOutput());
         }
         return sendUpdatePacket;
+    }
+
+    /** Upper bound for one tick of output: twice the configured maximum of the installed generators. */
+    private long getMaxOutput() {
+        long perUnit = Math.max(1L, MekanismGeneratorsConfig.generators.windGenerationMax.get());
+        return MathUtils.multiplyClamped(2L, MathUtils.multiplyClamped(Math.max(1, activeUnits), perUnit));
     }
 
     /**
@@ -198,8 +207,14 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     }
 
     /** Power a single fused generator produces at this position, mirroring Mekanism's wind generator. */
-    public int getGenerationPerUnit() {
-        return (int) MathUtils.clampToLong(MekanismGeneratorsConfig.generators.windGenerationMin.get() * multiplier);
+    public long getGenerationPerUnit() {
+        double generation = MekanismGeneratorsConfig.generators.windGenerationMin.get() * multiplier;
+        // windGenerationMin = 0 makes the multiplier infinite (or 0 * infinite NaN); don't let that turn into
+        // a negative int or a fake positive output.
+        if (!Double.isFinite(generation) || generation <= 0) {
+            return 0;
+        }
+        return MathUtils.clampToLong(generation);
     }
 
     /**
@@ -246,8 +261,13 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
     }
 
     /** Power one fused generator produces here, as shown on the screen. */
-    public int getGenerationPerGeneratorSynced() {
+    public long getGenerationPerGeneratorSynced() {
         return generationPerUnit;
+    }
+
+    /** Total output to display, zero in dimensions where the machine cannot generate wind. */
+    public long getDisplayedGeneration() {
+        return blacklistDimension ? 0L : MathUtils.multiplyClamped(activeUnits, generationPerUnit);
     }
 
     public WindGeneratorSlot[] getGeneratorSlots() {
@@ -259,7 +279,7 @@ public class WindFusionBlockEntity extends TileEntityConfigurableMachine {
         super.addContainerTrackers(container);
         container.track(SyncableInt.create(() -> activeUnits, value -> activeUnits = value));
         container.track(SyncableInt.create(() -> maxUnits, value -> maxUnits = value));
-        container.track(SyncableInt.create(() -> generationPerUnit, value -> generationPerUnit = value));
+        container.track(SyncableLong.create(() -> generationPerUnit, value -> generationPerUnit = value));
         container.track(SyncableBoolean.create(() -> blacklistDimension, value -> blacklistDimension = value));
     }
 }

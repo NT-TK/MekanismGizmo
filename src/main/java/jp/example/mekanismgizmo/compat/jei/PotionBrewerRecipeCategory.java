@@ -86,11 +86,16 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         return PotionBrewerRecipes.id(recipe);
     }
 
+    /** True when the page shows the blaze powder gas slot (Mekanism's JEI plugin provides the chemical type). */
+    public static boolean hasGasSlot() {
+        return MekanismJEI.shouldLoad();
+    }
+
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, PotionBrewerJeiRecipe recipe, IFocusGroup focuses) {
         // Every brew of three bottles also needs blaze powder gas, so the gas is an input of the page as well.
         // (Mekanism's JEI plugin provides the chemical ingredient type; without it the page simply has no gas slot.)
-        if (MekanismJEI.shouldLoad()) {
+        if (hasGasSlot()) {
             builder.addInputSlot(GAS_X, GAS_Y)
                   .setStandardSlotBackground()
                   .addIngredient(MekanismJEI.TYPE_CHEMICAL,

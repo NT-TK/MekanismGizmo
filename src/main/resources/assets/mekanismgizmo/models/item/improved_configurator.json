@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mekanismgizmo:item/improved_configurator"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "mekanismgizmo:encoded": 1
+      },
+      "model": "mekanismgizmo:item/improved_configurator_encoded"
+    }
+  ]
+}

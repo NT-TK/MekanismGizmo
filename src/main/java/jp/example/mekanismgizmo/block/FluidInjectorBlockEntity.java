@@ -121,7 +121,8 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
             builder.addSlot(containerSlots[i] = InputInventorySlot.at(this::isContainerInput, listener, INPUT_X, rowY(i)));
             builder.addSlot(containerOutputSlots[i] = OutputInventorySlot.at(listener, OUTPUT_X, rowY(i)));
         }
-        builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener, 143, 15));
+        builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener,
+              ENERGY_SLOT_X, ENERGY_SLOT_Y));
         return builder.build();
     }
 
@@ -135,14 +136,45 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         return FIRST_ROW_Y + index * 18;
     }
 
-    /** Total height of the machine screen for the given tier. */
-    public static int guiHeight(int parallel) {
-        return 166 + (parallel - 1) * 18;
+    // --- screen layout ---
+    /** The tank gauge and the power bar are 52 pixels tall, so the player inventory never starts above this. */
+    private static final int MIN_INVENTORY_Y = 84;
+    /** Room between the last container row and the player inventory. */
+    private static final int INVENTORY_MARGIN = 12;
+    /** Height of the player inventory block inside the screen (label + 3 rows + gap + hotbar). */
+    private static final int INVENTORY_HEIGHT = 166 - 84;
+    public static final int GAUGE_X = 6;
+    public static final int GAUGE_Y = 13;
+    /** Mekanism's standard gauge is 16 x 58; it is stretched downwards per tier so it covers the whole slot block. */
+    public static final int GAUGE_WIDTH = 16;
+    public static final int GAUGE_HEIGHT = 58;
+    public static final int POWER_BAR_X = 164;
+    public static final int POWER_BAR_Y = 16;
+    public static final int ENERGY_SLOT_X = 143;
+    public static final int ENERGY_SLOT_Y = 15;
+    /** The mode button runs from the container slots to just before the energy slot. */
+    public static final int MODE_BUTTON_X = OUTPUT_X + 24;
+    public static final int MODE_BUTTON_Y = 20;
+    public static final int MODE_BUTTON_WIDTH = ENERGY_SLOT_X - MODE_BUTTON_X - 4;
+    public static final int MODE_BUTTON_HEIGHT = 14;
+
+    /** Height of the tank gauge for the given tier: it reaches down to the last container row. */
+    public static int gaugeHeight(int parallel) {
+        return Math.max(GAUGE_HEIGHT, rowY(parallel - 1) + 16 - GAUGE_Y);
     }
 
-    /** y offset of the player inventory inside the machine screen. */
+    /** Total height of the machine screen for the given tier: only as tall as the content needs. */
+    public static int guiHeight(int parallel) {
+        return inventoryYOffset(parallel) + INVENTORY_HEIGHT;
+    }
+
+    /**
+     * y offset of the player inventory inside the machine screen. Every tier adds one container slot pair, but the first
+     * three tiers still fit under the fixed gauge and power bar, so the inventory only moves down once the slots reach
+     * past them - otherwise the screen would carry a wide empty band above the inventory.
+     */
     public static int inventoryYOffset(int parallel) {
-        return 84 + (parallel - 1) * 18;
+        return Math.max(MIN_INVENTORY_Y, rowY(parallel - 1) + 16 + INVENTORY_MARGIN);
     }
 
     public IExtendedFluidTank getFluidTank() {

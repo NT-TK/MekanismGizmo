@@ -2,10 +2,14 @@ package jp.example.mekanismgizmo.client;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
 import jp.example.mekanismgizmo.registry.ModBlockEntities;
+import jp.example.mekanismgizmo.registry.ModItems;
 import jp.example.mekanismgizmo.registry.ModMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import mekanism.common.registries.MekanismDataComponents;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
@@ -27,6 +31,17 @@ public final class ClientModEvents {
         event.register(ModMenus.IMPROVED_GAS_GENERATOR.get(), ImprovedGasGeneratorScreen::new);
         event.register(ModMenus.WIND_FUSION.get(), WindFusionScreen::new);
         event.register(ModMenus.MACHINE_RESETTER.get(), MachineResetterScreen::new);
+    }
+
+    /**
+     * Swaps the configuration card to its lit sprite once it holds a recorded configuration, the same way Mekanism's
+     * own card switches to {@code configuration_card_encoded}.
+     */
+    @SubscribeEvent
+    public static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(ModItems.IMPROVED_CONFIGURATOR.get(),
+              net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "encoded"), (stack, level, entity, seed) ->
+                    stack.has(MekanismDataComponents.CONFIGURATION_DATA.get()) ? 1.0F : 0.0F));
     }
 
     @SubscribeEvent

@@ -55,11 +55,15 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
                 slots.put(containerSlot.getInventorySlot(), slot);
             }
         }
-        List<Slot> recipeSlots = new ArrayList<>(4);
-        // Same order as the page: gas, bottle, ingredient, result
-        Slot gas = slots.get(tile.getBlazePowderSlot());
-        if (gas != null) {
-            recipeSlots.add(gas);
+        List<Slot> recipeSlots = new ArrayList<>(3);
+        // Same order as the page: gas (only when the page has that slot), bottle, ingredient. The output slot is
+        // deliberately not part of the transfer: JEI moves ingredients from the player inventory into these slots and
+        // an output slot would reject the result (or even receive a potion from the inventory).
+        if (PotionBrewerRecipeCategory.hasGasSlot()) {
+            Slot gas = slots.get(tile.getBlazePowderSlot());
+            if (gas != null) {
+                recipeSlots.add(gas);
+            }
         }
         Slot bottle = slots.get(tile.getBottleSlots()[0]);
         if (bottle != null) {
@@ -68,10 +72,6 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
         Slot ingredient = slots.get(tile.getIngredientSlot());
         if (ingredient != null) {
             recipeSlots.add(ingredient);
-        }
-        Slot output = slots.get(tile.getOutputSlots()[0]);
-        if (output != null) {
-            recipeSlots.add(output);
         }
         return recipeSlots;
     }

@@ -1,6 +1,5 @@
 package jp.example.mekanismgizmo.util;
 
-import java.util.EnumMap;
 import java.util.Map;
 import mekanism.api.RelativeSide;
 import mekanism.common.attachments.component.AttachedSideConfig;
@@ -22,17 +21,15 @@ import mekanism.common.tile.component.config.DataType;
  */
 public final class MachineSideDefaults {
 
-    /** The generic defaults used by earlier versions (everything input, right output, energy at the back). */
-    private static final Map<RelativeSide, DataType> LEGACY_ITEM_DEFAULTS = legacyItemDefaults();
-
     public static void applyIfUnconfigured(TileComponentConfig configComponent, AttachedSideConfig defaults) {
         for (Map.Entry<TransmissionType, LightConfigInfo> entry : defaults.configInfo().entrySet()) {
             ConfigInfo config = configComponent.getConfig(entry.getKey());
             if (config == null) {
                 continue;
             }
-            boolean legacy = entry.getKey() == TransmissionType.ITEM && matches(config, LEGACY_ITEM_DEFAULTS);
-            if (legacy || isAllNone(config)) {
+            // Only a completely empty configuration is repaired. A layout the player chose is never touched, even when
+            // it happens to look like an old default: silently rewriting it would undo their side configuration.
+            if (isAllNone(config)) {
                 for (Map.Entry<RelativeSide, DataType> side : entry.getValue().sideConfig().entrySet()) {
                     config.setDataType(side.getValue(), side.getKey());
                 }
@@ -47,25 +44,6 @@ public final class MachineSideDefaults {
             }
         }
         return true;
-    }
-
-    private static boolean matches(ConfigInfo config, Map<RelativeSide, DataType> expected) {
-        for (RelativeSide side : RelativeSide.values()) {
-            if (config.getDataType(side) != expected.get(side)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static Map<RelativeSide, DataType> legacyItemDefaults() {
-        EnumMap<RelativeSide, DataType> sides = new EnumMap<>(RelativeSide.class);
-        for (RelativeSide side : RelativeSide.values()) {
-            sides.put(side, DataType.INPUT);
-        }
-        sides.put(RelativeSide.RIGHT, DataType.OUTPUT);
-        sides.put(RelativeSide.BACK, DataType.ENERGY);
-        return sides;
     }
 
     private MachineSideDefaults() {

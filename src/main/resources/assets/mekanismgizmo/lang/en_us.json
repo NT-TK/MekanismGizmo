@@ -86,6 +86,7 @@
   "emi.category.mekanismgizmo.fluid_injector": "Fluid Injector",
   "emi.category.mekanismgizmo.ice_maker": "Ice Maker",
   "emi.category.mekanismgizmo.potion_brewer": "Potion Brewer",
+  "gui.mekanismgizmo.fluid_injector.tank": "%1$s / %2$s mB",
   "gui.mekanismgizmo.heat_fusion.energy": "Energy: %1$s / %2$s FE",
   "gui.mekanismgizmo.heat_fusion.info": "%1$s / %2$s generators · %3$s FE/t",
   "gui.mekanismgizmo.heat_fusion.output": "Producing: %s FE/t",
@@ -107,6 +108,8 @@
   "item.mekanismgizmo.advanced_pipette": "Advanced Pipette",
   "item.mekanismgizmo.basic_pipette": "Basic Pipette",
   "item.mekanismgizmo.elite_pipette": "Elite Pipette",
+  "item.mekanismgizmo.improved_configurator": "Improved Configuration Card",
+  "item.mekanismgizmo.improved_portable_teleporter": "Improved Portable Teleporter",
   "item.mekanismgizmo.ultimate_pipette": "Ultimate Pipette",
   "itemGroup.mekanismgizmo": "Mekanism Gizmo",
   "jei.mekanismgizmo.basalt_generator": "Electric Basalt Generator",
@@ -122,6 +125,11 @@
   "jei.mekanismgizmo.info.no_input": "No input (energy only)",
   "jei.mekanismgizmo.info.time": "Time: %s ticks",
   "jei.mekanismgizmo.potion_brewer": "Potion Brewer",
+  "message.mekanismgizmo.configurator.unsupported": "This machine does not support %s",
+  "message.mekanismgizmo.configurator.upgrade_short": "%1$s: need %2$s, you have %3$s",
+  "message.mekanismgizmo.configurator.upgrades_skipped": "Configuration applied, but the upgrades were not installed:",
   "tooltip.mekanismgizmo.container_mode": "Fluid container mode (Fill / Empty / Both)",
+  "tooltip.mekanismgizmo.improved_configurator.miner": "Includes digital miner filters",
+  "tooltip.mekanismgizmo.improved_configurator.upgrade": "%1$s x%2$s",
   "tooltip.mekanismgizmo.pipette_capacity": "Capacity: %s mB (liquid or gas)"
 }

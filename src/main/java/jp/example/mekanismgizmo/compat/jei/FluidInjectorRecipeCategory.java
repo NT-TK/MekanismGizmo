@@ -81,7 +81,8 @@ public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjecto
     public ResourceLocation getRegistryName(FluidInjectorJeiRecipe recipe) {
         String direction = recipe.fluidInput().isEmpty() ? "empty" : "fill";
         ResourceLocation input = BuiltInRegistries.ITEM.getKey(recipe.input().getItem());
-        return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "fluid_injector/" + direction + "/" + input.getPath());
+        return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "fluid_injector/" + direction + "/"
+              + input.getNamespace() + "_" + input.getPath().replace('/', '_'));
     }
 
     @Override

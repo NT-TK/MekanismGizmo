@@ -54,6 +54,8 @@ public final class ModCreativeTabs {
                     output.accept(ModItems.ADVANCED_PIPETTE.asItem());
                     output.accept(ModItems.ELITE_PIPETTE.asItem());
                     output.accept(ModItems.ULTIMATE_PIPETTE.asItem());
+                    output.accept(ModItems.IMPROVED_PORTABLE_TELEPORTER.asItem());
+                    output.accept(ModItems.IMPROVED_CONFIGURATOR.asItem());
                 })
                 .build());
 
