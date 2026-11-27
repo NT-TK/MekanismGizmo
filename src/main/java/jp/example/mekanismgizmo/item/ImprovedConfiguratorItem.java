@@ -4,25 +4,26 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import mekanism.api.IConfigCardAccess;
 import mekanism.api.Upgrade;
-import mekanism.api.security.IBlockSecurityUtils;
+import mekanism.api.NBTConstants;
+import mekanism.api.security.ISecurityUtils;
 import mekanism.api.text.EnumColor;
 import mekanism.api.text.TextComponentUtil;
 import mekanism.common.MekanismLang;
 import mekanism.common.advancements.MekanismCriteriaTriggers;
 import mekanism.common.capabilities.Capabilities;
 import mekanism.common.item.ItemConfigurationCard;
-import mekanism.common.registries.MekanismDataComponents;
+import mekanism.common.util.ItemDataUtils;
 import mekanism.common.registries.MekanismItems;
 import mekanism.common.tile.base.TileEntityMekanism;
 import mekanism.common.tile.machine.TileEntityDigitalMiner;
+import mekanism.common.util.CapabilityUtils;
 import mekanism.common.util.NBTUtils;
 import mekanism.common.util.WorldUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -35,7 +36,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Improved configuration card. It is Mekanism's own {@link ItemConfigurationCard} with two additions:
@@ -46,8 +50,8 @@ import net.minecraft.world.level.block.Block;
  * Everything else is Mekanism's behaviour, unchanged: sneak + right click records a machine
  * ({@code data_name} / {@code data_type} plus the machine's own {@code getConfigurationData} tag), right click injects it
  * into a machine that accepts the same kind of configuration, and sneak + right click in the air clears the card. The
- * record lives in Mekanism's {@code CONFIGURATION_DATA} component, so a card written by this item can be read by
- * Mekanism's card and the other way around, and both warn with Mekanism's own "Unequal configuration data formats."
+ * record lives in the card's item NBT ({@code mekanism:data}), so a card written by this item can be read by Mekanism's
+ * card and the other way around, and both warn with Mekanism's own "Unequal configuration data formats."
  */
 public class ImprovedConfiguratorItem extends ItemConfigurationCard {
 
@@ -74,12 +78,16 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
         }
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        IConfigCardAccess configCard = WorldUtils.getCapability(level, Capabilities.CONFIG_CARD, pos,
-              context.getClickedFace());
-        if (configCard == null) {
+        BlockEntity tile = WorldUtils.getTileEntity(level, pos);
+        if (tile == null) {
             return InteractionResult.PASS;
         }
-        if (!IBlockSecurityUtils.INSTANCE.canAccessOrDisplayError(player, level, pos)) {
+        Optional<IConfigCardAccess> capability = CapabilityUtils.getCapability(tile, Capabilities.CONFIG_CARD, context.getClickedFace()).resolve();
+        if (capability.isEmpty()) {
+            return InteractionResult.PASS;
+        }
+        IConfigCardAccess configCard = capability.get();
+        if (!ISecurityUtils.INSTANCE.canAccessOrDisplayError(player, tile)) {
             return InteractionResult.FAIL;
         }
         ItemStack stack = context.getItemInHand();
@@ -97,7 +105,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
                       TextComponentUtil.translate(configCard.getConfigCardName())), true);
                 if (player instanceof ServerPlayer serverPlayer) {
                     // Mekanism's own card also advances on recording (true), not only on pasting (false)
-                    MekanismCriteriaTriggers.CONFIGURATION_CARD.value().trigger(serverPlayer, true);
+                    MekanismCriteriaTriggers.CONFIGURATION_CARD.trigger(serverPlayer, true);
                 }
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -108,12 +116,12 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
             return InteractionResult.PASS;
         }
         if (!level.isClientSide) {
-            Block type = NBTUtils.readRegistryEntry(data, DATA_TYPE, BuiltInRegistries.BLOCK, null);
+            BlockEntityType<?> type = readStoredType(data);
             if (type == null || !configCard.isConfigurationDataCompatible(type)) {
                 tell(player, MekanismLang.CONFIG_CARD_UNEQUAL.translateColored(EnumColor.RED), true);
             } else {
                 try {
-                    configCard.setConfigurationData(level.registryAccess(), player, data);
+                    configCard.setConfigurationData(player, data);
                 } catch (RuntimeException e) {
                     // A record written by another machine layout must not break the click (or open the machine's GUI)
                     LOGGER.error("Could not apply a recorded configuration at {}", pos, e);
@@ -123,7 +131,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
                 configCard.configurationDataSet();
                 tell(player, MekanismLang.CONFIG_CARD_SET.translate(EnumColor.INDIGO, cardName(data)), true);
                 if (player instanceof ServerPlayer serverPlayer) {
-                    MekanismCriteriaTriggers.CONFIGURATION_CARD.value().trigger(serverPlayer, false);
+                    MekanismCriteriaTriggers.CONFIGURATION_CARD.trigger(serverPlayer, false);
                 }
                 try {
                     applyExtras(data, configCard, player);
@@ -138,21 +146,20 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
 
     /** The recorded tag in Mekanism's format, or {@code null} when this card is empty. */
     private static CompoundTag storedData(ItemStack stack) {
-        CompoundTag data = stack.get(MekanismDataComponents.CONFIGURATION_DATA.get());
-        return data == null || data.isEmpty() ? null : data;
+        CompoundTag data = ItemDataUtils.getCompound(stack, NBTConstants.DATA);
+        return data.isEmpty() ? null : data;
     }
 
     /** The recorded machine's name, or Mekanism's "None". */
     private static Component cardName(CompoundTag data) {
-        return data.contains(DATA_NAME, Tag.TAG_STRING)
-              ? TextComponentUtil.translate(data.getString(DATA_NAME))
+        return data.contains(NBTConstants.DATA_NAME, Tag.TAG_STRING)
+              ? TextComponentUtil.translate(data.getString(NBTConstants.DATA_NAME))
               : MekanismLang.NONE.translate();
     }
 
     /** Writes Mekanism's configuration tag plus this mod's extras into the card. */
     private static void record(ItemStack stack, IConfigCardAccess configCard, Player player) {
-        HolderLookup.Provider registries = player.level().registryAccess();
-        CompoundTag data = configCard.getConfigurationData(registries, player);
+        CompoundTag data = configCard.getConfigurationData(player);
         if (data == null) {
             // IConfigCardAccess promises a tag, but a third party implementation may return null
             data = new CompoundTag();
@@ -161,8 +168,8 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
             // filter data permanently and a second copy of the card could inherit it.
             data = data.copy();
         }
-        data.putString(DATA_NAME, configCard.getConfigCardName());
-        NBTUtils.writeRegistryEntry(data, DATA_TYPE, BuiltInRegistries.BLOCK, configCard.getConfigurationDataType());
+        data.putString(NBTConstants.DATA_NAME, configCard.getConfigCardName());
+        NBTUtils.writeRegistryEntry(data, NBTConstants.DATA_TYPE, ForgeRegistries.BLOCK_ENTITY_TYPES, configCard.getConfigurationDataType());
         if (configCard instanceof TileEntityMekanism tile) {
             CompoundTag upgrades = upgradeTag(tile);
             if (!upgrades.isEmpty()) {
@@ -170,11 +177,11 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
             }
             if (tile instanceof TileEntityDigitalMiner miner) {
                 CompoundTag filters = new CompoundTag();
-                miner.getFilterManager().writeToNBT(registries, filters);
+                miner.getFilterManager().writeToNBT(filters);
                 data.put(MINER, filters);
             }
         }
-        stack.set(MekanismDataComponents.CONFIGURATION_DATA, data);
+        ItemDataUtils.setCompound(stack, NBTConstants.DATA, data);
     }
 
     /** Applies the upgrades and the digital miner filters that travel with the configuration. */
@@ -186,7 +193,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
             installUpgrades(tile, data.getCompound(UPGRADES), player);
         }
         if (data.contains(MINER, Tag.TAG_COMPOUND) && tile instanceof TileEntityDigitalMiner miner) {
-            miner.getFilterManager().readFromNBT(player.level().registryAccess(), data.getCompound(MINER));
+            miner.getFilterManager().readFromNBT(data.getCompound(MINER));
         }
     }
 
@@ -201,7 +208,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
         List<Component> unsupported = new ArrayList<>();
         for (Upgrade upgrade : Upgrade.values()) {
             // Never ask for more than the game allows: addUpgrades would cap it, but the payment must be capped too
-            int wanted = Math.min(upgrades.getInt(upgrade.getSerializedName()), upgrade.getMax());
+            int wanted = Math.min(upgrades.getInt(upgrade.getRawName()), upgrade.getMax());
             if (wanted <= 0) {
                 continue;
             }
@@ -264,7 +271,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
         for (Upgrade upgrade : Upgrade.values()) {
             int installed = Math.min(tile.getComponent().getUpgrades(upgrade), upgrade.getMax());
             if (installed > 0) {
-                upgrades.putInt(upgrade.getSerializedName(), installed);
+                upgrades.putInt(upgrade.getRawName(), installed);
             }
         }
         return upgrades;
@@ -284,7 +291,7 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
             case SPEED -> MekanismItems.SPEED_UPGRADE.get();
             case ENERGY -> MekanismItems.ENERGY_UPGRADE.get();
             case FILTER -> MekanismItems.FILTER_UPGRADE.get();
-            case CHEMICAL -> MekanismItems.CHEMICAL_UPGRADE.get();
+            case GAS -> MekanismItems.GAS_UPGRADE.get();
             case MUFFLING -> MekanismItems.MUFFLING_UPGRADE.get();
             case ANCHOR -> MekanismItems.ANCHOR_UPGRADE.get();
             case STONE_GENERATOR -> MekanismItems.STONE_GENERATOR_UPGRADE.get();
@@ -315,17 +322,26 @@ public class ImprovedConfiguratorItem extends ItemConfigurationCard {
         }
     }
 
+    @Nullable
+    private static BlockEntityType<?> readStoredType(CompoundTag data) {
+        if (!data.contains(NBTConstants.DATA_TYPE, Tag.TAG_STRING)) {
+            return null;
+        }
+        net.minecraft.resources.ResourceLocation id = net.minecraft.resources.ResourceLocation.tryParse(data.getString(NBTConstants.DATA_TYPE));
+        return id == null ? null : ForgeRegistries.BLOCK_ENTITY_TYPES.getValue(id);
+    }
+
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
         // Mekanism's own "Data: <machine>" line (and "None" for an empty card)
-        super.appendHoverText(stack, context, tooltip, flag);
+        super.appendHoverText(stack, level, tooltip, flag);
         CompoundTag data = storedData(stack);
         if (data == null) {
             return;
         }
         CompoundTag upgrades = data.getCompound(UPGRADES);
         for (Upgrade upgrade : Upgrade.values()) {
-            int installed = upgrades.getInt(upgrade.getSerializedName());
+            int installed = upgrades.getInt(upgrade.getRawName());
             if (installed > 0) {
                 tooltip.add(Component.translatable("tooltip.mekanismgizmo.improved_configurator.upgrade",
                       upgradeName(upgrade), installed).withStyle(ChatFormatting.DARK_AQUA));

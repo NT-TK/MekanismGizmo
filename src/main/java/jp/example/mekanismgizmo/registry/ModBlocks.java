@@ -24,19 +24,11 @@ import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlock;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.util.MachineTier;
-import mekanism.common.attachments.component.AttachedEjector;
-import mekanism.common.attachments.component.AttachedSideConfig;
-import mekanism.common.attachments.containers.ContainerType;
-import mekanism.common.attachments.containers.chemical.ChemicalTanksBuilder;
-import mekanism.common.attachments.containers.fluid.FluidTanksBuilder;
-import mekanism.common.attachments.containers.item.ItemSlotsBuilder;
 import mekanism.common.block.interfaces.IHasDescription;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.item.block.ItemBlockTooltip;
-import mekanism.common.registries.MekanismDataComponents;
 import mekanism.common.registration.impl.BlockDeferredRegister;
 import mekanism.common.registration.impl.BlockRegistryObject;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -121,174 +113,83 @@ public final class ModBlocks {
     // --- improved gas generator (single tier) ---
     public static final BlockRegistryObject<ImprovedGasGeneratorBlock, ItemBlockTooltip<ImprovedGasGeneratorBlock>> IMPROVED_GAS_GENERATOR = BLOCKS
           .register("improved_gas_generator", () -> new ImprovedGasGeneratorBlock(ModBlockTypes.IMPROVED_GAS_GENERATOR),
-                (block, properties) -> machineItem(block, properties, ModSideConfigs.IMPROVED_GAS_GENERATOR))
-          .forItemHolder(item -> item
-                // Fuel container slot + energy slot
-                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                      .addInput(1)
-                      .addEnergy()
-                      .build())
-                .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                      .addBasic(ImprovedGasGeneratorBlockEntity.GAS_CAPACITY)
-                      .build()));
+                block -> machineItem(block))
+          ;
 
     // --- heat generator fusion (single tier) ---
     public static final BlockRegistryObject<HeatFusionBlock, ItemBlockTooltip<HeatFusionBlock>> HEAT_FUSION = BLOCKS
           .register("heat_fusion", () -> new HeatFusionBlock(ModBlockTypes.HEAT_FUSION),
-                (block, properties) -> machineItem(block, properties, ModSideConfigs.HEAT_FUSION))
-          .forItemHolder(item -> item
-                // 3x9 heat generator slots + energy slot, the same layout as the block entity
-                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                      .addInput(HeatFusionBlockEntity.SLOT_COUNT)
-                      .addEnergy()
-                      .build())
-                .addAttachmentOnlyContainers(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
-                      .addBasic(HeatFusionBlockEntity.LAVA_CAPACITY)
-                      .build()));
+                block -> machineItem(block))
+          ;
 
     // --- item collector (single tier) ---
     public static final BlockRegistryObject<ItemCollectorBlock, ItemBlockTooltip<ItemCollectorBlock>> ITEM_COLLECTOR = BLOCKS
           .register("item_collector", () -> new ItemCollectorBlock(ModBlockTypes.ITEM_COLLECTOR),
-                (block, properties) -> machineItem(block, properties, ModSideConfigs.ITEM_COLLECTOR))
-          .forItemHolder(item -> item
-                // 3x9 output slots + energy slot
-                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                      .addOutput(ItemCollectorBlockEntity.SLOT_COUNT)
-                      .addEnergy()
-                      .build()));
+                block -> machineItem(block))
+          ;
 
     // --- machine resetter (single tier) ---
     public static final BlockRegistryObject<MachineResetterBlock, ItemBlockTooltip<MachineResetterBlock>> MACHINE_RESETTER = BLOCKS
           .register("machine_resetter", () -> new MachineResetterBlock(ModBlockTypes.MACHINE_RESETTER),
-                (block, properties) -> machineItem(block, properties, ModSideConfigs.MACHINE_RESETTER))
-          .forItemHolder(item -> item
-                // One machine item in, one clean machine item out, plus the energy slot
-                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                      .addInput(1)
-                      .addOutput()
-                      .addEnergy()
-                      .build()));
+                block -> machineItem(block))
+          ;
 
     // --- wind generator fusion (single tier) ---
     public static final BlockRegistryObject<WindFusionBlock, ItemBlockTooltip<WindFusionBlock>> WIND_FUSION = BLOCKS
           .register("wind_fusion", () -> new WindFusionBlock(ModBlockTypes.WIND_FUSION),
-                (block, properties) -> machineItem(block, properties, ModSideConfigs.WIND_FUSION))
-          .forItemHolder(item -> item
-                // 3x9 wind generator slots + energy slot, the same layout as the block entity
-                .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                      .addInput(WindFusionBlockEntity.SLOT_COUNT)
-                      .addEnergy()
-                      .build()));
+                block -> machineItem(block))
+          ;
 
     private static BlockRegistryObject<PotionBrewerBlock, ItemBlockTooltip<PotionBrewerBlock>> potionBrewer(
           String name, Machine<PotionBrewerBlockEntity> type, MachineTier tier) {
         int bottles = PotionBrewerBlockEntity.bottleCount(tier);
         return BLOCKS.register(name, () -> new PotionBrewerBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.POTION_BREWER))
-              .forItemHolder(item -> item
-                    // Same slot layout as the block entity: [bottle, output] per brew, blaze powder, ingredient, energy
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> {
-                        ItemSlotsBuilder builder = ItemSlotsBuilder.builder();
-                        for (int i = 0; i < bottles; i++) {
-                            builder.addInput(1).addOutput();
-                        }
-                        return builder.addInput(1).addInput(1).addEnergy().build();
-                    })
-                    .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                          .addBasic(PotionBrewerBlockEntity.chemicalCapacity(tier.getParallel()))
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
     private static BlockRegistryObject<IceMakerBlock, ItemBlockTooltip<IceMakerBlock>> iceMaker(
           String name, Machine<IceMakerBlockEntity> type, MachineTier tier) {
         int parallel = tier.getParallel();
         return BLOCKS.register(name, () -> new IceMakerBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.ICE_MAKER))
-              .forItemHolder(item -> item
-                    // Water bucket slot, one ice output per tier, energy slot
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                          .addFluidFillSlot(0)
-                          .addOutput(parallel)
-                          .addEnergy()
-                          .build())
-                    .addAttachmentOnlyContainers(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
-                          .addBasic(IceMakerBlockEntity.waterCapacity(parallel))
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
     private static BlockRegistryObject<CobblestoneGeneratorBlock, ItemBlockTooltip<CobblestoneGeneratorBlock>> cobblestoneGenerator(
           String name, Machine<CobblestoneGeneratorBlockEntity> type, MachineTier tier) {
         int parallel = tier.getParallel();
         return BLOCKS.register(name, () -> new CobblestoneGeneratorBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.COBBLESTONE_GENERATOR))
-              .forItemHolder(item -> item
-                    // One cobblestone output per tier + energy slot
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                          .addOutput(parallel)
-                          .addEnergy()
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
     private static BlockRegistryObject<LiquidHeaterBlock, ItemBlockTooltip<LiquidHeaterBlock>> liquidHeater(
           String name, Machine<LiquidHeaterBlockEntity> type, MachineTier tier) {
         int parallel = tier.getParallel();
         return BLOCKS.register(name, () -> new LiquidHeaterBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.LIQUID_HEATER))
-              .forItemHolder(item -> item
-                    // Energy slot only; the chemicals are piped in and out
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                          .addEnergy()
-                          .build())
-                    // Sodium tank first, superheated sodium tank second (same order as the block entity)
-                    .addAttachmentOnlyContainers(ContainerType.CHEMICAL, () -> ChemicalTanksBuilder.builder()
-                          .addBasic(LiquidHeaterBlockEntity.tankCapacity(parallel))
-                          .addBasic(LiquidHeaterBlockEntity.tankCapacity(parallel))
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
     private static BlockRegistryObject<BasaltGeneratorBlock, ItemBlockTooltip<BasaltGeneratorBlock>> basaltGenerator(
           String name, Machine<BasaltGeneratorBlockEntity> type, MachineTier tier) {
         int parallel = tier.getParallel();
         return BLOCKS.register(name, () -> new BasaltGeneratorBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.BASALT_GENERATOR))
-              .forItemHolder(item -> item
-                    // One basalt output per tier + energy slot
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> ItemSlotsBuilder.builder()
-                          .addOutput(parallel)
-                          .addEnergy()
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
     private static BlockRegistryObject<FluidInjectorBlock, ItemBlockTooltip<FluidInjectorBlock>> fluidInjector(
           String name, Machine<FluidInjectorBlockEntity> type, MachineTier tier) {
         int parallel = tier.getParallel();
         return BLOCKS.register(name, () -> new FluidInjectorBlock(type, tier),
-                    (block, properties) -> machineItem(block, properties, ModSideConfigs.FLUID_INJECTOR))
-              .forItemHolder(item -> item
-                    // One [container input, converted container] pair per tier + energy slot
-                    .addAttachmentOnlyContainers(ContainerType.ITEM, () -> {
-                        ItemSlotsBuilder builder = ItemSlotsBuilder.builder();
-                        for (int i = 0; i < parallel; i++) {
-                            builder.addInput(1).addOutput();
-                        }
-                        return builder.addEnergy().build();
-                    })
-                    .addAttachmentOnlyContainers(ContainerType.FLUID, () -> FluidTanksBuilder.builder()
-                          .addBasic(FluidInjectorBlockEntity.tankCapacity(parallel))
-                          .build()));
+                    block -> machineItem(block))
+              ;
     }
 
-    /**
-     * Mekanism machines carry their default side configuration, ejector state and container attachments on the block
-     * item; placing the item applies them to the newly created tile. Without these components a freshly placed machine
-     * has every side set to "None" (so cables and pipes cannot insert anything, not even energy), and without the
-     * attachment creators Mekanism cannot read the contents stored on a dropped machine ("No known containers").
-     */
-    private static <BLOCK extends Block & IHasDescription> ItemBlockTooltip<BLOCK> machineItem(BLOCK block, Item.Properties properties,
-          AttachedSideConfig sideConfig) {
-        return new ItemBlockTooltip<>(block, true, properties
-              .component(MekanismDataComponents.EJECTOR, AttachedEjector.DEFAULT)
-              .component(MekanismDataComponents.SIDE_CONFIG, sideConfig));
+    private static <BLOCK extends Block & IHasDescription> ItemBlockTooltip<BLOCK> machineItem(BLOCK block) {
+        return new ItemBlockTooltip<>(block);
     }
 
     private ModBlocks() {

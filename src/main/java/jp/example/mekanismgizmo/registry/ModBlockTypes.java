@@ -1,5 +1,6 @@
 package jp.example.mekanismgizmo.registry;
 
+import java.util.EnumSet;
 import java.util.function.Supplier;
 import jp.example.mekanismgizmo.block.BasaltGeneratorBlockEntity;
 import jp.example.mekanismgizmo.block.CobblestoneGeneratorBlockEntity;
@@ -14,10 +15,11 @@ import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
 import jp.example.mekanismgizmo.util.MachineTier;
 import mekanism.api.Upgrade;
-import mekanism.common.block.attribute.AttributeSideConfig;
+import mekanism.api.math.FloatingLong;
 import mekanism.common.block.attribute.AttributeTier;
 import mekanism.common.block.attribute.AttributeUpgradeable;
 import mekanism.common.block.attribute.Attributes;
+import jp.example.mekanismgizmo.block.GizmoMachine;
 import mekanism.common.content.blocktype.Machine;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.registration.impl.BlockRegistryObject;
@@ -110,67 +112,61 @@ public final class ModBlockTypes {
           () -> ModBlockEntities.LIQUID_HEATER_ULTIMATE, null);
 
     // --- improved gas generator (single tier) ---
-    public static final Machine<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = Machine.MachineBuilder
+    public static final Machine<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = GizmoMachine.Builder
           .createMachine(() -> ModBlockEntities.IMPROVED_GAS_GENERATOR, ModLang.DESCRIPTION_IMPROVED_GAS_GENERATOR)
           .withGui(() -> ModMenus.IMPROVED_GAS_GENERATOR)
           // Storage only: the machine produces energy instead of using it
-          .withEnergyConfig(() -> ImprovedGasGeneratorBlockEntity.ENERGY_CAPACITY)
+          .withEnergyConfig(() -> FloatingLong.create(ImprovedGasGeneratorBlockEntity.ENERGY_CAPACITY))
           // SPEED raises the burn rate (and with it the fuel consumption and the output), MUFFLING quiets the machine
-          .withSupportedUpgrades(Upgrade.SPEED, Upgrade.MUFFLING)
-          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.CHEMICAL))
+          .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.MUFFLING))
           .replace(Attributes.ACTIVE)
           .build();
 
     // --- item collector (single tier) ---
-    public static final Machine<ItemCollectorBlockEntity> ITEM_COLLECTOR = Machine.MachineBuilder
+    public static final Machine<ItemCollectorBlockEntity> ITEM_COLLECTOR = GizmoMachine.Builder
           .createMachine(() -> ModBlockEntities.ITEM_COLLECTOR, ModLang.DESCRIPTION_ITEM_COLLECTOR)
           .withGui(() -> ModMenus.ITEM_COLLECTOR)
-          .withEnergyConfig(() -> 10L, () -> 12_000L)
-          .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .withEnergyConfig(() -> FloatingLong.create(10L), () -> FloatingLong.create(12_000L))
+          .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
           .replace(Attributes.ACTIVE)
           .build();
 
     // --- wind generator fusion (single tier) ---
-    public static final Machine<WindFusionBlockEntity> WIND_FUSION = Machine.MachineBuilder
+    public static final Machine<WindFusionBlockEntity> WIND_FUSION = GizmoMachine.Builder
           .createMachine(() -> ModBlockEntities.WIND_FUSION, ModLang.DESCRIPTION_WIND_FUSION)
           .withGui(() -> ModMenus.WIND_FUSION)
           // Storage only: the machine produces energy instead of using it
-          .withEnergyConfig(() -> WindFusionBlockEntity.ENERGY_CAPACITY)
-          .withSupportedUpgrades(Upgrade.MUFFLING)
-          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .withEnergyConfig(() -> FloatingLong.create(WindFusionBlockEntity.ENERGY_CAPACITY))
+          .withSupportedUpgrades(EnumSet.of(Upgrade.MUFFLING))
           .replace(Attributes.ACTIVE)
           .build();
 
     // --- heat generator fusion (single tier) ---
-    public static final Machine<HeatFusionBlockEntity> HEAT_FUSION = Machine.MachineBuilder
+    public static final Machine<HeatFusionBlockEntity> HEAT_FUSION = GizmoMachine.Builder
           .createMachine(() -> ModBlockEntities.HEAT_FUSION, ModLang.DESCRIPTION_HEAT_FUSION)
           .withGui(() -> ModMenus.HEAT_FUSION)
           // Storage only: the machine produces energy instead of using it
-          .withEnergyConfig(() -> HeatFusionBlockEntity.ENERGY_CAPACITY)
-          .withSupportedUpgrades(Upgrade.MUFFLING)
-          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.FLUID))
+          .withEnergyConfig(() -> FloatingLong.create(HeatFusionBlockEntity.ENERGY_CAPACITY))
+          .withSupportedUpgrades(EnumSet.of(Upgrade.MUFFLING))
           .replace(Attributes.ACTIVE)
           .build();
 
     // --- machine resetter (single tier) ---
-    public static final Machine<MachineResetterBlockEntity> MACHINE_RESETTER = Machine.MachineBuilder
+    public static final Machine<MachineResetterBlockEntity> MACHINE_RESETTER = GizmoMachine.Builder
           .createMachine(() -> ModBlockEntities.MACHINE_RESETTER, ModLang.DESCRIPTION_MACHINE_RESETTER)
           .withGui(() -> ModMenus.MACHINE_RESETTER)
-          .withEnergyConfig(() -> 10L, () -> 12_000L)
-          .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-          .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+          .withEnergyConfig(() -> FloatingLong.create(10L), () -> FloatingLong.create(12_000L))
+          .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
           .replace(Attributes.ACTIVE)
           .build();
 
     private static Machine<PotionBrewerBlockEntity> potionBrewer(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<PotionBrewerBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<PotionBrewerBlockEntity>, PotionBrewerBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<PotionBrewerBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_POTION_BREWER)
               .withGui(() -> ModMenus.POTION_BREWER)
-              .withEnergyConfig(() -> 3L * tier.getParallel(), () -> 12_000L * tier.getParallel())
-              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-              .with(AttributeSideConfig.ADVANCED_ELECTRIC_MACHINE)
+              .withEnergyConfig(() -> FloatingLong.create(3L * tier.getParallel()), () -> FloatingLong.create(12_000L * tier.getParallel()))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
@@ -178,12 +174,11 @@ public final class ModBlockTypes {
 
     private static Machine<IceMakerBlockEntity> iceMaker(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<IceMakerBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<IceMakerBlockEntity>, IceMakerBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<IceMakerBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_ICE_MAKER)
               .withGui(() -> ModMenus.ICE_MAKER)
-              .withEnergyConfig(() -> 20L * tier.getParallel(), () -> 12_000L * tier.getParallel())
-              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.FLUID))
+              .withEnergyConfig(() -> FloatingLong.create(20L * tier.getParallel()), () -> FloatingLong.create(12_000L * tier.getParallel()))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
@@ -191,12 +186,11 @@ public final class ModBlockTypes {
 
     private static Machine<CobblestoneGeneratorBlockEntity> cobblestoneGenerator(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<CobblestoneGeneratorBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<CobblestoneGeneratorBlockEntity>, CobblestoneGeneratorBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<CobblestoneGeneratorBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_COBBLESTONE_GENERATOR)
               .withGui(() -> ModMenus.COBBLESTONE_GENERATOR)
-              .withEnergyConfig(() -> 10L * tier.getParallel(), () -> 12_000L * tier.getParallel())
-              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+              .withEnergyConfig(() -> FloatingLong.create(10L * tier.getParallel()), () -> FloatingLong.create(12_000L * tier.getParallel()))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
@@ -204,12 +198,11 @@ public final class ModBlockTypes {
 
     private static Machine<BasaltGeneratorBlockEntity> basaltGenerator(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<BasaltGeneratorBlockEntity>, BasaltGeneratorBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<BasaltGeneratorBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_BASALT_GENERATOR)
               .withGui(() -> ModMenus.BASALT_GENERATOR)
-              .withEnergyConfig(() -> 10L * tier.getParallel(), () -> 12_000L * tier.getParallel())
-              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY))
+              .withEnergyConfig(() -> FloatingLong.create(10L * tier.getParallel()), () -> FloatingLong.create(12_000L * tier.getParallel()))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
@@ -217,13 +210,12 @@ public final class ModBlockTypes {
 
     private static Machine<LiquidHeaterBlockEntity> liquidHeater(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<LiquidHeaterBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<LiquidHeaterBlockEntity>, LiquidHeaterBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<LiquidHeaterBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_LIQUID_HEATER)
               .withGui(() -> ModMenus.LIQUID_HEATER)
               // 25 FE per mB of sodium: 500 mB per operation and 20 ticks per operation at tier one
-              .withEnergyConfig(() -> 625L * tier.getParallel(), () -> 12_000L * tier.getParallel())
-              .withSupportedUpgrades(Upgrade.SPEED, Upgrade.ENERGY)
-              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.ENERGY, TransmissionType.CHEMICAL))
+              .withEnergyConfig(() -> FloatingLong.create(625L * tier.getParallel()), () -> FloatingLong.create(12_000L * tier.getParallel()))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.SPEED, Upgrade.ENERGY))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
@@ -231,20 +223,19 @@ public final class ModBlockTypes {
 
     private static Machine<FluidInjectorBlockEntity> fluidInjector(MachineTier tier,
           Supplier<TileEntityTypeRegistryObject<FluidInjectorBlockEntity>> be, @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
-        Machine.MachineBuilder<Machine<FluidInjectorBlockEntity>, FluidInjectorBlockEntity, ?> builder = Machine.MachineBuilder
+        GizmoMachine.Builder<FluidInjectorBlockEntity> builder = GizmoMachine.Builder
               .createMachine(be, ModLang.DESCRIPTION_FLUID_INJECTOR)
               .withGui(() -> ModMenus.FLUID_INJECTOR)
-              .withEnergyConfig(() -> FluidInjectorBlockEntity.ENERGY_PER_OPERATION * tier.getParallel(),
-                    () -> 12_000L * tier.getParallel())
+              .withEnergyConfig(() -> FloatingLong.create(FluidInjectorBlockEntity.ENERGY_PER_OPERATION * tier.getParallel()),
+                    () -> FloatingLong.create(12_000L * tier.getParallel()))
               // Throughput is set by the tier alone; SPEED/ENERGY are not used by the implementation
-              .withSupportedUpgrades(Upgrade.MUFFLING)
-              .with(AttributeSideConfig.create(TransmissionType.ITEM, TransmissionType.FLUID, TransmissionType.ENERGY))
+              .withSupportedUpgrades(EnumSet.of(Upgrade.MUFFLING))
               .replace(Attributes.ACTIVE);
         addTier(builder, tier, next);
         return builder.build();
     }
 
-    private static void addTier(Machine.MachineBuilder<?, ?, ?> builder, MachineTier tier,
+    private static void addTier(GizmoMachine.Builder<?> builder, MachineTier tier,
           @Nullable Supplier<BlockRegistryObject<?, ?>> next) {
         // The untiered machine must not carry a tier attribute: Mekanism's basic tier installer upgrades blocks whose
         // tier is null, which is how a plain Energized Smelter becomes a Basic Smelting Factory.

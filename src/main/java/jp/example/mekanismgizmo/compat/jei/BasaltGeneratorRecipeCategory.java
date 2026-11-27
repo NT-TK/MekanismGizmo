@@ -25,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
 public class BasaltGeneratorRecipeCategory implements IRecipeCategory<BasaltGeneratorJeiRecipe> {
 
     public static final RecipeType<BasaltGeneratorJeiRecipe> TYPE = new RecipeType<>(
-          ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "basalt_generator"), BasaltGeneratorJeiRecipe.class);
+          ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "basalt_generator"), BasaltGeneratorJeiRecipe.class);
     private static final Component NO_INPUT_LINE = Component.translatable("jei.mekanismgizmo.info.no_input");
     private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy", 10);
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
@@ -66,11 +66,6 @@ public class BasaltGeneratorRecipeCategory implements IRecipeCategory<BasaltGene
     @Override
     public IDrawable getIcon() {
         return icon;
-    }
-
-    @Override
-    public boolean needsRecipeBorder() {
-        return false;
     }
 
     @Override

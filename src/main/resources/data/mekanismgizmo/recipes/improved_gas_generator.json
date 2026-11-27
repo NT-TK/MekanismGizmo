@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "mekanism:alloys/atomic"
+    },
+    "C": {
+      "tag": "forge:circuits/ultimate"
+    },
+    "G": {
+      "item": "mekanismgenerators:gas_burning_generator"
+    },
+    "X": {
+      "item": "mekanism:steel_casing"
+    }
+  },
+  "pattern": [
+    "ACA",
+    "GXG",
+    "ACA"
+  ],
+  "result": {
+    "count": 1,
+    "item": "mekanismgizmo:improved_gas_generator"
+  }
+}

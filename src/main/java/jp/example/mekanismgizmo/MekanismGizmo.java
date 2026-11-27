@@ -8,12 +8,14 @@ import jp.example.mekanismgizmo.registry.ModItems;
 import jp.example.mekanismgizmo.registry.ModMenus;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(MekanismGizmo.MOD_ID)
 public final class MekanismGizmo {
     public static final String MOD_ID = "mekanismgizmo";
 
-    public MekanismGizmo(IEventBus modBus) {
+    public MekanismGizmo() {
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.TILE_ENTITIES.register(modBus);

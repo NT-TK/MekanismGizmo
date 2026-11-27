@@ -1,0 +1,12 @@
+{
+  "type": "mekanism:oxidizing",
+  "input": {
+    "ingredient": {
+      "item": "minecraft:blaze_powder"
+    }
+  },
+  "output": {
+    "amount": 100,
+    "gas": "mekanismgizmo:blaze_powder"
+  }
+}

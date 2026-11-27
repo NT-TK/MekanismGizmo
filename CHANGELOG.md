@@ -4,45 +4,57 @@ All notable changes to Mekanism Gizmo are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.1] - 2026-11-27
+## [0.3.1] - 2026-11-28
+
+This release is the **Minecraft 1.20.1 / Forge** edition of Mekanism Gizmo 0.3.1. The 1.21.1 / NeoForge edition is
+published separately from the `1.21.1` branch.
 
 ### Added
 
-- **Improved Portable Teleporter** (`mekanismgizmo:improved_portable_teleporter`): a portable teleporter with a
-  100,000,000 FE buffer, a 500,000 FE/t charge rate and a 10,000,000 FE cap per jump. It keeps Mekanism's frequency
-  network, security, teleport packet and distance-based cost formula.
-- **Improved Configuration Card** (`mekanismgizmo:improved_configurator`): copies side configuration, ejector,
-  redstone control, security and frequencies like Mekanism's card, and additionally copies installed upgrades and
-  the Digital Miner's item/tag/mod filters. Upgrades are installed from matching upgrade items in the player's
-  inventory, all or nothing. Cards written by either item can be read by the other.
-- Shared machine base (`GizmoMachineBlockEntity`) so configuration-card data is accepted across the addon's machine
-  tiers and machine types.
-- Animated Wind Generator Fusion front and an updated mod logo.
+- **Minecraft 1.20.1 / Forge port** of all eleven machines: Potion Brewer, Ice Maker, Electric Cobblestone Generator,
+  Electric Basalt Generator, Item Collector, Fluid Injector, Liquid Heater, Machine Resetter, Wind Generator Fusion,
+  Improved Gas Generator and Heat Generator Fusion.
+- The four tiered Pipettes, the Improved Portable Teleporter and the Improved Configuration Card on 1.20.1.
+- Sensible default side configurations for every machine. A freshly placed machine now accepts energy, items, fluids
+  and gases on the expected faces without opening the side configuration tab first. Existing player configurations
+  are never overwritten.
+- `pack.mcmeta` with resource pack format 15, so 1.20.1 no longer reports missing pack metadata.
 
 ### Changed
 
-- Improved Gas Generator keeps a partially started burn across fuel changes and world saves instead of losing the
-  remainder, and now uses its direct 3D engine model with the flat cube as a fallback.
-- Fluid Injector uses a compact per-tier GUI: the tank gauge stretches to the slot block and the player inventory
-  only moves down when the extra container rows need the space.
-- Improved Gas Generator, Wind Generator Fusion and Heat Generator Fusion now push generated energy through
-  Mekanism's `CableUtils.emit`, so cables and adjacent energy acceptors receive power.
-- The Item Collector now consumes a scan when a partial item transfer occurs, instead of moving items for free.
-- Development self-check classes are excluded from release jars.
+- Ported the machine, GUI, JEI and recipe code from the 1.21.1 codebase to the 1.20.1 Mekanism 10.4 API:
+  `FloatingLong`, typed gas stacks and tanks, `mekData` item NBT, Forge capabilities, Forge tags and the 1.20.1
+  `BrewingRecipeRegistry`.
+- Recipes use the 1.20.1 plural data directories (`recipes/`, `loot_tables/`, `tags/blocks/`), `forge:` common tags,
+  and the 1.20.1 `oxidizing` recipe format.
+- Loot tables copy the machine's `mekData` NBT (contents, energy, upgrades, side configuration and redstone setting)
+  when the block is broken, so machines keep their contents exactly like Mekanism's own machines.
+- The 1.20.1 build uses ForgeGradle 6, Java 17, Forge 47.4.0 and Mekanism 10.4.16.80. JEI 15.20 is a compile-only
+  dependency.
+- GitHub Actions now build the 1.20.1 branch with Java 17 and upload a branch-specific artifact.
 
 ### Fixed
 
-- Wind Generator Fusion shows 0 FE/t in dimensions tagged `mekanism:no_wind` instead of a misleading generation
-  value, and its per-generator output is stored as a clamped `long` instead of an overflowing `int`.
-- Heat Generator Fusion clears its heat capacitor to ambient when the last generator is removed, so reinserting
-  generators cannot release stored heat as free power.
-- Potion Brewer no longer converts blaze powder while disabled by redstone or security, compares the full ingredient
-  stack for running brews, checks the gas needed for every brewable row before starting, and pauses instead of
-  starting a cycle it cannot finish.
-- Liquid Heater documentation now correctly describes its tank as forty operations' worth of sodium per tier.
-- Fluid Injector and Potion Brewer JEI categories, recipe transfer and layout fixes.
+- Forge 47.4.0 starts the mod correctly: `mods.toml` declares the FML language version `[1,)`, dependencies use
+  `mandatory=true/false`, and the mod class has the no-argument constructor Forge expects.
+- Removed the remaining 1.21-only startup and model errors, including the stale 1.21 test world that referenced
+  `minecraft:trial_chambers`.
+- Preserved the 0.3.1 gameplay fixes: generators push energy through `CableUtils.emit`, the Improved Gas Generator keeps
+  a partially started burn, the Item Collector cannot move items for free, and the Potion Brewer pauses instead of
+  starting a brew it cannot finish.
+- The four Pipettes replace Mekanism 1.20.1's fixed sixteen-bucket contents handler with a tiered one, so their liquid
+  and gas tanks really hold 2,000 / 4,000 / 8,000 / 16,000 mB and move 256 / 500 / 1,000 / 2,000 mB per operation.
+- The Improved Portable Teleporter keeps its **10,000,000 FE per-jump ceiling** on 1.20.1. Its energy container reports
+  the full simulated cost when the ceiling is affordable but only removes the ceiling, so Mekanism's own teleport packet
+  and screen accept the jump while the item still pays at most 10,000,000 FE.
+
+### Removed
+
+- EMI integration is not included in the 1.20.1 edition. JEI is the supported recipe viewer on this branch.
 
 ## Release notes
 
-- Minecraft 1.21.1, NeoForge 21.1.194+, Mekanism 10.7.19.x.
-- The release jar is `mekanismgizmo-0.3.1.jar`.
+- Minecraft 1.20.1, Forge 47.4.0+, Mekanism 10.4.16.x (Mekanism Generators 10.4.16.x is required by the Wind Generator
+  Fusion).
+- The release tag is `v0.3.1-forge-1.20.1`; the release jar is `mekanismgizmo-0.3.1.jar`.
+- Use the **1.21.1** branch and its release for Minecraft 1.21.1 / NeoForge. Do not mix the two jars.

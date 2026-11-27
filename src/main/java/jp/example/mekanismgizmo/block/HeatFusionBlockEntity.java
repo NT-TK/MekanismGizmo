@@ -1,11 +1,10 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
 import jp.example.mekanismgizmo.util.HeatGeneratorUnits;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
 import mekanism.api.heat.IHeatCapacitor;
 import mekanism.api.math.MathUtils;
@@ -27,11 +26,12 @@ import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.util.EnumUtils;
+import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.WorldUtils;
 import mekanism.generators.common.config.MekanismGeneratorsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -117,7 +117,7 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
     /** Temperature in tenths of a Kelvin, synced to the screen. */
     private int temperatureTenths;
 
-    public HeatFusionBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public HeatFusionBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         // The generator slots are internal storage: they are not part of the item configuration, so pipes can only
         // reach the energy slot
@@ -126,18 +126,12 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         configComponent.setupInputConfig(TransmissionType.FLUID, lavaTank);
         ejectorComponent = new TileComponentEjector(this);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.HEAT_FUSION);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.HEAT_FUSION);
-    }
 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         generatorSlots = new HeatGeneratorSlot[SLOT_COUNT];
         for (int i = 0; i < SLOT_COUNT; i++) {
             builder.addSlot(generatorSlots[i] = new HeatGeneratorSlot(listener, slotX(i), slotY(i)));
@@ -148,16 +142,16 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
 
     @Override
     protected IFluidTankHolder getInitialFluidTanks(IContentsListener listener) {
-        FluidTankHelper builder = FluidTankHelper.forSideWithConfig(this);
-        lavaTank = BasicFluidTank.input(LAVA_CAPACITY, fluid -> fluid.is(Fluids.LAVA), listener);
+        FluidTankHelper builder = FluidTankHelper.forSideWithConfig(this::getDirection, this::getConfig);
+        lavaTank = BasicFluidTank.input(LAVA_CAPACITY, fluid -> fluid.getFluid() == Fluids.LAVA, listener);
         builder.addTank(lavaTank);
         return builder.build();
     }
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
-        builder.addContainer(energyContainer = BasicEnergyContainer.output(ENERGY_CAPACITY, listener));
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
+        builder.addContainer(energyContainer = BasicEnergyContainer.output(FloatingLong.create(ENERGY_CAPACITY), listener));
         return builder.build();
     }
 
@@ -209,7 +203,7 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
         if (level == null) {
             return 0;
         }
-        long perLava = MekanismGeneratorsConfig.generators.heatGenerationLava.get();
+        long perLava = MekanismGeneratorsConfig.generators.heatGenerationLava.get().longValue();
         long boost = 0;
         if (perLava != 0) {
             int lava = 0;
@@ -226,16 +220,16 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
             boost = perLava * lava;
         }
         if (level.dimensionType().ultraWarm()) {
-            boost += MekanismGeneratorsConfig.generators.heatGenerationNether.get();
+            boost += MekanismGeneratorsConfig.generators.heatGenerationNether.get().longValue();
         }
         return boost;
     }
 
     /** Highest production of a single heat generator, exactly like Mekanism's own {@code MAX_PRODUCTION}. */
     private static long maxProductionPerGenerator() {
-        return MekanismGeneratorsConfig.generators.heatGenerationLava.get() * (EnumUtils.DIRECTIONS.length + 1)
-              + MekanismGeneratorsConfig.generators.heatGenerationNether.get()
-              + MekanismGeneratorsConfig.generators.heatGeneration.get();
+        return MekanismGeneratorsConfig.generators.heatGenerationLava.get().longValue() * (EnumUtils.DIRECTIONS.length + 1)
+              + MekanismGeneratorsConfig.generators.heatGenerationNether.get().longValue()
+              + MekanismGeneratorsConfig.generators.heatGeneration.get().longValue();
     }
 
     /** Number of heat generators (compressed ones counted as what they replace) inside the machine. */
@@ -261,8 +255,8 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.drainContainer();
         countGenerators();
 
@@ -270,7 +264,7 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
         int units = activeUnits;
         int produced = 0;
         double perGeneratorHeat = getBoost();
-        if (units > 0 && canFunction() && energyContainer.getNeeded() > 0) {
+        if (units > 0 && MekanismUtils.canFunction(this) && !energyContainer.getNeeded().isZero()) {
             int rate = MekanismGeneratorsConfig.generators.heatGenerationFluidRate.get();
             long needed = (long) rate * units;
             if (needed > 0) {
@@ -279,7 +273,7 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
                 int request = (int) Math.min(needed, lavaTank.getFluidAmount());
                 if (request > 0 && lavaTank.extract(request, Action.SIMULATE, AutomationType.INTERNAL).getAmount() == request) {
                     lavaTank.extract(request, Action.EXECUTE, AutomationType.INTERNAL);
-                    perGeneratorHeat += MekanismGeneratorsConfig.generators.heatGeneration.get()
+                    perGeneratorHeat += MekanismGeneratorsConfig.generators.heatGeneration.get().longValue()
                           * (request / (double) needed);
                 }
             }
@@ -293,10 +287,10 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
             double transfer = 0.5D * (temperature - ambient);
             heatCapacitor.handleHeat(-transfer);
             long perGenerator = Math.min(maxProductionPerGenerator(), MathUtils.clampToLong(Math.abs(transfer) * efficiency));
-            if (canFunction() && perGenerator > 0) {
+            if (MekanismUtils.canFunction(this) && perGenerator > 0) {
                 // Mekanism's insert returns the amount that did not fit, so the production is the difference
-                long wanted = MathUtils.multiplyClamped(perGenerator, units);
-                long accepted = wanted - energyContainer.insert(wanted, Action.EXECUTE, AutomationType.INTERNAL);
+                long wanted = MathUtils.clampToLong((double) perGenerator * units);
+                long accepted = wanted - energyContainer.insert(FloatingLong.create(wanted), Action.EXECUTE, AutomationType.INTERNAL).longValue();
                 produced = (int) Math.min(Integer.MAX_VALUE, accepted);
             }
             // Mekanism's own losses, so the steady state temperature matches a real heat generator
@@ -316,16 +310,14 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
         temperatureTenths = (int) Math.round(getTotalTemperature() * 10D);
         // Lava around the block also produces power, so "active" must follow the real output, not the tank burner
         setActive(produced > 0);
-        if (canFunction()) {
-            emitEnergy(energyContainer, getMaxOutput());
+        if (MekanismUtils.canFunction(this)) {
+            emitEnergy(energyContainer, FloatingLong.create(getMaxOutput()));
         }
-        return sendUpdatePacket;
     }
 
     /** Upper bound for one tick of output: twice the maximum of the installed generators. */
     private long getMaxOutput() {
-        return MathUtils.multiplyClamped(2L,
-              MathUtils.multiplyClamped(Math.max(1, activeUnits), Math.max(1L, maxProductionPerGenerator())));
+        return MathUtils.clampToLong(2D * Math.max(1, activeUnits) * Math.max(1L, maxProductionPerGenerator()));
     }
 
     public BasicEnergyContainer getEnergyContainer() {

@@ -39,7 +39,6 @@ public class IceMakerScreen extends GuiConfigurableTile<IceMakerBlockEntity, Mek
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
     }
 
@@ -48,7 +47,7 @@ public class IceMakerScreen extends GuiConfigurableTile<IceMakerBlockEntity, Mek
         super.addGuiElements();
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(), 164 + (tile.parallel() - 1) * 18, 16))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.getFreezeTicks() > 0
-                    && tile.getEnergyContainer().getEnergy() < tile.getEnergyContainer().getEnergyPerTick());
+                    && tile.getEnergyContainer().getEnergy().smallerThan(tile.getEnergyContainer().getEnergyPerTick()));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         addRenderableWidget(new GuiFluidGauge(() -> tile.getWaterTank(), () -> tile.getFluidTanks(null),
               GaugeType.STANDARD, this, 6, 13))

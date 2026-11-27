@@ -73,12 +73,13 @@ dependencies {
     implementation fg.deobf('maven.modrinth:mekanism:10.4.16.80')
     implementation fg.deobf('maven.modrinth:mekanism-generators:10.4.16.80')
 
-    // Optional integration: JEI is not bundled and is not required at runtime.
+    // Optional integration: JEI is not bundled and is not required at runtime. 1.20.1 ships JEI support only.
     compileOnly "mezz.jei:jei-1.20.1-forge-api:15.20.0.106"
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xmaxerrs', '2000']
 }
 
 processResources {

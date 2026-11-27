@@ -26,7 +26,7 @@ import net.minecraft.world.level.material.Fluids;
 public class IceMakerRecipeCategory implements IRecipeCategory<IceMakerJeiRecipe> {
 
     public static final RecipeType<IceMakerJeiRecipe> TYPE = new RecipeType<>(
-          ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "ice_maker"), IceMakerJeiRecipe.class);
+          ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "ice_maker"), IceMakerJeiRecipe.class);
     private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy", 20);
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
           IceMakerBlockEntity.BASE_TICKS_REQUIRED);
@@ -68,11 +68,6 @@ public class IceMakerRecipeCategory implements IRecipeCategory<IceMakerJeiRecipe
     @Override
     public IDrawable getIcon() {
         return icon;
-    }
-
-    @Override
-    public boolean needsRecipeBorder() {
-        return false;
     }
 
     @Override

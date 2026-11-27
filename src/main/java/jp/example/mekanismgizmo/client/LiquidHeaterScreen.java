@@ -4,7 +4,7 @@ import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
 import mekanism.client.gui.element.gauge.GaugeType;
-import mekanism.client.gui.element.gauge.GuiChemicalGauge;
+import mekanism.client.gui.element.gauge.GuiGasGauge;
 import mekanism.client.gui.element.progress.GuiProgress;
 import mekanism.client.gui.element.progress.ProgressType;
 import mekanism.client.gui.element.tab.GuiEnergyTab;
@@ -36,7 +36,6 @@ public class LiquidHeaterScreen extends GuiConfigurableTile<LiquidHeaterBlockEnt
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
     }
 
@@ -46,11 +45,11 @@ public class LiquidHeaterScreen extends GuiConfigurableTile<LiquidHeaterBlockEnt
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(),
               LiquidHeaterBlockEntity.POWER_BAR_X, LiquidHeaterBlockEntity.POWER_BAR_Y))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.getHeatTicks() > 0
-                    && tile.getEnergyContainer().getEnergy() < tile.getEnergyContainer().getEnergyPerTick());
+                    && tile.getEnergyContainer().getEnergy().smallerThan(tile.getEnergyContainer().getEnergyPerTick()));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.getSodiumTank(), () -> tile.getChemicalTanks(null),
+        addRenderableWidget(new GuiGasGauge(() -> tile.getSodiumTank(), () -> tile.getGasTanks(null),
               GaugeType.STANDARD, this, LiquidHeaterBlockEntity.SODIUM_GAUGE_X, LiquidHeaterBlockEntity.GAUGE_Y));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.getSuperheatedTank(), () -> tile.getChemicalTanks(null),
+        addRenderableWidget(new GuiGasGauge(() -> tile.getSuperheatedTank(), () -> tile.getGasTanks(null),
               GaugeType.STANDARD, this, LiquidHeaterBlockEntity.SUPERHEATED_GAUGE_X, LiquidHeaterBlockEntity.GAUGE_Y))
               .warning(WarningType.NO_SPACE_IN_OUTPUT, tile::isOutputBlocked);
         addRenderableWidget(new GuiProgress(tile::getScaledProgress, ProgressType.RIGHT, this,

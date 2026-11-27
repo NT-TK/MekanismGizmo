@@ -25,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
 public class CobblestoneGeneratorRecipeCategory implements IRecipeCategory<CobblestoneGeneratorJeiRecipe> {
 
     public static final RecipeType<CobblestoneGeneratorJeiRecipe> TYPE = new RecipeType<>(
-          ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "cobblestone_generator"), CobblestoneGeneratorJeiRecipe.class);
+          ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "cobblestone_generator"), CobblestoneGeneratorJeiRecipe.class);
     private static final Component NO_INPUT_LINE = Component.translatable("jei.mekanismgizmo.info.no_input");
     private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy", 10);
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
@@ -66,11 +66,6 @@ public class CobblestoneGeneratorRecipeCategory implements IRecipeCategory<Cobbl
     @Override
     public IDrawable getIcon() {
         return icon;
-    }
-
-    @Override
-    public boolean needsRecipeBorder() {
-        return false;
     }
 
     @Override

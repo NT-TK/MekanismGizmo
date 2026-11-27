@@ -35,7 +35,6 @@ public class BasaltGeneratorScreen extends GuiConfigurableTile<BasaltGeneratorBl
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
     }
 
@@ -44,7 +43,7 @@ public class BasaltGeneratorScreen extends GuiConfigurableTile<BasaltGeneratorBl
         super.addGuiElements();
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(), 164 + (tile.parallel() - 1) * 18, 16))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.getProgress() > 0
-                    && tile.getEnergyContainer().getEnergy() < tile.getEnergyContainer().getEnergyPerTick());
+                    && tile.getEnergyContainer().getEnergy().smallerThan(tile.getEnergyContainer().getEnergyPerTick()));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         addRenderableWidget(new GuiProgress(tile::getScaledProgress, ProgressType.RIGHT, this, ARROW_X, ARROW_Y))
               .warning(WarningType.NO_SPACE_IN_OUTPUT, tile::isOutputBlocked);

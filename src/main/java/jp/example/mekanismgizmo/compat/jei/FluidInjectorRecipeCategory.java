@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
 public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjectorJeiRecipe> {
 
     public static final RecipeType<FluidInjectorJeiRecipe> TYPE = new RecipeType<>(
-          ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "fluid_injector"), FluidInjectorJeiRecipe.class);
+          ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "fluid_injector"), FluidInjectorJeiRecipe.class);
     private static final Component ENERGY_LINE = Component.translatable("jei.mekanismgizmo.info.energy_per_container",
           FluidInjectorBlockEntity.ENERGY_PER_OPERATION);
     private static final Component BOTTLE_LINE = Component.translatable("jei.mekanismgizmo.info.bottle",
@@ -73,15 +73,10 @@ public class FluidInjectorRecipeCategory implements IRecipeCategory<FluidInjecto
     }
 
     @Override
-    public boolean needsRecipeBorder() {
-        return false;
-    }
-
-    @Override
     public ResourceLocation getRegistryName(FluidInjectorJeiRecipe recipe) {
         String direction = recipe.fluidInput().isEmpty() ? "empty" : "fill";
         ResourceLocation input = BuiltInRegistries.ITEM.getKey(recipe.input().getItem());
-        return ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "fluid_injector/" + direction + "/"
+        return ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "fluid_injector/" + direction + "/"
               + input.getNamespace() + "_" + input.getPath().replace('/', '_'));
     }
 

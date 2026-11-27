@@ -1,26 +1,28 @@
 # Mekanism Gizmo
 
-[![Latest release](https://img.shields.io/github/v/release/NT-TK/MekanismGizmo?sort=semver)](https://github.com/NT-TK/MekanismGizmo/releases)
-[![Build](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml/badge.svg?branch=1.21.1)](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml)
+[![Releases](https://img.shields.io/badge/releases-Forge%201.20.1-EA7A1B.svg)](https://github.com/NT-TK/MekanismGizmo/releases?q=forge-1.20.1)
+[![Build](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml/badge.svg?branch=1.20.1)](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-3C8527.svg)](https://www.minecraft.net/)
-[![NeoForge](https://img.shields.io/badge/NeoForge-21.1.194%2B-EA7A1B.svg)](https://neoforged.net/)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-3C8527.svg)](https://www.minecraft.net/)
+[![Forge](https://img.shields.io/badge/Forge-47.4.0%2B-EA7A1B.svg)](https://files.minecraftforge.net/)
 
-A small **Mekanism** addon for **Minecraft 1.21.1 / NeoForge** that adds eleven machines built on Mekanism's own machine
+A small **Mekanism** addon for **Minecraft 1.20.1 / Forge** that adds eleven machines built on Mekanism's own machine
 framework, so the GUI, side configuration, upgrades, security, ownership and JEI integration all behave exactly like
 Mekanism's own machines. It also adds four tiered pipettes, an improved portable teleporter and an improved configuration card.
 
 日本語の説明は [こちら](#日本語)（English の下にあります）。
 
-- Minecraft **1.21.1**, NeoForge **21.1.194+**, Mekanism **10.7.19**
+- Minecraft **1.20.1**, Forge **47.4.0+**, Mekanism **10.4.16**
 - Mod ID: `mekanismgizmo` / Java package `jp.example.mekanismgizmo`
 - JEI integration is optional (client side only)
 
 ## Download
 
-The latest jar is attached to [GitHub Releases](https://github.com/NT-TK/MekanismGizmo/releases/latest). Download
-`mekanismgizmo-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.21.1 with NeoForge and Mekanism
-10.7.19 installed. See [Requirements](#requirements) and [Installation](#installation) for details.
+The Forge 1.20.1 jar is attached to releases tagged `v<version>-forge-1.20.1`; see the
+[Forge 1.20.1 releases](https://github.com/NT-TK/MekanismGizmo/releases?q=forge-1.20.1). Download
+`mekanismgizmo-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.20.1 with Forge and Mekanism
+10.4.16 installed. The repository's "Latest" release is the NeoForge 1.21.1 edition, so do not download that jar for
+1.20.1. See [Requirements](#requirements) and [Installation](#installation) for details.
 
 Release notes are in [CHANGELOG.md](CHANGELOG.md). Please report bugs through
 [GitHub Issues](https://github.com/NT-TK/MekanismGizmo/issues).
@@ -29,7 +31,7 @@ Release notes are in [CHANGELOG.md](CHANGELOG.md). Please report bugs through
 
 | Machine | ID | Description |
 |---|---|---|
-| Potion Brewer | `mekanismgizmo:potion_brewer` | Brews any vanilla/NeoForge brewing recipe. Blaze powder is turned into Mekanism blaze powder gas (100 mB per powder) and 5 mB is used for each brew of three bottles. |
+| Potion Brewer | `mekanismgizmo:potion_brewer` | Brews any vanilla/Forge brewing recipe. Blaze powder is turned into Mekanism blaze powder gas (100 mB per powder) and 5 mB is used for each brew of three bottles. |
 | Ice Maker | `mekanismgizmo:ice_maker` | Turns 1,000 mB of water into one ice block. Water can come from buckets, pipes or tanks. |
 | Electric Cobblestone Generator | `mekanismgizmo:cobblestone_generator` | Produces cobblestone from energy only - no items or fluids needed. |
 | Electric Basalt Generator | `mekanismgizmo:basalt_generator` | Produces basalt from energy only - no items or fluids needed. |
@@ -188,8 +190,9 @@ same position.
 
 ## Machine Resetter
 
-Since Minecraft 1.21 Mekanism keeps everything a machine contains on its item: the owner, the security mode, the item,
-fluid and gas contents, the stored energy, the installed upgrades, the side configuration and the redstone setting.
+In Mekanism 10.4 for Minecraft 1.20.1, a machine item keeps everything the machine contains: the owner, the security
+mode, the item, fluid and gas contents, the stored energy, the installed upgrades, the side configuration and the
+redstone setting.
 Breaking a machine keeps all of that, so a machine that was picked up in another world - or one you got from a friend
 or a loot chest - arrives with someone else's settings and contents.
 
@@ -199,8 +202,8 @@ The Machine Resetter takes such an item, spends 200 FE on it and hands back the 
 - the input must be a Mekanism machine item (a block item that carries machine data); casings, ordinary items and
   items with only fluid or gas tanks such as the pipettes are rejected
 - the result is the item's own default instance, so nothing of the old machine survives - not even the owner
-- 200 FE and 20 ticks at base speed per operation, with the usual SPEED and ENERGY upgrades; a whole stack is reset in
-  one operation
+- 200 FE and 20 ticks at base speed per operation, with the usual SPEED and ENERGY upgrades; one machine item is
+  reset per operation
 
 ## Improved Gas Generator
 
@@ -231,9 +234,9 @@ burnRate = toUse / burnTicks                        // the mB/t the screen shows
 | Hydrogen - 200 FE/mB | 2,560 mB/t - 512,000 FE/t | 1,280 mB/t - 256,000 FE/t | 640 mB/t - 128,000 FE/t |
 | Ethene - 28,200 FE/mB | 64 mB/t - 1,804,800 FE/t | 32 mB/t - 902,400 FE/t | 16 mB/t - 451,200 FE/t |
 
-- the fuel value per mB is read from Mekanism's own `chemicalFuel` data map (with the legacy chemical attribute as the
-  fallback), so every gas Mekanism accepts works here with exactly its own value and its own burn time - hydrogen
-  200 FE/mB, ethene 28,200 FE/mB, and anything another mod adds to that data map
+- the fuel value per mB is read from Mekanism's own gas fuel attributes (`GasAttributes.Fuel`), so every gas registered
+  as a fuel works here with exactly its own value and its own burn time - hydrogen 200 FE/mB, ethene 28,200 FE/mB,
+  and anything another mod registers as a fuel
 - **the burn rate grows with the fill level**, because that is what Mekanism's own formula does
   (`ceil(256 * stored / capacity)`): a full tank burns at the full rate, a quarter tank at a quarter of it
 - the screen shows a **burn rate in mB/t** and the produced FE/t next to Mekanism's FE per mB (for example
@@ -352,7 +355,7 @@ improved card copies all of that **and** the two things the normal one leaves be
 
 **Sneak + right click** a machine to record its configuration, **right click** another machine to apply it, and
 **sneak + right click in the air** to clear the card. That is Mekanism's own card, click for click: the item extends
-`ItemConfigurationCard`, and the record is stored in Mekanism's `CONFIGURATION_DATA` component with Mekanism's own
+`ItemConfigurationCard`, and the record is stored in the card's item NBT (`mekanism:data`) with Mekanism's own
 `data_name` / `data_type` keys, inside the very tag `getConfigurationData` produces. A card written by this item can
 therefore be pasted by Mekanism's card and the other way around, both cards warn with Mekanism's own
 "Unequal configuration data formats." message, and the card even switches to a lit sprite while it holds data, like
@@ -360,7 +363,7 @@ Mekanism's `configuration_card_encoded`.
 
 | Copied | Notes |
 |---|---|
-| Side configuration | every transmission the machine has (item, energy, fluid, chemical, heat) |
+| Side configuration | every transmission the machine has (item, energy, fluid, gas, heat) |
 | Ejector, redstone control, security | the same data Mekanism's own card carries |
 | Frequencies | teleporter / quantum entangloporter / QIO frequencies, with their owner |
 | Upgrades | installed counts per upgrade; the machine has to support them |
@@ -395,7 +398,7 @@ Mekanism's `configuration_card_encoded`. Both are generated by `python tools/gen
 ## Recipes
 
 The base machines use Mekanism's machine recipe ingredients: a steel casing in the centre, `mekanism:alloys/basic`
-(redstone) in the corners and `c:circuits/basic` (basic control circuit) on the edges.
+(redstone) in the corners and `forge:circuits/basic` (basic control circuit) on the edges.
 
 | Machine | Pattern |
 |---|---|
@@ -415,22 +418,22 @@ Tier upgrades follow Mekanism's factory tier recipes (`ACA` / `IPI` / `ACA`, P =
 
 | Upgrade | Alloy | Circuit | Item |
 |---|---|---|---|
-| Untiered -> Basic | `mekanism:alloys/infused` | `c:circuits/advanced` | osmium ingot |
-| Basic -> Advanced | `mekanism:alloys/reinforced` | `c:circuits/elite` | gold ingot |
-| Advanced -> Elite | `mekanism:alloys/atomic` | `c:circuits/ultimate` | diamond |
-| Elite -> Ultimate | `mekanism:alloys/atomic` | `c:circuits/ultimate` | diamond |
+| Untiered -> Basic | `mekanism:alloys/infused` | `forge:circuits/advanced` | osmium ingot |
+| Basic -> Advanced | `mekanism:alloys/reinforced` | `forge:circuits/elite` | gold ingot |
+| Advanced -> Elite | `mekanism:alloys/atomic` | `forge:circuits/ultimate` | diamond |
+| Elite -> Ultimate | `mekanism:alloys/atomic` | `forge:circuits/ultimate` | diamond |
 
 Additional recipes:
 
-- Oxidizing (`mekanism:oxidizing`) and Chemical Conversion (`mekanism:chemical_conversion`): 1 blaze powder ->
-  100 mB of `mekanismgizmo:blaze_powder` gas
+- Oxidizing (`mekanism:oxidizing`): 1 blaze powder -> 100 mB of `mekanismgizmo:blaze_powder` gas
 
 ## JEI
 
-JEI support is optional and client side only. When JEI is installed the mod adds
+JEI support is optional and client side only. This 1.20.1 branch ships JEI integration only; EMI integration is not
+included. When JEI is installed the mod adds
 
 - a **Potion Brewer** page with one entry per bottle + ingredient, built from the game's own brewing data (all vanilla,
-  NeoForge and data pack recipes) together with the recipe transfer ("+") button
+  Forge and data pack recipes) together with the recipe transfer ("+") button
 - an **Ice Maker** page, an **Electric Cobblestone Generator** page, an **Electric Basalt Generator** page and a
   **Fluid Injector** page
 - every tier as a recipe catalyst, and clickable progress arrows in the machine screens
@@ -438,13 +441,6 @@ JEI support is optional and client side only. When JEI is installed the mod adds
   potion brewer page
 
 Page widths are measured from the localised text, so nothing spills out in any language.
-
-### EMI
-
-EMI is optional and client side only. EMI has its own native pages for the five machines (potion brewer, ice maker,
-electric cobblestone generator, electric basalt generator and fluid injector), including the **5 mB of blaze powder
-gas** on every potion brewer page, and every tier is a workstation of its category. When EMI is installed the JEI
-pages are not registered, so the recipes are never listed twice.
 
 ### AE2
 
@@ -459,21 +455,20 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 
 | | |
 |---|---|
-| Minecraft | 1.21.1 |
-| NeoForge | 21.1.194 or newer |
-| Mekanism | 10.7.19.x |
-| Mekanism Generators | 10.7.19.x (required by the Wind Generator Fusion) |
+| Minecraft | 1.20.1 |
+| Forge | 47.4.0 or newer |
+| Mekanism | 10.4.16.x |
+| Mekanism Generators | 10.4.16.x (required by the Wind Generator Fusion) |
 | Compact Mekanism Machines | optional (its compressed wind generators can go into the Wind Generator Fusion) |
 | Mekanism: More Machine | optional (no integration needed: its machine items are machine items, so the Machine Resetter cleans them like any other) |
 | JEI | optional (client side only) |
-| EMI | optional (client side only) |
 | AE2 | optional (pattern encoding) |
 
 ## Installation
 
-1. Install NeoForge 21.1.x for Minecraft 1.21.1
-2. Install Mekanism 10.7.19
-3. Put `mekanismgizmo-<version>.jar` into your `mods` folder
+1. Install Forge 47.4.0 for Minecraft 1.20.1
+2. Install Mekanism 10.4.16
+3. Put the Forge 1.20.1 `mekanismgizmo-<version>.jar` from a `v<version>-forge-1.20.1` release into your `mods` folder
 
 ## Building
 
@@ -483,8 +478,8 @@ gradlew.bat build
 
 The jar is written to `build/libs/mekanismgizmo-<version>.jar`.
 
-All dependencies are resolved automatically: NeoForge/Minecraft via ModDevGradle, Mekanism from
-**Modrinth's Maven** (`maven.modrinth:mekanism:10.7.19.85`) and JEI (compile only) from BlameJared. No third party jars
+All dependencies are resolved automatically: Forge/Minecraft via ForgeGradle, Mekanism from
+**Modrinth's Maven** (`maven.modrinth:mekanism:10.4.16.80`) and JEI (compile only) from BlameJared. No third party jars
 are stored in the repository. CurseMaven works too - add `maven { url = 'https://cursemaven.com' }` and
 `implementation 'curse.maven:mekanism-268560:<file-id>'` if you prefer it.
 
@@ -505,19 +500,21 @@ MIT - see [LICENSE](LICENSE). Copyright (c) 2025 NT-TK.
 
 # 日本語
 
-NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod ID・Javaパッケージ・リソースnamespaceは
+Forge 1.20.1 / Mekanism 10.4.16 対応の Mekanism アドオンです。mod ID・Javaパッケージ・リソースnamespaceは
 `mekanismgizmo` です。Mekanism本体の機械フレームワーク（ブロック／ブロックエンティティ／GUI／面設定／
 アップグレード／セキュリティ／JEI連携）をそのまま使っているので、操作感はMekanismの機械と同じです。
 機械11種に加えて、4段階のティア付きスポイト、改良型ポータブルテレポーター、改良型設定カードも追加します。
 
-最新版は [GitHub Releases](https://github.com/NT-TK/MekanismGizmo/releases/latest) からダウンロードできます。変更点は
+Forge 1.20.1 版は `v<version>-forge-1.20.1` タグのリリースに添付しています。
+[Forge 1.20.1 のリリース一覧](https://github.com/NT-TK/MekanismGizmo/releases?q=forge-1.20.1) からダウンロードしてください。
+リポジトリの「Latest」は NeoForge 1.21.1 版なので、1.20.1 にはそのjarを使わないでください。変更点は
 [CHANGELOG.md](CHANGELOG.md) にまとめています。
 
 ## 追加される機械
 
 | 機械 | ID | 説明 |
 |---|---|---|
-| ポーション醸造機 | `mekanismgizmo:potion_brewer` | バニラ／NeoForgeの醸造レシピでポーションを醸造します。ブレイズパウダーはMekanismのガス（1個=100 mB）になり、3本の醸造ごとに5 mB消費します。 |
+| ポーション醸造機 | `mekanismgizmo:potion_brewer` | バニラ／Forgeの醸造レシピでポーションを醸造します。ブレイズパウダーはMekanismのガス（1個=100 mB）になり、3本の醸造ごとに5 mB消費します。 |
 | 製氷機 | `mekanismgizmo:ice_maker` | 水1,000 mBから氷ブロック1個を作ります。バケツ・パイプ・タンクから給水できます。 |
 | 電動丸石製造機 | `mekanismgizmo:cobblestone_generator` | 電力だけで丸石を作り続けます（アイテム・液体の入力は不要）。 |
 | 電動玄武岩製造機 | `mekanismgizmo:basalt_generator` | 電力だけで玄武岩を作り続けます（アイテム・液体の入力は不要）。 |
@@ -659,8 +656,8 @@ burnRate = toUse / burnTicks                        // 画面に出る mB/t
 | 水素 — 200 FE/mB | 2,560 mB/t・512,000 FE/t | 1,280 mB/t・256,000 FE/t | 640 mB/t・128,000 FE/t |
 | エチレン — 28,200 FE/mB | 64 mB/t・1,804,800 FE/t | 32 mB/t・902,400 FE/t | 16 mB/t・451,200 FE/t |
 
-- 燃料1 mBあたりのエネルギーは Mekanism 本体の `chemicalFuel` データマップ（旧ケミカル属性もフォールバック）から
-  読むので、Mekanism が受け入れるガスはすべて本家と同じ値・同じ燃焼時間で使えます
+- 燃料1 mBあたりのエネルギーは Mekanism 本体のガス燃料属性（`GasAttributes.Fuel`）から読むので、燃料として
+  登録されたガスはすべて本家と同じ値・同じ燃焼時間で使えます
 - **燃焼速度はタンク残量に比例して上がります**。これは本家の式（`ceil(256 * stored / capacity)`）そのもので、
   満タンなら上限、1/4なら上限の1/4になります
 - 画面には本家と同じく **燃焼速度（mB/t）** と **発電量（FE/t）・1 mBあたりの FE** を表示します
@@ -750,14 +747,16 @@ burnRate = toUse / burnTicks                        // 画面に出る mB/t
 
 ## 機械リセット機
 
-Minecraft 1.21 以降の Mekanism は、機械の中身（所有者・セキュリティ・アイテム／液体／ガス・蓄電・アップグレード・面設定・レッドストーン設定）を**アイテム側に保存**します。そのため、機械を壊して持ち帰っても設定や中身がそのまま付いてきます。
+Mekanism 1.20.1 では、機械アイテムは機械の中身（所有者・セキュリティ・アイテム／液体／ガス・蓄電・アップグレード・
+面設定・レッドストーン設定）をアイテムの `mekData` に保存します。そのため、機械を壊して持ち帰っても設定や中身が
+そのまま付いてきます。別のワールドで拾った機械や、他の人からもらった機械には、以前の設定と中身が残っています。
 
 機械リセット機はそうしたアイテムを入れて 200 FE を消費するだけで、**クラフトしたての状態**に戻して出力します。
 
 - 入力スロット（機械アイテム）→ 進捗矢印 → 出力スロット（リセット済みアイテム）
 - 入力できるのは Mekanism の機械アイテム（機械データを持つブロックアイテム）のみ。鋼ケーシングや普通のアイテム、スポイトのような液体・ガスタンクだけのアイテムは入りません
 - 出力は「そのアイテムのデフォルト状態」そのものなので、所有者を含めて古いデータは一切残りません
-- 1回の処理で 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）。スタックで入れた場合はまとめて1回で処理します
+- 1回の処理で 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）。**1回につき機械アイテム1個**を処理します
 
 ## スポイト（ゲージドロッパー）
 
@@ -765,14 +764,14 @@ Mekanismのゲージドロッパーは機械のタンクを手で出入れする
 4種類のスポイトはそれとまったく同じ使い勝手（機械の画面でスポイトを持ち上げてタンクをクリック／スニーク＋右クリックで中身を廃棄）で、
 ティアごとに容量と1回の移動量が増えます。
 
-| アイテム | ID | 容量（液体／ガス） |
-|---|---|---|
-| 基本スポイト | `mekanismgizmo:basic_pipette` | 2,000 mB |
-| 発展スポイト | `mekanismgizmo:advanced_pipette` | 4,000 mB |
-| 精鋭スポイト | `mekanismgizmo:elite_pipette` | 8,000 mB |
-| 究極スポイト | `mekanismgizmo:ultimate_pipette` | 16,000 mB |
+| アイテム | ID | 容量（液体／ガス） | 1回の移動量 |
+|---|---|---|---|
+| 基本スポイト | `mekanismgizmo:basic_pipette` | 2,000 mB | 256 mB |
+| 発展スポイト | `mekanismgizmo:advanced_pipette` | 4,000 mB | 500 mB |
+| 精鋭スポイト | `mekanismgizmo:elite_pipette` | 8,000 mB | 1,000 mB |
+| 究極スポイト | `mekanismgizmo:ultimate_pipette` | 16,000 mB | 2,000 mB |
 
-液体タンクとガスタンクは別々に付くので、1本で両方を同時に持てます。中身はアイテムのコンポーネントなので、
+液体タンクとガスタンクは別々に付くので、1本で両方を同時に持てます。中身はアイテムのNBTに保存されるので、
 落としても・チェストに入れても・JEIで見ても保持されます。
 
 | アイテム | レシピ |
@@ -813,150 +812,106 @@ Mekanism のポータブルテレポーターの**蓄電量を100倍**にした�
 Mekanism のコンフィギュレーションカードは「面設定・イジェクター・レッドストーン制御・周波数」をコピーしますが、
 **アップグレード**と**デジタルマイナーのフィルター**はコピーできません。改良型はその両方までコピーします。
 
-**スニーク＋右クリック**で機械の設定を記録、**右クリック**で別の機械に適用、**スニーク＋素手同然に空中右クリック**で
-カードを消去します。これは Mekanism 本家のカードとまったく同じ操作です（このアイテムは本家の `ItemConfigurationCard`
-のサブクラスで、記録は本家の `CONFIGURATION_DATA` コンポーネントに本家と同じ `data_name` / `data_type` 付きで
-`getConfigurationData` のタグをそのまま保存します）。そのため**このカードで記録した内容は本家カードでも貼れ、
-本家カードで記録した内容もこのカードで貼れます**。形式が合わないときは本家と同じ「Unequal configuration data
-formats.」を表示し、データを持つと本家の `configuration_card_encoded` と同じようにスプライトが点灯版に切り替わります。
+**スニーク＋右クリック**で機械の設定を記録、**右クリック**で別の機械に適用、**スニーク＋空中右クリック**で
+カードを消去します。これは Mekanism のカードそのもので、アイテムは `ItemConfigurationCard` を継承しています。
+記録はカードのアイテムNBT（`mekanism:data`）に、Mekanism 自身の `data_name` / `data_type` キーとともに保存されるので、
+このカードで記録した内容を Mekanism のカードで貼り付けたり、その逆もできます。互換性がない場合は両方のカードが
+Mekanism 本体と同じ「Unequal configuration data formats.」を表示します。
 
-| コピーする内容 | 備考 |
+| コピーするもの | 内容 |
 |---|---|
-| 面設定 | その機械が持つ全トランスミッション（アイテム・エネルギー・液体・ガス・熱） |
-| イジェクター・レッドストーン制御・セキュリティ | 本家カードと同じデータ |
+| 面設定 | 機械が持つすべての伝送（アイテム・エネルギー・液体・ガス・熱） |
+| イジェクター・レッドストーン制御・セキュリティ | Mekanism のカードと同じデータ |
 | 周波数 | テレポーター／量子エンタングロポーター／QIO の周波数（所有者込み） |
-| アップグレード | アップグレードごとの個数。機械が対応している必要あり |
-| デジタルマイナーのフィルター | アイテム／タグ／Mod フィルターと置換設定 |
+| アップグレード | アップグレードごとの個数。機械が対応しているものだけ |
+| デジタルマイナーのフィルター | アイテム・タグ・MODフィルターと置換設定 |
 
-- **設定そのものは必ず貼られます**（本家カードと同じ挙動）。面設定・イジェクター・レッドストーン制御・セキュリティ・
-  周波数は本家の `setConfigurationData` でそのまま書き込むので、「貼ったのに何も起きない」ことがありません
-- **アップグレードはインベントリのアップグレードアイテムで支払い、アップグレード同士でオール・オア・ナッシング**です。
-  記録された全アップグレード分のアイテムがあれば装着して消費し、1つでも足りなければ**アップグレードだけ**を見送ります
-  （設定の貼り付けは成功しています）。その場合はチャットに「必要な数 / 所持数」をアップグレードごとに表示します。
-  同じカードをもう一度適用しても、すでに取り付け済みなのでアイテムは消費されません
-- 記録されたアップグレードに機械が対応していない場合は、そのアップグレード名をチャットに出して**スキップ**します（貼り付け全体は中止しません）
-- 面設定と周波数は、同じブロック同士、または**Mekanism 式の機械ブロック同士**（これがティア間コピーを可能にしています）に適用し、
-  機械は自分が持っているトランスミッションだけを反映します
-- ツールチップは本家と同じ「データ: <機械名>」の行に続けて、記録されたアップグレードとデジタルマイナーの
-  フィルター有無を表示します
-- **Mekanism 本家のコンフィギュレーションカードも、このMODの全機械で使えるようにしました。**しかも同じ機械の別ティア間でもコピーできます
-  （本家カードは「まったく同じブロック」しか許可しないため、基本ティア→究極ティアができませんでした）。このMODの機械は
-  Mekanism製の機械ブロックから記録したカードを受け入れ、自分が持っているトランスミッションだけを反映します
-- 逆向きは貼り付け先の判定に従います。本家機械の `isConfigurationDataCompatible` が自分のブロックだけを許可している場合、
-  このMODのカードは拒否されます。そのような機械には本家カードを使ってください
+- **設定自体は Mekanism のカードと同じく必ず貼り付きます**。面設定・イジェクター・レッドストーン制御・セキュリティ・周波数は Mekanism 自身の `setConfigurationData` で対象の機械に入るので、カードが黙って何もしないことはありません
+- **アップグレードはインベントリのアップグレードアイテムで支払います（アップグレード同士は全部かゼロか）**。記録されたすべてのアップグレードを賄える場合だけ設置され、アイテムが消費されます。1種類でも足りなければアップグレードは1つも設置されず（設定の貼り付け自体は成功）、チャットに不足分が表示されます。同じカードをもう一度貼り付けても、すでに設置済みならアイテムは不要です
+- 記録されたアップグレードのうち機械が対応していないものは、チャットに名前を出してスキップします
+- 面設定と周波数は、同じブロック同士のほか、どちらも Mekanism 形式の機械ブロックであれば適用されます（ティアをまたぐコピーができるのはこのため）。機械は自分が持つ伝送だけを受け取ります
+- ツールチップには Mekanism 自身の「Data: <機械名>」、記録されたアップグレード、デジタルマイナーのフィルターの有無が表示されます
+- **Mekanism 本体の設定カードも、このアドオンのすべての機械に使えます**。同じ機械のティア間でも使えます（本家のカードは同じブロックしか受け付けないため、通常はティアをまたげません）。ここの機械は Mekanism 形式の機械ブロックから記録されたカードを受け入れ、自分が持つ伝送だけを適用します
 
 | アイテム | ID | レシピ |
 |---|---|---|
-| 改良型設定カード | `mekanismgizmo:improved_configurator` | `ACA` / `CTC` / `ACA` — A=原子合金, C=究極制御回路, T=Mekanismのコンフィギュレーションカード |
+| 改良型設定カード | `mekanismgizmo:improved_configurator` | `ACA` / `CTC` / `ACA` — A=原子合金, C=究極制御回路, T=Mekanismの設定カード |
 
-テクスチャは Mekanism のコンフィギュレーションカードのままで、ステータスLEDと上端の帯を究極（マゼンタ）色にしています。
-データを記録すると本家の `configuration_card_encoded` と同じように画面がマゼンタで点灯したスプライトに切り替わります。
-どちらも `python tools/gen_item_textures.py` が生成します。
+テクスチャは Mekanism の設定カードをベースに、ステータスLEDと上端の帯を究極（マゼンタ）色にしたものです。
+記録済みの状態では画面もマゼンタに光り、Mekanism の `configuration_card_encoded` に対応します。
+どちらも `python tools/gen_item_textures.py` で生成しています。
 
 ## レシピ
 
-基本ティアのレシピは Mekanism の機械と同じ素材構成（鋼ケーシング＋基礎制御回路＋`mekanism:alloys/basic`＝赤石）です。
+基本の機械は Mekanism の機械レシピと同じ素材を使います。中央に鋼ケーシング、四隅に `mekanism:alloys/basic`（レッドストーン）、
+辺に `forge:circuits/basic`（基本制御回路）です。
 
 | 機械 | レシピ |
 |---|---|
-| ポーション醸造機 | `ACA` / `BXB` / `ACA` — A=赤石, B=醸造台, C=基礎制御回路, X=鋼ケーシング |
+| ポーション醸造機 | `ACA` / `BXB` / `ACA` — A=レッドストーン, B=醸造台, C=基本制御回路, X=鋼ケーシング |
 | 製氷機 | `ACA` / `IXI` / `ACA` — I=氷 |
-| 電動丸石製造機 | `ALA` / `CXC` / `AWA` — L=溶岩バケツ, W=水バケツ |
-| 電動玄武岩製造機 | `ALA` / `CXC` / `ABA` — L=溶岩バケツ, B=青氷 |
+| 電動丸石製造機 | `ALA` / `CXC` / `AWA` — L=溶岩入りバケツ, W=水入りバケツ |
+| 電動玄武岩製造機 | `ALA` / `CXC` / `ABA` — L=溶岩入りバケツ, B=青氷 |
 | アイテム収集機 | `ACA` / `HXS` / `ACA` — H=ホッパー, S=ロジスティカルソーター |
 | 流体注入機 | `ABA` / `CXF` / `ABA` — B=ガラス瓶, F=基本液体タンク |
-| 風力発電融合機 | `AWA` / `WPW` / `AWA` — A=赤石, W=風力発電機, P=鋼ケーシング |
-| 機械リセット機 | `ACA` / `WXW` / `ACA` — A=赤石, C=基礎制御回路, W=スポンジ, X=鋼ケーシング |
+| 風力発電融合機 | `AWA` / `WPW` / `AWA` — A=レッドストーン, W=風力発電機, P=鋼ケーシング |
+| 機械リセット機 | `ACA` / `WXW` / `ACA` — A=レッドストーン, C=基本制御回路, W=スポンジ, X=鋼ケーシング |
 | 液体加熱器 | `ACA` / `HXH` / `ACA` — A=強化合金, C=発展制御回路, H=マグマブロック, X=鋼ケーシング |
 | 改良型ガス発電機 | `ACA` / `GXG` / `ACA` — A=原子合金, C=究極制御回路, G=ガス燃焼発電機, X=鋼ケーシング |
 | 熱発電融合機 | `AHA` / `HPH` / `AHA` — A=基本合金, H=熱発電機, P=鋼ケーシング |
 
-ティア昇格は Mekanism の工場ティアレシピと同じ `ACA` / `IPI` / `ACA`（P＝前のティアの機械）です。
+ティアのアップグレードは Mekanism の工場ティアレシピ（`ACA` / `IPI` / `ACA`、P=前のティアの機械）に従います。
 
-| 昇格 | A（合金） | C（回路） | I（素材） |
+| アップグレード | 合金 | 回路 | 素材 |
 |---|---|---|---|
-| ティアなし → 基本 | `mekanism:alloys/infused` | `c:circuits/advanced` | オスミウムインゴット |
-| 基本 → 発展 | `mekanism:alloys/reinforced` | `c:circuits/elite` | 金インゴット |
-| 発展 → 精鋭 | `mekanism:alloys/atomic` | `c:circuits/ultimate` | ダイヤモンド |
-| 精鋭 → 究極 | `mekanism:alloys/atomic` | `c:circuits/ultimate` | ダイヤモンド |
+| ティアなし → 基本 | `mekanism:alloys/infused` | `forge:circuits/advanced` | オスミウムインゴット |
+| 基本 → 発展 | `mekanism:alloys/reinforced` | `forge:circuits/elite` | 金インゴット |
+| 発展 → 精鋭 | `mekanism:alloys/atomic` | `forge:circuits/ultimate` | ダイヤモンド |
+| 精鋭 → 究極 | `mekanism:alloys/atomic` | `forge:circuits/ultimate` | ダイヤモンド |
 
-その他:
+その他のレシピ:
 
-- 化学酸化機（`mekanism:oxidizing`）と化学変換機（`mekanism:chemical_conversion`）:
-  ブレイズパウダー1個 → `mekanismgizmo:blaze_powder` 100 mB
+- 酸化（`mekanism:oxidizing`）: ブレイズパウダー1個 → `mekanismgizmo:blaze_powder` ガス 100 mB
 
-## 実装（Mekanism標準機能の利用）
+## JEI
 
-- ブロック: `mekanism.common.block.prefab.BlockTile` + `mekanism.common.content.blocktype.Machine`
-- ブロックエンティティ: `mekanism.common.tile.base.TileEntityMekanism`（`TileEntityConfigurableMachine` 継承、
-  `ISideConfiguration` / `ITierUpgradable` 実装）
-- コンテナ: `mekanism.common.inventory.container.tile.MekanismTileContainer`
-- 画面: `mekanism.client.gui.GuiConfigurableTile`
-  （面設定タブ、アップグレード、レッドストーン、セキュリティ、エネルギー情報タブ、
-  `GuiChemicalGauge` / `GuiFluidGauge` / `GuiProgress` / `GuiVerticalPowerBar`）
-- スロット: `InputInventorySlot` / `OutputInventorySlot` / `EnergyInventorySlot` / `FluidInventorySlot`
-- エネルギー: `MachineEnergyContainer`（FE/J 表示、SPEED/ENERGY アップグレード各最大8）
-- 破壊時は Mekanism のルートテーブル（`minecraft:copy_name` + `mekanism:*` コンポーネントのコピー）で
-  中身・設定を保持したまま回収できます
-- コンパレーター出力: `MekanismUtils.redstoneLevelFromContents`（ガス量・水量・出力の有無）
-- コンフィギュレーター／コンフィギュレーションカード／自動搬出（ejector）／`active` 状態も Mekanism 標準の処理
-- 輸出入: `IItemHandler`、`IChemicalHandler`、Mekanism `IFluidHandler`、`IStrictEnergyHandler` / `IEnergyStorage`
+JEI連携は任意で、クライアント側だけにあります。1.20.1版は **JEIのみ** で、EMI連携は含みません。JEIを入れると
+次のページが追加されます。
 
-## テクスチャとアイコン
+- **ポーション醸造機**のページ。ゲーム本体の醸造データ（バニラ・Forge・データパックのレシピすべて）から瓶＋材料ごとに1件ずつ作り、レシピ転送（「+」）ボタンも付きます
+- **製氷機**、**電動丸石製造機**、**電動玄武岩製造機**、**流体注入機**のページ
+- 全ティアをレシピのカタリストとして登録し、機械画面の進捗矢印をクリック可能にします
+- 醸造3本ごとに必要な**ブレイズパウダーガス5 mB**を、ポーション醸造機の各ページに化学物質の材料として表示します
 
-- 機械の外装は Mekanism の `crusher/side` のケーシング、背面のエネルギー供給ポートは
-  `models/ports` + `ports_led` の 8×8 プレートをそのまま使っています（`tools/gen_mek_textures.py` で生成）
-- ティアは前面LEDの色で表現（ティアなし=灰、基本=ミント、発展=サーモン、精鋭=シアン、究極=マゼンタ）
-- Modアイコンは `src/main/resources/logo.png`（128×128、ポーション醸造機のアイソメトリック、
-  `tools/gen_logo.py` で生成）。クリエイティブタブのアイコンも同じブロックです
+ページ幅はローカライズ後の文字列から測るので、どの言語でもはみ出しません。
 
-## JEI連携
+### AE2
 
-JEIは任意（クライアント側のみ）です。導入すると以下が追加されます。
+AE2 は任意で、必須ではありません（MODはAE2を*suggest*するだけです）。AE2のJEI連携があると、ポーション醸造機のページを
+パターンエンコードターミナルへドラッグでき、瓶・材料・ポーションがパターンにコピーされます。
 
-- **ポーション醸造機**の専用ページ（ゲーム本体の醸造データから生成するので、バニラ・NeoForge・データパックの
-  醸造レシピがすべて表示されます）と「+」のレシピ転送
-- **製氷機**・**電動丸石製造機**・**電動玄武岩製造機**・**流体注入機**のページ
-- 全ティアのレシピカタリストと、機械画面の進行矢印クリックからのレシピ表示
-- 3本ぶんの醸造に必要な**ブレイズパウダーガス 5 mB** を、各ページの入力（ガス）として表示
+通常のAE2パターンはアイテムと液体しか持てないため、ブレイズパウダーガスは化学物質対応のAE2アドオン
+（例: Applied Mekanistics）がある場合だけエンコードされます。ない場合は、機械のガスタンクにブレイズパウダーを
+入れておき（1個=100 mB=20回分）、パターンには瓶と材料だけを入れてください。
 
-ページ幅は各言語の文字幅から自動で決まるため、日本語でも文字はみ出しません。
-
-### EMI連携
-
-EMIは任意（クライアント側のみ）です。EMI用に5機械の専用ページ（ポーション醸造機・製氷機・電動丸石製造機・
-電動玄武岩製造機・流体注入機）を用意しており、醸造機のページには**ブレイズパウダーガス 5 mB** も入ります。全ティアが各カテゴリの
-ワークステーションとして登録されます。EMIが入っている場合はJEI側のページを登録しないため、レシピが二重に
-表示されることはありません。
-
-### AE2連携
-
-AE2は任意（依存は `optional` 指定のみ）です。AE2のJEI連携を使うと、ポーション醸造機のページをパターンエンコード
-ターミナルへドラッグしてパターン化できます（瓶・材料・ポーションがパターンに入ります）。
-
-AE2のパターンはアイテムと液体しか扱えないため、ブレイズパウダーガスは**化学物質を扱えるAE2アドオン**
-（例: Applied Mekanistics）が入っている場合のみパターンに入ります。無い場合は機械のガスタンクにブレイズパウダーを
-入れておけばよく（パウダー1個 = 100 mB = 醸造20回）、パターンには瓶と材料だけを入れます。
-
-## 動作環境
+## 必要条件
 
 | | |
 |---|---|
-| Minecraft | 1.21.1 |
-| NeoForge | 21.1.194 以降 |
-| Mekanism | 10.7.19.x |
-| Mekanism Generators | 10.7.19.x（風力発電融合機で必須） |
+| Minecraft | 1.20.1 |
+| Forge | 47.4.0 以降 |
+| Mekanism | 10.4.16.x |
+| Mekanism Generators | 10.4.16.x（風力発電融合機に必要） |
 | Compact Mekanism Machines | 任意（圧縮風力発電機を風力発電融合機に入れられます） |
-| Mekanism: More Machine | 任意（連携不要：追加される機械アイテムもMekanismの機械アイテムなので、機械リセット機でそのままリセットできます） |
+| Mekanism: More Machine | 任意（連携不要。機械アイテムは機械アイテムなので、機械リセット機が他の機械と同じように掃除できます） |
 | JEI | 任意（クライアント側のみ） |
-| EMI | 任意（クライアント側のみ） |
 | AE2 | 任意（パターン作成連携） |
 
 ## 導入方法
 
-1. Minecraft 1.21.1 用の NeoForge 21.1.x を導入
-2. Mekanism 10.7.19 を導入
-3. `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
+1. Minecraft 1.20.1 用の Forge 47.4.0 を導入
+2. Mekanism 10.4.16 を導入
+3. `v<version>-forge-1.20.1` リリースの Forge 1.20.1 用 `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
 
 ## ビルド
 
@@ -966,8 +921,8 @@ gradlew.bat build
 
 生成Jar: `build/libs/mekanismgizmo-<version>.jar`
 
-依存はすべて自動解決されます（NeoForge/MinecraftはModDevGradle、Mekanismは**ModrinthのMaven**
-`maven.modrinth:mekanism:10.7.19.85`、JEIはコンパイル時のみBlameJaredから）。リポジトリに第三者のJarは置いていません。
+依存はすべて自動解決されます（Minecraft/ForgeはForgeGradle、MekanismとMekanism Generatorsは**ModrinthのMaven**
+`maven.modrinth:mekanism:10.4.16.80`、JEIはコンパイル時のみBlameJaredから）。リポジトリに第三者のJarは置いていません。
 CurseMavenを使いたい場合は `maven { url = 'https://cursemaven.com' }` を追加し、
 `implementation 'curse.maven:mekanism-268560:<file-id>'` に差し替えてください。
 

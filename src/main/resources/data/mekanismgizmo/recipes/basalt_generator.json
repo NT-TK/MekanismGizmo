@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "mekanism:alloys/basic"
+    },
+    "B": {
+      "item": "minecraft:blue_ice"
+    },
+    "C": {
+      "tag": "forge:circuits/basic"
+    },
+    "L": {
+      "item": "minecraft:lava_bucket"
+    },
+    "X": {
+      "item": "mekanism:steel_casing"
+    }
+  },
+  "pattern": [
+    "ALA",
+    "CXC",
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "item": "mekanismgizmo:basalt_generator"
+  }
+}

@@ -37,7 +37,6 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         Component info = Component.translatable("gui.mekanismgizmo.wind_fusion.info",
               AmountFormat.format(tile.getActiveGenerators()), AmountFormat.format(tile.getMaxGenerators()),
@@ -70,7 +69,7 @@ public class WindFusionScreen extends GuiConfigurableTile<WindFusionBlockEntity,
     private List<Component> getEnergyInfo() {
         return List.of(
               Component.translatable("gui.mekanismgizmo.wind_fusion.energy",
-                    AmountFormat.format(tile.getEnergyContainer().getEnergy()), AmountFormat.format(WindFusionBlockEntity.ENERGY_CAPACITY)),
+                    AmountFormat.format(tile.getEnergyContainer().getEnergy().longValue()), AmountFormat.format(WindFusionBlockEntity.ENERGY_CAPACITY)),
               Component.translatable("gui.mekanismgizmo.wind_fusion.output",
                     AmountFormat.format(tile.getDisplayedGeneration())));
     }

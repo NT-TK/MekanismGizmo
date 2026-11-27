@@ -4,6 +4,7 @@ import jp.example.mekanismgizmo.block.FluidInjectorBlockEntity;
 import jp.example.mekanismgizmo.menu.FluidInjectorMenu;
 import jp.example.mekanismgizmo.registry.ModLang;
 import jp.example.mekanismgizmo.util.AmountFormat;
+import mekanism.api.math.FloatingLong;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
 import mekanism.client.gui.element.button.MekanismButton;
@@ -40,7 +41,6 @@ public class FluidInjectorScreen extends GuiConfigurableTile<FluidInjectorBlockE
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         // The tank reading fills the space under the mode button instead of leaving it empty
         Component tankInfo = Component.translatable("gui.mekanismgizmo.fluid_injector.tank",
@@ -71,7 +71,7 @@ public class FluidInjectorScreen extends GuiConfigurableTile<FluidInjectorBlockE
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(),
               FluidInjectorBlockEntity.POWER_BAR_X, FluidInjectorBlockEntity.POWER_BAR_Y))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.hasContainerInput()
-                    && tile.getEnergyContainer().getEnergy() < FluidInjectorBlockEntity.ENERGY_PER_OPERATION);
+                    && tile.getEnergyContainer().getEnergy().smallerThan(FloatingLong.create(FluidInjectorBlockEntity.ENERGY_PER_OPERATION)));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         // The tank gauge is stretched down to the last container row, so the left column is filled on every tier
         addRenderableWidget(new GuiFluidGauge(() -> tile.getFluidTank(), () -> tile.getFluidTanks(null),
@@ -82,11 +82,7 @@ public class FluidInjectorScreen extends GuiConfigurableTile<FluidInjectorBlockE
         containerModeButton = new MekanismButton(this, FluidInjectorBlockEntity.MODE_BUTTON_X,
               FluidInjectorBlockEntity.MODE_BUTTON_Y, FluidInjectorBlockEntity.MODE_BUTTON_WIDTH,
               FluidInjectorBlockEntity.MODE_BUTTON_HEIGHT, tile.getContainerMode().getTextComponent(),
-              (element, mouseX, mouseY) -> {
-                  sendContainerMode();
-                  return true;
-              });
-        containerModeButton.setTooltip(ModLang.TOOLTIP_CONTAINER_MODE);
+              this::sendContainerMode, getOnHover(ModLang.TOOLTIP_CONTAINER_MODE));
         addRenderableWidget(containerModeButton);
     }
 

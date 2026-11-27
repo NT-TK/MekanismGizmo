@@ -12,7 +12,6 @@ import jp.example.mekanismgizmo.block.LiquidHeaterBlockEntity;
 import jp.example.mekanismgizmo.block.MachineResetterBlockEntity;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.block.WindFusionBlockEntity;
-import mekanism.common.capabilities.Capabilities;
 import mekanism.common.registration.impl.BlockRegistryObject;
 import mekanism.common.registration.impl.TileEntityTypeDeferredRegister;
 import mekanism.common.registration.impl.TileEntityTypeRegistryObject;
@@ -63,86 +62,75 @@ public final class ModBlockEntities {
     public static final TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> LIQUID_HEATER_ULTIMATE = liquidHeater(ModBlocks.LIQUID_HEATER_ULTIMATE);
 
     public static final TileEntityTypeRegistryObject<ImprovedGasGeneratorBlockEntity> IMPROVED_GAS_GENERATOR = TILE_ENTITIES
-          .mekBuilder(ModBlocks.IMPROVED_GAS_GENERATOR,
+          .builder(ModBlocks.IMPROVED_GAS_GENERATOR,
                 (pos, state) -> new ImprovedGasGeneratorBlockEntity(ModBlocks.IMPROVED_GAS_GENERATOR, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
-          .withSimple(Capabilities.CONFIG_CARD)
           .build();
 
     public static final TileEntityTypeRegistryObject<HeatFusionBlockEntity> HEAT_FUSION = TILE_ENTITIES
-          .mekBuilder(ModBlocks.HEAT_FUSION, (pos, state) -> new HeatFusionBlockEntity(ModBlocks.HEAT_FUSION, pos, state))
+          .builder(ModBlocks.HEAT_FUSION, (pos, state) -> new HeatFusionBlockEntity(ModBlocks.HEAT_FUSION, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
-          .withSimple(Capabilities.CONFIG_CARD)
           .build();
 
     public static final TileEntityTypeRegistryObject<ItemCollectorBlockEntity> ITEM_COLLECTOR = TILE_ENTITIES
-          .mekBuilder(ModBlocks.ITEM_COLLECTOR, (pos, state) -> new ItemCollectorBlockEntity(ModBlocks.ITEM_COLLECTOR, pos, state))
+          .builder(ModBlocks.ITEM_COLLECTOR, (pos, state) -> new ItemCollectorBlockEntity(ModBlocks.ITEM_COLLECTOR, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
-          .withSimple(Capabilities.CONFIG_CARD)
           .build();
 
     public static final TileEntityTypeRegistryObject<MachineResetterBlockEntity> MACHINE_RESETTER = TILE_ENTITIES
-          .mekBuilder(ModBlocks.MACHINE_RESETTER, (pos, state) -> new MachineResetterBlockEntity(ModBlocks.MACHINE_RESETTER, pos, state))
+          .builder(ModBlocks.MACHINE_RESETTER, (pos, state) -> new MachineResetterBlockEntity(ModBlocks.MACHINE_RESETTER, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
-          .withSimple(Capabilities.CONFIG_CARD)
           .build();
 
     public static final TileEntityTypeRegistryObject<WindFusionBlockEntity> WIND_FUSION = TILE_ENTITIES
-          .mekBuilder(ModBlocks.WIND_FUSION, (pos, state) -> new WindFusionBlockEntity(ModBlocks.WIND_FUSION, pos, state))
+          .builder(ModBlocks.WIND_FUSION, (pos, state) -> new WindFusionBlockEntity(ModBlocks.WIND_FUSION, pos, state))
           .clientTicker(TileEntityMekanism::tickClient)
           .serverTicker(TileEntityMekanism::tickServer)
-          .withSimple(Capabilities.CONFIG_CARD)
           .build();
 
     private static TileEntityTypeRegistryObject<PotionBrewerBlockEntity> potionBrewer(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new PotionBrewerBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new PotionBrewerBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 
     private static TileEntityTypeRegistryObject<IceMakerBlockEntity> iceMaker(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new IceMakerBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new IceMakerBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 
     private static TileEntityTypeRegistryObject<CobblestoneGeneratorBlockEntity> cobblestoneGenerator(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new CobblestoneGeneratorBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new CobblestoneGeneratorBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 
     private static TileEntityTypeRegistryObject<BasaltGeneratorBlockEntity> basaltGenerator(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new BasaltGeneratorBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new BasaltGeneratorBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 
     private static TileEntityTypeRegistryObject<FluidInjectorBlockEntity> fluidInjector(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new FluidInjectorBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new FluidInjectorBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 
     private static TileEntityTypeRegistryObject<LiquidHeaterBlockEntity> liquidHeater(BlockRegistryObject<?, ?> block) {
-        return TILE_ENTITIES.mekBuilder(block, (pos, state) -> new LiquidHeaterBlockEntity(block, pos, state))
+        return TILE_ENTITIES.builder(block, (pos, state) -> new LiquidHeaterBlockEntity(block, pos, state))
               .clientTicker(TileEntityMekanism::tickClient)
               .serverTicker(TileEntityMekanism::tickServer)
-              .withSimple(Capabilities.CONFIG_CARD)
               .build();
     }
 

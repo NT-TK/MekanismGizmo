@@ -42,7 +42,6 @@ public class HeatFusionScreen extends GuiConfigurableTile<HeatFusionBlockEntity,
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         Component info = Component.translatable("gui.mekanismgizmo.heat_fusion.info",
               AmountFormat.format(tile.getActiveGenerators()), AmountFormat.format(tile.getMaxGenerators()),
@@ -73,7 +72,7 @@ public class HeatFusionScreen extends GuiConfigurableTile<HeatFusionBlockEntity,
     private List<Component> getEnergyInfo() {
         return List.of(
               Component.translatable("gui.mekanismgizmo.heat_fusion.energy",
-                    AmountFormat.format(tile.getEnergyContainer().getEnergy()), AmountFormat.format(HeatFusionBlockEntity.ENERGY_CAPACITY)),
+                    AmountFormat.format(tile.getEnergyContainer().getEnergy().longValue()), AmountFormat.format(HeatFusionBlockEntity.ENERGY_CAPACITY)),
               Component.translatable("gui.mekanismgizmo.heat_fusion.output", AmountFormat.format(tile.getGenerationRate())),
               Component.translatable("gui.mekanismgizmo.heat_fusion.temperature",
                     String.format(java.util.Locale.ROOT, "%.1f", tile.getTemperatureTenths() / 10D)));

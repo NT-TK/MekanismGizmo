@@ -1,13 +1,11 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import jp.example.mekanismgizmo.util.WindGeneratorUnits;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
-import mekanism.api.MekanismAPITags;
 import mekanism.api.math.MathUtils;
 import mekanism.common.capabilities.energy.BasicEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
@@ -21,9 +19,14 @@ import mekanism.common.inventory.container.sync.SyncableLong;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
+import mekanism.common.util.MekanismUtils;
 import mekanism.generators.common.config.MekanismGeneratorsConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.dimension.DimensionType;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,6 +47,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * screen - comes from Mekanism's configurable machine base.
  */
 public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
+    private static final TagKey<DimensionType> NO_WIND = TagKey.create(Registries.DIMENSION_TYPE,
+          ResourceLocation.tryBuild("mekanism", "no_wind"));
     /** Number of wind generator slots: three rows of nine. */
     public static final int SLOT_COUNT = 27;
     public static final int COLUMNS = 9;
@@ -90,7 +95,7 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
     private long generationPerUnit;
     private boolean blacklistDimension;
 
-    public WindFusionBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public WindFusionBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         // The generator slots are internal storage: they are not part of the item configuration, so pipes can only
         // reach the energy slot
@@ -99,20 +104,12 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         // The machine has no item or fluid outputs, but the configurable machine base expects the component
         ejectorComponent = new TileComponentEjector(this);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.WIND_FUSION);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        // Items dropped by an older version (or copied from an unconfigured machine) can carry an all-"None" side
-        // configuration; repair it so the machine still exports its energy.
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.WIND_FUSION);
-    }
 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         generatorSlots = new WindGeneratorSlot[SLOT_COUNT];
         for (int i = 0; i < SLOT_COUNT; i++) {
             builder.addSlot(generatorSlots[i] = new WindGeneratorSlot(listener, slotX(i), slotY(i)));
@@ -123,8 +120,8 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
-        builder.addContainer(energyContainer = BasicEnergyContainer.output(ENERGY_CAPACITY, listener));
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
+        builder.addContainer(energyContainer = BasicEnergyContainer.output(FloatingLong.create(ENERGY_CAPACITY), listener));
         return builder.build();
     }
 
@@ -142,12 +139,12 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
     public void setLevel(Level level) {
         super.setLevel(level);
         // Dimensions tagged as windless (Mekanism's own tag) never produce power
-        blacklistDimension = level != null && level.dimensionTypeRegistration().is(MekanismAPITags.DimensionTypes.NO_WIND);
+        blacklistDimension = level != null && level.dimensionTypeRegistration().is(NO_WIND);
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.drainContainer();
 
         countUnits();
@@ -157,22 +154,21 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
             multiplier = getMultiplier();
             generationPerUnit = getGenerationPerUnit();
         }
-        boolean generating = canFunction() && !blacklistDimension && activeUnits > 0 && generationPerUnit > 0;
+        boolean generating = MekanismUtils.canFunction(this) && !blacklistDimension && activeUnits > 0 && generationPerUnit > 0;
         setActive(generating);
-        if (generating && energyContainer.getNeeded() > 0) {
+        if (generating && !energyContainer.getNeeded().isZero()) {
             // One generator worth per fused generator: a full machine produces 27 times a single wind generator
-            energyContainer.insert(MathUtils.multiplyClamped(activeUnits, generationPerUnit), Action.EXECUTE, AutomationType.INTERNAL);
+            energyContainer.insert(FloatingLong.create(MathUtils.clampToLong((double) activeUnits * generationPerUnit)), Action.EXECUTE, AutomationType.INTERNAL);
         }
-        if (canFunction()) {
-            emitEnergy(energyContainer, getMaxOutput());
+        if (MekanismUtils.canFunction(this)) {
+            emitEnergy(energyContainer, FloatingLong.create(getMaxOutput()));
         }
-        return sendUpdatePacket;
     }
 
     /** Upper bound for one tick of output: twice the configured maximum of the installed generators. */
     private long getMaxOutput() {
-        long perUnit = Math.max(1L, MekanismGeneratorsConfig.generators.windGenerationMax.get());
-        return MathUtils.multiplyClamped(2L, MathUtils.multiplyClamped(Math.max(1, activeUnits), perUnit));
+        long perUnit = Math.max(1L, MekanismGeneratorsConfig.generators.windGenerationMax.get().longValue());
+        return MathUtils.clampToLong(2D * Math.max(1, activeUnits) * perUnit);
     }
 
     /**
@@ -208,7 +204,7 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
 
     /** Power a single fused generator produces at this position, mirroring Mekanism's wind generator. */
     public long getGenerationPerUnit() {
-        double generation = MekanismGeneratorsConfig.generators.windGenerationMin.get() * multiplier;
+        double generation = MekanismGeneratorsConfig.generators.windGenerationMin.get().doubleValue() * multiplier;
         // windGenerationMin = 0 makes the multiplier infinite (or 0 * infinite NaN); don't let that turn into
         // a negative int or a fake positive output.
         if (!Double.isFinite(generation) || generation <= 0) {
@@ -239,8 +235,8 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
             return 1;
         }
         int height = Math.min(generationMaxY, Math.max(generationMinY, above.getY()));
-        long minGeneration = MekanismGeneratorsConfig.generators.windGenerationMin.get();
-        long maxGeneration = MekanismGeneratorsConfig.generators.windGenerationMax.get();
+        long minGeneration = MekanismGeneratorsConfig.generators.windGenerationMin.get().longValue();
+        long maxGeneration = MekanismGeneratorsConfig.generators.windGenerationMax.get().longValue();
         double generationPerBlock = (maxGeneration - minGeneration) / (double) (generationMaxY - generationMinY);
         double generation = minGeneration + generationPerBlock * (height - generationMinY);
         return generation / (double) minGeneration;
@@ -267,7 +263,7 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
 
     /** Total output to display, zero in dimensions where the machine cannot generate wind. */
     public long getDisplayedGeneration() {
-        return blacklistDimension ? 0L : MathUtils.multiplyClamped(activeUnits, generationPerUnit);
+        return blacklistDimension ? 0L : MathUtils.clampToLong((double) activeUnits * generationPerUnit);
     }
 
     public WindGeneratorSlot[] getGeneratorSlots() {

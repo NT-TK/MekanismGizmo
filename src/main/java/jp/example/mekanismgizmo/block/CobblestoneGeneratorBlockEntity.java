@@ -1,13 +1,11 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
 import mekanism.api.Upgrade;
-import mekanism.common.attachments.containers.ContainerType;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
@@ -22,8 +20,7 @@ import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -53,27 +50,19 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
     private int progress;
     private int ticksRequired = BASE_TICKS_REQUIRED;
 
-    public CobblestoneGeneratorBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public CobblestoneGeneratorBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         configComponent.setupItemIOConfig(List.of(), List.of(outputSlots), energySlot, false);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.COBBLESTONE_GENERATOR);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        // Items dropped by an older version (or copied from an unconfigured machine) can carry an all-"None" side
-        // configuration; repair it so the machine still accepts power and piped items.
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.COBBLESTONE_GENERATOR);
-    }
 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
         int parallel = parallel();
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         outputSlots = new OutputInventorySlot[parallel];
         for (int i = 0; i < parallel; i++) {
             builder.addSlot(outputSlots[i] = OutputInventorySlot.at(listener, outputSlotX(i), OUTPUT_Y));
@@ -108,7 +97,7 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
         builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
         return builder.build();
     }
@@ -162,16 +151,16 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.fillContainerOrConvert();
 
-        if (canFunction()) {
+        if (MekanismUtils.canFunction(this)) {
             if (progress > 0) {
                 // No room for the cobblestone right now: pause and keep the progress (do not throw it away)
                 if (producibleCobblestone() > 0) {
-                    long energyPerTick = energyContainer.getEnergyPerTick();
-                    if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
+                    FloatingLong energyPerTick = energyContainer.getEnergyPerTick();
+                    if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL).equals(energyPerTick)) {
                         energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
                         if (--progress <= 0) {
                             finish();
@@ -183,7 +172,6 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
             }
         }
         setActive(progress > 0);
-        return sendUpdatePacket;
     }
 
     private void finish() {
@@ -202,10 +190,6 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
         return MekanismUtils.redstoneLevelFromContents(List.of(outputSlots));
     }
 
-    @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.ITEM;
-    }
 
     @Override
     public List<Component> getInfo(Upgrade upgrade) {
@@ -228,16 +212,15 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("Progress", progress);
         tag.putInt("TicksRequired", ticksRequired);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.COBBLESTONE_GENERATOR);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         progress = tag.getInt("Progress");
         ticksRequired = tag.contains("TicksRequired") ? tag.getInt("TicksRequired") : BASE_TICKS_REQUIRED;
     }

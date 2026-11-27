@@ -4,7 +4,7 @@ import jp.example.mekanismgizmo.MekanismGizmo;
 import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import jp.example.mekanismgizmo.registry.ModBlocks;
 import jp.example.mekanismgizmo.registry.ModChemicals;
-import mekanism.client.recipe_viewer.jei.MekanismJEI;
+import mekanism.client.jei.MekanismJEI;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
 public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJeiRecipe> {
 
     public static final RecipeType<PotionBrewerJeiRecipe> TYPE = new RecipeType<>(
-          ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "potion_brewer"), PotionBrewerJeiRecipe.class);
+          ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "potion_brewer"), PotionBrewerJeiRecipe.class);
     private static final Component GAS_LINE = Component.translatable("jei.mekanismgizmo.info.brewer_gas",
           PotionBrewerBlockEntity.CHEMICAL_PER_BREW);
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
@@ -76,11 +76,6 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     }
 
     @Override
-    public boolean needsRecipeBorder() {
-        return false;
-    }
-
-    @Override
     public ResourceLocation getRegistryName(PotionBrewerJeiRecipe recipe) {
         // Only [a-z0-9_/] are allowed in a resource location, so the potion names are taken from the registry key
         return PotionBrewerRecipes.id(recipe);
@@ -88,7 +83,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     /** True when the page shows the blaze powder gas slot (Mekanism's JEI plugin provides the chemical type). */
     public static boolean hasGasSlot() {
-        return MekanismJEI.shouldLoad();
+        return true;
     }
 
     @Override
@@ -98,8 +93,8 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
         if (hasGasSlot()) {
             builder.addInputSlot(GAS_X, GAS_Y)
                   .setStandardSlotBackground()
-                  .addIngredient(MekanismJEI.TYPE_CHEMICAL,
-                        ModChemicals.BLAZE_POWDER.asStack(PotionBrewerBlockEntity.CHEMICAL_PER_BREW));
+                  .addIngredient(MekanismJEI.TYPE_GAS,
+                        new mekanism.api.chemical.gas.GasStack(ModChemicals.BLAZE_POWDER.get(), PotionBrewerBlockEntity.CHEMICAL_PER_BREW));
         }
         // Same order as a brewing stand: the bottle on top, the ingredient underneath, the result to the right
         builder.addInputSlot(30, 12)

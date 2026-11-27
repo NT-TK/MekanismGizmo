@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[1,)"
 license="MIT"
 
 [[mods]]
@@ -13,61 +13,54 @@ description='''Mekanismアドオン（Forge 1.20.1版）。ポーション醸造
 
 [[dependencies.${mod_id}]]
 modId="minecraft"
-type="required"
+mandatory=true
 versionRange="[${minecraft_version}]"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="forge"
-type="required"
+mandatory=true
 versionRange="[47.4.0,48)"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="mekanism"
-type="required"
+mandatory=true
 versionRange="[10.4.16,10.5)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="mekanismgenerators"
-type="required"
+mandatory=true
 versionRange="[10.4.16,10.5)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="jei"
-type="optional"
+mandatory=false
 versionRange="[15,)"
 ordering="AFTER"
 side="CLIENT"
 
 [[dependencies.${mod_id}]]
-modId="emi"
-type="optional"
-versionRange="[1.1,)"
-ordering="AFTER"
-side="CLIENT"
-
-[[dependencies.${mod_id}]]
 modId="ae2"
-type="optional"
+mandatory=false
 versionRange="[15,)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="compactmekanismmachines"
-type="optional"
+mandatory=false
 versionRange="[0.1,)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
 modId="mekmm"
-type="optional"
+mandatory=false
 versionRange="[1.4,)"
 ordering="AFTER"
 side="BOTH"

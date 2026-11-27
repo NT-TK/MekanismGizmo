@@ -1,16 +1,16 @@
 package jp.example.mekanismgizmo.registry;
 
 import jp.example.mekanismgizmo.MekanismGizmo;
-import mekanism.api.chemical.Chemical;
-import mekanism.api.chemical.ChemicalBuilder;
-import mekanism.common.registration.impl.ChemicalDeferredRegister;
-import mekanism.common.registration.impl.DeferredChemical;
+import mekanism.api.chemical.gas.Gas;
+import mekanism.api.chemical.gas.GasBuilder;
+import mekanism.common.registration.impl.GasDeferredRegister;
+import mekanism.common.registration.impl.GasRegistryObject;
 
 public final class ModChemicals {
     public static final int BLAZE_POWDER_COLOR = 0xE87524;
-    public static final ChemicalDeferredRegister CHEMICALS = new ChemicalDeferredRegister(MekanismGizmo.MOD_ID);
-    public static final DeferredChemical<Chemical> BLAZE_POWDER = CHEMICALS.register("blaze_powder",
-          () -> new Chemical(ChemicalBuilder.builder().gaseous().tint(BLAZE_POWDER_COLOR)));
+    public static final GasDeferredRegister CHEMICALS = new GasDeferredRegister(MekanismGizmo.MOD_ID);
+    public static final GasRegistryObject<Gas> BLAZE_POWDER = CHEMICALS.register("blaze_powder",
+          () -> new Gas(GasBuilder.builder().tint(BLAZE_POWDER_COLOR)));
 
     private ModChemicals() {
     }

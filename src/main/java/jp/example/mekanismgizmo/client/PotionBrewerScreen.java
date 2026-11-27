@@ -4,7 +4,7 @@ import jp.example.mekanismgizmo.block.PotionBrewerBlockEntity;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
 import mekanism.client.gui.element.gauge.GaugeType;
-import mekanism.client.gui.element.gauge.GuiChemicalGauge;
+import mekanism.client.gui.element.gauge.GuiGasGauge;
 import mekanism.client.gui.element.progress.GuiProgress;
 import mekanism.client.gui.element.progress.ProgressType;
 import mekanism.client.gui.element.tab.GuiEnergyTab;
@@ -44,7 +44,6 @@ public class PotionBrewerScreen extends GuiConfigurableTile<PotionBrewerBlockEnt
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
     }
 
@@ -53,9 +52,9 @@ public class PotionBrewerScreen extends GuiConfigurableTile<PotionBrewerBlockEnt
         super.addGuiElements();
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(), PotionBrewerBlockEntity.GUI_WIDTH - 12, 16))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.getBrewTicks() > 0
-                    && tile.getEnergyContainer().getEnergy() < tile.getEnergyContainer().getEnergyPerTick());
+                    && tile.getEnergyContainer().getEnergy().smallerThan(tile.getEnergyContainer().getEnergyPerTick()));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.blazePowderTank, () -> tile.getChemicalTanks(null),
+        addRenderableWidget(new GuiGasGauge(() -> tile.blazePowderTank, () -> tile.getGasTanks(null),
               GaugeType.STANDARD, this, 6, 13));
         for (int row = 0; row < PotionBrewerBlockEntity.rows(tile.bottleCount()); row++) {
             addRenderableWidget(new GuiProgress(tile::getScaledProgress, ProgressType.RIGHT, this,

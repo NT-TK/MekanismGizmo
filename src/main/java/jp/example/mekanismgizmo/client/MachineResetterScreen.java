@@ -31,7 +31,6 @@ public class MachineResetterScreen extends GuiConfigurableTile<MachineResetterBl
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
     }
 
@@ -41,7 +40,7 @@ public class MachineResetterScreen extends GuiConfigurableTile<MachineResetterBl
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(),
               MachineResetterBlockEntity.POWER_BAR_X, MachineResetterBlockEntity.POWER_BAR_Y))
               .warning(WarningType.NOT_ENOUGH_ENERGY, () -> tile.getProgress() > 0
-                    && tile.getEnergyContainer().getEnergy() < tile.getEnergyContainer().getEnergyPerTick());
+                    && tile.getEnergyContainer().getEnergy().smallerThan(tile.getEnergyContainer().getEnergyPerTick()));
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         addRenderableWidget(new GuiProgress(tile::getScaledProgress, ProgressType.RIGHT, this,
               MachineResetterBlockEntity.ARROW_X, MachineResetterBlockEntity.ARROW_Y))

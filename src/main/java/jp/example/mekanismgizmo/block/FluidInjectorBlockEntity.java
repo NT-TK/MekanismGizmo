@@ -1,14 +1,12 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
 import mekanism.api.RelativeSide;
 import mekanism.api.fluid.IExtendedFluidTank;
-import mekanism.common.attachments.containers.ContainerType;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.fluid.BasicFluidTank;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
@@ -25,17 +23,17 @@ import mekanism.common.inventory.slot.InputInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
 import mekanism.common.tile.component.TileComponentEjector;
+import mekanism.common.util.CapabilityUtils;
+import mekanism.common.capabilities.Capabilities;
 import mekanism.common.tile.interfaces.IFluidContainerManager.ContainerEditMode;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -79,25 +77,19 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
 
     private ContainerEditMode containerMode = ContainerEditMode.BOTH;
 
-    public FluidInjectorBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public FluidInjectorBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         configComponent.setupItemIOConfig(List.of(containerSlots), List.of(containerOutputSlots), energySlot, false);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         configComponent.setupIOConfig(TransmissionType.FLUID, fluidTank, RelativeSide.BACK);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.FLUID_INJECTOR);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.FLUID_INJECTOR);
-    }
 
     @Override
     public IFluidTankHolder getInitialFluidTanks(IContentsListener listener) {
-        FluidTankHelper builder = FluidTankHelper.forSideWithConfig(this);
+        FluidTankHelper builder = FluidTankHelper.forSideWithConfig(this::getDirection, this::getConfig);
         fluidTank = BasicFluidTank.create(tankCapacity(parallel()), listener);
         builder.addTank(fluidTank);
         return builder.build();
@@ -105,7 +97,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
         builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
         return builder.build();
     }
@@ -113,7 +105,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
         int parallel = parallel();
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         containerSlots = new InputInventorySlot[parallel];
         containerOutputSlots = new OutputInventorySlot[parallel];
         // One input for every container type; the converted container always ends up in the slot to the right.
@@ -213,11 +205,11 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.fillContainerOrConvert();
         boolean converted = false;
-        if (canFunction()) {
+        if (MekanismUtils.canFunction(this)) {
             for (int i = 0; i < containerSlots.length; i++) {
                 if (handleFluidContainer(i)) {
                     converted = true;
@@ -227,15 +219,14 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
             }
         }
         setActive(converted);
-        return sendUpdatePacket;
     }
 
     private boolean hasEnergy() {
-        return energyContainer.getEnergy() >= ENERGY_PER_OPERATION;
+        return energyContainer.getEnergy().greaterOrEqual(FloatingLong.create(ENERGY_PER_OPERATION));
     }
 
     private void useEnergy() {
-        energyContainer.extract(ENERGY_PER_OPERATION, Action.EXECUTE, AutomationType.INTERNAL);
+        energyContainer.extract(FloatingLong.create(ENERGY_PER_OPERATION), Action.EXECUTE, AutomationType.INTERNAL);
     }
 
     /** Buckets, Mekanism fluid tanks and any other item with a fluid handler, converted through that handler. */
@@ -246,7 +237,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         }
         // The fluid handler of a single item wraps that very stack, so it has to work on a copy: if the converted
         // container cannot be stored, the item in the input slot (and the tank) must stay untouched.
-        IFluidHandlerItem handler = FluidInventorySlot.tryGetFluidHandlerUnstacked(input.copyWithCount(1));
+        IFluidHandlerItem handler = input.copyWithCount(1).getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().orElse(null);
         if (handler == null) {
             return false;
         }
@@ -261,7 +252,9 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
                       - fluidTank.insert(contained, Action.SIMULATE, AutomationType.INTERNAL).getAmount();
                 if (accepted > 0) {
                     // Executed on the copy only; the tank is filled after the container is known to fit
-                    drained = handler.drain(contained.copyWithAmount(accepted), FluidAction.EXECUTE);
+                    FluidStack toDrain = contained.copy();
+                    toDrain.setAmount(accepted);
+                    drained = handler.drain(toDrain, FluidAction.EXECUTE);
                 }
             }
         }
@@ -272,7 +265,9 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
                 int free = handler.getTankCapacity(0) - contained.getAmount();
                 if (free > 0) {
                     int amount = Math.min(stored.getAmount(), free);
-                    filled = handler.fill(stored.copyWithAmount(amount), FluidAction.EXECUTE);
+                    FluidStack toFill = stored.copy();
+                    toFill.setAmount(amount);
+                    filled = handler.fill(toFill, FluidAction.EXECUTE);
                 }
             }
         }
@@ -323,7 +318,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         } else if (input.is(Items.GLASS_BOTTLE)) {
             // Filling a bottle with water (not allowed in Empty mode)
             if (containerMode == ContainerEditMode.EMPTY || fluidTank.getFluidAmount() < BOTTLE_AMOUNT
-                  || !fluidTank.getFluid().is(Fluids.WATER)) {
+                  || fluidTank.getFluid().getFluid() != Fluids.WATER) {
                 return false;
             }
             ItemStack waterBottle = createWaterBottle();
@@ -342,13 +337,13 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     private boolean isContainerInput(ItemStack stack) {
         // Only water bottles are useful here; other potions would just block the slot
         return stack.is(Items.GLASS_BOTTLE) || isWaterBottle(stack)
-              || FluidInventorySlot.tryGetFluidHandlerUnstacked(stack) != null;
+              || stack.copyWithCount(1).getCapability(net.minecraftforge.common.capabilities.ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
     }
 
     private static boolean canStoreIn(OutputInventorySlot slot, ItemStack result) {
         ItemStack stored = slot.getStack();
         return stored.isEmpty()
-              || ItemStack.isSameItemSameComponents(stored, result) && stored.getCount() < stored.getMaxStackSize();
+              || ItemStack.isSameItemSameTags(stored, result) && stored.getCount() < stored.getMaxStackSize();
     }
 
     private static boolean isBottle(ItemStack stack) {
@@ -359,14 +354,11 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         if (!stack.is(Items.POTION)) {
             return false;
         }
-        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
-        return contents != null && contents.potion().filter(potion -> potion.value() == Potions.WATER.value()).isPresent();
+        return PotionUtils.getPotion(stack) == Potions.WATER;
     }
 
     private static ItemStack createWaterBottle() {
-        ItemStack bottle = new ItemStack(Items.POTION);
-        bottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER));
-        return bottle;
+        return PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER);
     }
 
     @Override
@@ -374,10 +366,6 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         return MekanismUtils.redstoneLevelFromContents(fluidTank.getFluidAmount(), fluidTank.getCapacity());
     }
 
-    @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.FLUID || type == ContainerType.ITEM;
-    }
 
     @Override
     public void addContainerTrackers(MekanismContainer container) {
@@ -397,8 +385,8 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     }
 
     @Override
-    public CompoundTag getReducedUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getReducedUpdateTag(registries);
+    public CompoundTag getReducedUpdateTag() {
+        CompoundTag tag = super.getReducedUpdateTag();
         // Let clients that did not open the GUI know the current mode (used by the mode button)
         tag.putInt("ContainerMode", containerMode.ordinal());
         return tag;
@@ -414,21 +402,20 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
         containerMode = modeFromOrdinal(tag.getInt("ContainerMode"));
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("ContainerMode", containerMode.ordinal());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.FLUID_INJECTOR);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         containerMode = modeFromOrdinal(tag.getInt("ContainerMode"));
     }
 }

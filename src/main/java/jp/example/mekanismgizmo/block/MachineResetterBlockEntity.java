@@ -1,13 +1,11 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
 import mekanism.api.Upgrade;
-import mekanism.common.attachments.containers.ContainerType;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
@@ -19,13 +17,12 @@ import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.InputInventorySlot;
 import mekanism.common.inventory.slot.OutputInventorySlot;
 import mekanism.common.lib.transmitter.TransmissionType;
-import mekanism.common.registries.MekanismDataComponents;
+import mekanism.common.util.ItemDataUtils;
 import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -66,26 +63,18 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     private int progress;
     private int ticksRequired = BASE_TICKS_REQUIRED;
 
-    public MachineResetterBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public MachineResetterBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         configComponent.setupItemIOConfig(List.of(inputSlot), List.of(outputSlot), energySlot, false);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.MACHINE_RESETTER);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        // Items dropped by an older version (or copied from an unconfigured machine) can carry an all-"None" side
-        // configuration; repair it so the machine still accepts power and piped machine items.
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.MACHINE_RESETTER);
-    }
 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         builder.addSlot(inputSlot = InputInventorySlot.at(MachineResetterBlockEntity::isMachineItem, listener, INPUT_X, IO_Y));
         builder.addSlot(outputSlot = OutputInventorySlot.at(listener, OUTPUT_X, IO_Y));
         builder.addSlot(energySlot = EnergyInventorySlot.fillOrConvert(energyContainer, this::getLevel, listener,
@@ -95,7 +84,7 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
         builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
         return builder.build();
     }
@@ -110,16 +99,8 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     }
 
     private static boolean hasMachineData(ItemStack stack) {
-        return stack.get(MekanismDataComponents.SIDE_CONFIG.value()) != null
-              || stack.get(MekanismDataComponents.EJECTOR.value()) != null
-              || stack.get(MekanismDataComponents.UPGRADES.value()) != null
-              || stack.get(MekanismDataComponents.ATTACHED_ITEMS.value()) != null
-              || stack.get(MekanismDataComponents.ATTACHED_FLUIDS.value()) != null
-              || stack.get(MekanismDataComponents.ATTACHED_CHEMICALS.value()) != null
-              || stack.get(MekanismDataComponents.ATTACHED_ENERGY.value()) != null
-              || stack.get(MekanismDataComponents.OWNER.value()) != null
-              || stack.get(MekanismDataComponents.SECURITY.value()) != null
-              || stack.get(MekanismDataComponents.REDSTONE_CONTROL.value()) != null;
+        var data = ItemDataUtils.getDataMapIfPresent(stack);
+        return data != null && !data.isEmpty();
     }
 
     /**
@@ -140,7 +121,7 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
         if (output.isEmpty()) {
             return true;
         }
-        return ItemStack.isSameItemSameComponents(output, result)
+        return ItemStack.isSameItemSameTags(output, result)
               && output.getCount() + result.getCount() <= Math.min(result.getMaxStackSize(), outputSlot.getLimit(result));
     }
 
@@ -177,16 +158,16 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.fillContainerOrConvert();
 
-        if (canFunction()) {
+        if (MekanismUtils.canFunction(this)) {
             if (progress > 0) {
                 // The input was taken out (or the output filled up): pause instead of finishing with nothing to do
                 if (hasWork()) {
-                    long energyPerTick = energyContainer.getEnergyPerTick();
-                    if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL) == energyPerTick) {
+                    FloatingLong energyPerTick = energyContainer.getEnergyPerTick();
+                    if (energyContainer.extract(energyPerTick, Action.SIMULATE, AutomationType.INTERNAL).equals(energyPerTick)) {
                         energyContainer.extract(energyPerTick, Action.EXECUTE, AutomationType.INTERNAL);
                         if (--progress <= 0) {
                             finishReset();
@@ -198,7 +179,6 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
             }
         }
         setActive(progress > 0);
-        return sendUpdatePacket;
     }
 
     private void finishReset() {
@@ -215,7 +195,7 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
         ItemStack output = outputSlot.getStack();
         if (output.isEmpty()) {
             outputSlot.setStack(result);
-        } else if (ItemStack.isSameItemSameComponents(output, result)) {
+        } else if (ItemStack.isSameItemSameTags(output, result)) {
             output.setCount(output.getCount() + result.getCount());
             outputSlot.setStack(output);
         } else {
@@ -242,10 +222,6 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
         return MekanismUtils.redstoneLevelFromContents(List.of(outputSlot));
     }
 
-    @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.ITEM;
-    }
 
     @Override
     public List<Component> getInfo(Upgrade upgrade) {
@@ -268,17 +244,16 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("Progress", progress);
         tag.putInt("TicksRequired", ticksRequired);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         progress = tag.getInt("Progress");
         ticksRequired = tag.contains("TicksRequired") ? tag.getInt("TicksRequired") : BASE_TICKS_REQUIRED;
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.MACHINE_RESETTER);
     }
 }

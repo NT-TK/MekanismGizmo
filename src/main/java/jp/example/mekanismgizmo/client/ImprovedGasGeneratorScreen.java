@@ -6,7 +6,7 @@ import jp.example.mekanismgizmo.util.AmountFormat;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
 import mekanism.client.gui.element.gauge.GaugeType;
-import mekanism.client.gui.element.gauge.GuiChemicalGauge;
+import mekanism.client.gui.element.gauge.GuiGasGauge;
 import mekanism.client.gui.element.tab.GuiEnergyTab;
 import mekanism.common.inventory.container.tile.MekanismTileContainer;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,7 +41,6 @@ public class ImprovedGasGeneratorScreen extends GuiConfigurableTile<ImprovedGasG
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         // Both lines are real numbers, the same way a gas generator's own screen reports them: the burn rate in mB/t
         // (100 Mekanism gas generators' worth at a full tank) and the energy that produces
@@ -73,14 +72,14 @@ public class ImprovedGasGeneratorScreen extends GuiConfigurableTile<ImprovedGasG
         addRenderableWidget(new GuiVerticalPowerBar(this, tile.getEnergyContainer(),
               ImprovedGasGeneratorBlockEntity.POWER_BAR_X, ImprovedGasGeneratorBlockEntity.POWER_BAR_Y));
         addRenderableWidget(new GuiEnergyTab(this, this::getEnergyInfo));
-        addRenderableWidget(new GuiChemicalGauge(() -> tile.getGasTank(), () -> tile.getChemicalTanks(null),
+        addRenderableWidget(new GuiGasGauge(() -> tile.getGasTank(), () -> tile.getGasTanks(null),
               GaugeType.STANDARD, this, ImprovedGasGeneratorBlockEntity.GAUGE_X, ImprovedGasGeneratorBlockEntity.GAUGE_Y));
     }
 
     private List<Component> getEnergyInfo() {
         return List.of(
               Component.translatable("gui.mekanismgizmo.improved_gas_generator.energy",
-                    AmountFormat.format(tile.getEnergyContainer().getEnergy()),
+                    AmountFormat.format(tile.getEnergyContainer().getEnergy().longValue()),
                     AmountFormat.format(ImprovedGasGeneratorBlockEntity.ENERGY_CAPACITY)),
               Component.translatable("gui.mekanismgizmo.improved_gas_generator.output",
                     AmountFormat.format(tile.getGenerationRate()), AmountFormat.format(tile.getSyncedEnergyPerMb())));

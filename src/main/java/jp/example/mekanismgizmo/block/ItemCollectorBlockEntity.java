@@ -1,14 +1,12 @@
 package jp.example.mekanismgizmo.block;
 
 import java.util.List;
-import jp.example.mekanismgizmo.registry.ModSideConfigs;
-import jp.example.mekanismgizmo.util.MachineSideDefaults;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
+import mekanism.api.math.FloatingLong;
 import mekanism.api.Upgrade;
 import mekanism.api.inventory.IInventorySlot;
-import mekanism.common.attachments.containers.ContainerType;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
@@ -24,8 +22,7 @@ import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.util.MekanismUtils;
 import mekanism.common.util.UpgradeUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
+import mekanism.api.providers.IBlockProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -76,24 +73,18 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     /** Whether the collection area preview is rendered in the world (client side value, synced from the server). */
     private boolean renderArea;
 
-    public ItemCollectorBlockEntity(Holder<Block> block, BlockPos pos, BlockState state) {
+    public ItemCollectorBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         configComponent.setupItemIOConfig(List.of(), List.<IInventorySlot>of(outputSlots), energySlot, false);
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ModSideConfigs.ITEM_COLLECTOR);
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
-        super.applyImplicitComponents(input);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.ITEM_COLLECTOR);
-    }
 
     @Override
     protected IInventorySlotHolder getInitialInventory(IContentsListener listener) {
-        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this);
+        InventorySlotHelper builder = InventorySlotHelper.forSideWithConfig(this::getDirection, this::getConfig);
         // Note: instance field initializers run after super(), and super() calls this method, so the array has to be
         // created here instead of in the field declaration.
         outputSlots = new OutputInventorySlot[SLOT_COUNT];
@@ -109,7 +100,7 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
 
     @Override
     protected IEnergyContainerHolder getInitialEnergyContainers(IContentsListener listener) {
-        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
+        EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this::getDirection, this::getConfig);
         builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
         return builder.build();
     }
@@ -199,8 +190,8 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
         return Math.max(1, MekanismUtils.getTicks(this, BASE_SCAN_INTERVAL));
     }
 
-    private long getScanCost() {
-        return energyContainer.getEnergyPerTick() * getScanInterval();
+    private FloatingLong getScanCost() {
+        return energyContainer.getEnergyPerTick().multiply(getScanInterval());
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -208,14 +199,14 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     // ---------------------------------------------------------------------------------------------------------------
 
     @Override
-    protected boolean onUpdateServer() {
-        boolean sendUpdatePacket = super.onUpdateServer();
+    protected void onUpdateServer() {
+        super.onUpdateServer();
         energySlot.fillContainerOrConvert();
         boolean active = hadItems;
-        if (canFunction() && ++scanTicker >= getScanInterval()) {
+        if (MekanismUtils.canFunction(this) && ++scanTicker >= getScanInterval()) {
             scanTicker = 0;
-            long cost = getScanCost();
-            if (energyContainer.extract(cost, Action.SIMULATE, AutomationType.INTERNAL) == cost) {
+            FloatingLong cost = getScanCost();
+            if (energyContainer.extract(cost, Action.SIMULATE, AutomationType.INTERNAL).equals(cost)) {
                 int found = collectItems();
                 if (found > 0) {
                     // Energy is only used when there actually is something to collect
@@ -229,7 +220,6 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
             }
         }
         setActive(active);
-        return sendUpdatePacket;
     }
 
     /** Collects all dropped items inside the configured box, returns how many item entities were found. */
@@ -270,10 +260,6 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
         return MekanismUtils.redstoneLevelFromContents(List.<IInventorySlot>of(outputSlots));
     }
 
-    @Override
-    protected boolean makesComparatorDirty(ContainerType<?, ?, ?> type) {
-        return type == ContainerType.ITEM;
-    }
 
     @Override
     public List<Component> getInfo(Upgrade upgrade) {
@@ -291,8 +277,8 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    public CompoundTag getReducedUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getReducedUpdateTag(registries);
+    public CompoundTag getReducedUpdateTag() {
+        CompoundTag tag = super.getReducedUpdateTag();
         // Save data is not part of the reduced update tag, so send the preview state and the box settings explicitly;
         // otherwise newly joining clients would render (and display) the default box until a GUI is opened.
         tag.putBoolean("RenderArea", renderArea);
@@ -301,8 +287,8 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
         renderArea = tag.getBoolean("RenderArea");
         if (tag.contains("CollectorSettings")) {
             int[] loaded = tag.getIntArray("CollectorSettings");
@@ -313,16 +299,15 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putIntArray("CollectorSettings", settings);
         tag.putBoolean("RenderArea", renderArea);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        MachineSideDefaults.applyIfUnconfigured(getConfig(), ModSideConfigs.ITEM_COLLECTOR);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         renderArea = tag.getBoolean("RenderArea");
         if (tag.contains("CollectorSettings")) {
             int[] loaded = tag.getIntArray("CollectorSettings");

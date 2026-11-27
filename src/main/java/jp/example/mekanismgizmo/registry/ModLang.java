@@ -24,7 +24,7 @@ public enum ModLang implements ILangEntry {
     private final String key;
 
     ModLang(String type, String path) {
-        this(Util.makeDescriptionId(type, ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, path)));
+        this(Util.makeDescriptionId(type, ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, path)));
     }
 
     ModLang(String key) {

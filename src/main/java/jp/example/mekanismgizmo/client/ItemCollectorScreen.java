@@ -75,10 +75,7 @@ public class ItemCollectorScreen extends GuiConfigurableTile<ItemCollectorBlockE
         super.addGuiElements();
         addRenderableWidget(new GuiEnergyTab(this, tile.getEnergyContainer(), tile::getActive));
         // Same switch style as Mekanism's own machine toggles: shows the collection box in the world
-        addRenderableWidget(new ToggleButton(this, 8, 78, tile::isRenderArea, (element, mouseX, mouseY) -> {
-            sendPreviewToggle();
-            return true;
-        }));
+        addRenderableWidget(new ToggleButton(this, 8, 78, tile::isRenderArea, this::sendPreviewToggle, null));
         for (int i = 0; i < ItemCollectorBlockEntity.SETTING_COUNT; i++) {
             final int index = i;
             int y = ROW_Y + i * ROW_SPACING;
@@ -109,7 +106,7 @@ public class ItemCollectorScreen extends GuiConfigurableTile<ItemCollectorBlockE
                 // The server accepted our change
                 pending[i] = false;
             }
-            if (!pending[i] && !slider.isDragging()) {
+            if (!pending[i]) {
                 slider.setValue(toRatio(i, tile.getSetting(i)));
             }
             GuiTextField field = fields[i];
@@ -194,7 +191,6 @@ public class ItemCollectorScreen extends GuiConfigurableTile<ItemCollectorBlockE
     @Override
     protected void drawForegroundText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         renderTitleText(guiGraphics);
-        renderInventoryText(guiGraphics);
         super.drawForegroundText(guiGraphics, mouseX, mouseY);
         guiGraphics.drawString(font, Component.translatable("gui.mekanismgizmo.item_collector.preview"),
               28, 82, 0x404040, false);

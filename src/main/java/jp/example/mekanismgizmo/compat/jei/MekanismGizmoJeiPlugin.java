@@ -20,12 +20,11 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fml.ModList;
@@ -38,9 +37,9 @@ import net.minecraftforge.fluids.FluidStack;
 @JeiPlugin
 public class MekanismGizmoJeiPlugin implements IModPlugin {
 
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(MekanismGizmo.MOD_ID, "jei_plugin");
+    private static final ResourceLocation UID = ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "jei_plugin");
     /** EMI draws our pages natively (see the emi package), so nothing is registered for JEI in that case. */
-    private static final boolean EMI_LOADED = ModList.get().isLoaded("emi");
+    private static final boolean EMI_LOADED = false;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -118,7 +117,7 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
         ItemStack waterBucket = new ItemStack(Items.WATER_BUCKET);
         ItemStack glassBottle = new ItemStack(Items.GLASS_BOTTLE);
         ItemStack waterBottle = new ItemStack(Items.POTION);
-        waterBottle.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER));
+        waterBottle = PotionUtils.setPotion(waterBottle, Potions.WATER);
         FluidStack bucketOfWater = new FluidStack(Fluids.WATER, 1_000);
         FluidStack bottleOfWater = new FluidStack(Fluids.WATER, FluidInjectorBlockEntity.BOTTLE_AMOUNT);
         return List.of(

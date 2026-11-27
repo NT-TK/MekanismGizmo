@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "mekanism:alloys/basic"
+    },
+    "B": {
+      "item": "minecraft:glass_bottle"
+    },
+    "C": {
+      "tag": "forge:circuits/basic"
+    },
+    "F": {
+      "item": "mekanism:basic_fluid_tank"
+    },
+    "X": {
+      "item": "mekanism:steel_casing"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CXF",
+    "ABA"
+  ],
+  "result": {
+    "count": 1,
+    "item": "mekanismgizmo:fluid_injector"
+  }
+}
