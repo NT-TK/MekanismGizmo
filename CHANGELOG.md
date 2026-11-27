@@ -56,5 +56,5 @@ published separately from the `1.21.1` branch.
 
 - Minecraft 1.20.1, Forge 47.4.0+, Mekanism 10.4.16.x (Mekanism Generators 10.4.16.x is required by the Wind Generator
   Fusion).
-- The release tag is `v0.3.1-forge-1.20.1`; the release jar is `mekanismgizmo-0.3.1.jar`.
+- The release tag is `v0.3.1-forge-1.20.1`; the release jar is `mekanismgizmo-1.20.1-0.3.1.jar`.
 - Use the **1.21.1** branch and its release for Minecraft 1.21.1 / NeoForge. Do not mix the two jars.

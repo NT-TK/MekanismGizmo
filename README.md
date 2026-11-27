@@ -20,7 +20,7 @@ Mekanism's own machines. It also adds four tiered pipettes, an improved portable
 
 The Forge 1.20.1 jar is attached to releases tagged `v<version>-forge-1.20.1`; see the
 [Forge 1.20.1 releases](https://github.com/NT-TK/MekanismGizmo/releases?q=forge-1.20.1). Download
-`mekanismgizmo-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.20.1 with Forge and Mekanism
+`mekanismgizmo-1.20.1-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.20.1 with Forge and Mekanism
 10.4.16 installed. The repository's "Latest" release is the NeoForge 1.21.1 edition, so do not download that jar for
 1.20.1. See [Requirements](#requirements) and [Installation](#installation) for details.
 
@@ -468,7 +468,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 
 1. Install Forge 47.4.0 for Minecraft 1.20.1
 2. Install Mekanism 10.4.16
-3. Put the Forge 1.20.1 `mekanismgizmo-<version>.jar` from a `v<version>-forge-1.20.1` release into your `mods` folder
+3. Put the Forge 1.20.1 `mekanismgizmo-1.20.1-<version>.jar` from a `v<version>-forge-1.20.1` release into your `mods` folder
 
 ## Building
 
@@ -476,7 +476,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 gradlew.bat build
 ```
 
-The jar is written to `build/libs/mekanismgizmo-<version>.jar`.
+The jar is written to `build/libs/mekanismgizmo-1.20.1-<version>.jar`.
 
 All dependencies are resolved automatically: Forge/Minecraft via ForgeGradle, Mekanism from
 **Modrinth's Maven** (`maven.modrinth:mekanism:10.4.16.80`) and JEI (compile only) from BlameJared. No third party jars
@@ -911,7 +911,7 @@ AE2 は任意で、必須ではありません（MODはAE2を*suggest*するだ�
 
 1. Minecraft 1.20.1 用の Forge 47.4.0 を導入
 2. Mekanism 10.4.16 を導入
-3. `v<version>-forge-1.20.1` リリースの Forge 1.20.1 用 `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
+3. `v<version>-forge-1.20.1` リリースの Forge 1.20.1 用 `mekanismgizmo-1.20.1-<version>.jar` を `mods` フォルダに入れる
 
 ## ビルド
 
@@ -919,7 +919,7 @@ AE2 は任意で、必須ではありません（MODはAE2を*suggest*するだ�
 gradlew.bat build
 ```
 
-生成Jar: `build/libs/mekanismgizmo-<version>.jar`
+生成Jar: `build/libs/mekanismgizmo-1.20.1-<version>.jar`
 
 依存はすべて自動解決されます（Minecraft/ForgeはForgeGradle、MekanismとMekanism Generatorsは**ModrinthのMaven**
 `maven.modrinth:mekanism:10.4.16.80`、JEIはコンパイル時のみBlameJaredから）。リポジトリに第三者のJarは置いていません。

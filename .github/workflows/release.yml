@@ -33,7 +33,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
-            build/libs/mekanismgizmo-*.jar \
+            build/libs/mekanismgizmo-1.20.1-*.jar \
             --title "Mekanism Gizmo ${GITHUB_REF_NAME} (Forge 1.20.1)" \
             --notes-file CHANGELOG.md \
             --latest=false \
