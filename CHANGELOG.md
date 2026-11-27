@@ -4,7 +4,10 @@ All notable changes to Mekanism Gizmo are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.1] - 2026-11-27
+## [0.3.1] - 2026-11-28
+
+This release is the **Minecraft 1.21.1 / NeoForge** edition of Mekanism Gizmo 0.3.1. The 1.20.1 / Forge edition is
+published separately from the `1.20.1` branch.
 
 ### Added
 
@@ -45,4 +48,5 @@ All notable changes to Mekanism Gizmo are documented here. The format follows
 ## Release notes
 
 - Minecraft 1.21.1, NeoForge 21.1.194+, Mekanism 10.7.19.x.
-- The release jar is `mekanismgizmo-0.3.1.jar`.
+- Use the **1.20.1** branch and its `v<version>-forge-1.20.1` release for Minecraft 1.20.1 / Forge. Do not mix the two jars.
+- The release tag is `v0.3.1-neoforge-1.21.1`; the release jar is `mekanismgizmo-0.3.1.jar`.

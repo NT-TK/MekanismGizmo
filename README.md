@@ -1,6 +1,6 @@
 # Mekanism Gizmo
 
-[![Latest release](https://img.shields.io/github/v/release/NT-TK/MekanismGizmo?sort=semver)](https://github.com/NT-TK/MekanismGizmo/releases)
+[![Releases](https://img.shields.io/badge/releases-NeoForge%201.21.1-EA7A1B.svg)](https://github.com/NT-TK/MekanismGizmo/releases?q=neoforge-1.21.1)
 [![Build](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml/badge.svg?branch=1.21.1)](https://github.com/NT-TK/MekanismGizmo/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1-3C8527.svg)](https://www.minecraft.net/)
@@ -18,9 +18,11 @@ Mekanism's own machines. It also adds four tiered pipettes, an improved portable
 
 ## Download
 
-The latest jar is attached to [GitHub Releases](https://github.com/NT-TK/MekanismGizmo/releases/latest). Download
+The NeoForge 1.21.1 jar is attached to releases tagged `v<version>-neoforge-1.21.1`; see the
+[NeoForge 1.21.1 releases](https://github.com/NT-TK/MekanismGizmo/releases?q=neoforge-1.21.1). Download
 `mekanismgizmo-<version>.jar`, put it in your `mods` folder, and start Minecraft 1.21.1 with NeoForge and Mekanism
-10.7.19 installed. See [Requirements](#requirements) and [Installation](#installation) for details.
+10.7.19 installed. The Minecraft 1.20.1 Forge edition is published separately from the `1.20.1` branch, so do not
+install its jar on 1.21.1. See [Requirements](#requirements) and [Installation](#installation) for details.
 
 Release notes are in [CHANGELOG.md](CHANGELOG.md). Please report bugs through
 [GitHub Issues](https://github.com/NT-TK/MekanismGizmo/issues).
@@ -473,7 +475,7 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 
 1. Install NeoForge 21.1.x for Minecraft 1.21.1
 2. Install Mekanism 10.7.19
-3. Put `mekanismgizmo-<version>.jar` into your `mods` folder
+3. Put the NeoForge 1.21.1 `mekanismgizmo-<version>.jar` from a `v<version>-neoforge-1.21.1` release into your `mods` folder
 
 ## Building
 
@@ -510,8 +512,10 @@ NeoForge 1.21.1 / Mekanism 10.7.19 対応の Mekanism アドオンです。mod I
 アップグレード／セキュリティ／JEI連携）をそのまま使っているので、操作感はMekanismの機械と同じです。
 機械11種に加えて、4段階のティア付きスポイト、改良型ポータブルテレポーター、改良型設定カードも追加します。
 
-最新版は [GitHub Releases](https://github.com/NT-TK/MekanismGizmo/releases/latest) からダウンロードできます。変更点は
-[CHANGELOG.md](CHANGELOG.md) にまとめています。
+NeoForge 1.21.1 版は `v<version>-neoforge-1.21.1` タグのリリースに添付しています。
+[NeoForge 1.21.1 のリリース一覧](https://github.com/NT-TK/MekanismGizmo/releases?q=neoforge-1.21.1) からダウンロードしてください。
+Minecraft 1.20.1 Forge 版は `1.20.1` ブランチから別のタグでリリースしているので、1.21.1 にはそのjarを入れないでください。
+変更点は [CHANGELOG.md](CHANGELOG.md) にまとめています。
 
 ## 追加される機械
 
@@ -956,7 +960,7 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 
 1. Minecraft 1.21.1 用の NeoForge 21.1.x を導入
 2. Mekanism 10.7.19 を導入
-3. `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
+3. `v<version>-neoforge-1.21.1` リリースの NeoForge 1.21.1 用 `mekanismgizmo-<version>.jar` を `mods` フォルダに入れる
 
 ## ビルド
 

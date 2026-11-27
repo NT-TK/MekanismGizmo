@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*-neoforge-1.21.1'
 
 permissions:
   contents: write
@@ -34,6 +34,7 @@ jobs:
         run: |
           gh release create "${GITHUB_REF_NAME}" \
             build/libs/mekanismgizmo-*.jar \
-            --title "Mekanism Gizmo ${GITHUB_REF_NAME}" \
+            --title "Mekanism Gizmo ${GITHUB_REF_NAME} (NeoForge 1.21.1)" \
             --notes-file CHANGELOG.md \
+            --latest=true \
             --verify-tag
