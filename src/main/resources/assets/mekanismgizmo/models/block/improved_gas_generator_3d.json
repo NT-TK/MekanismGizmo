@@ -4,10 +4,24 @@
     "0": "mekanismgizmo:block/model/improved_gas_generator",
     "1": "mekanism:block/models/ports",
     "2": "mekanism:block/models/ports_led",
+    "core": "mekanismgizmo:block/improved_gas_generator_side",
     "particle": "mekanismgizmo:block/model/improved_gas_generator"
   },
   "render_type": "minecraft:cutout",
   "elements": [
+    {
+      "name": "solid_inner_core",
+      "from": [4.01, 5.01, 4.01],
+      "to": [11.99, 12.99, 11.99],
+      "faces": {
+        "north": {"texture": "#core", "uv": [0, 0, 16, 16]},
+        "east": {"texture": "#core", "uv": [0, 0, 16, 16]},
+        "south": {"texture": "#core", "uv": [0, 0, 16, 16]},
+        "west": {"texture": "#core", "uv": [0, 0, 16, 16]},
+        "up": {"texture": "#core", "uv": [0, 0, 16, 16]},
+        "down": {"texture": "#core", "uv": [0, 0, 16, 16]}
+      }
+    },
     {
       "name": "port_connector_south1",
       "from": [

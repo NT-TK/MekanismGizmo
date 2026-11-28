@@ -56,11 +56,18 @@ published separately from the `1.21.1` branch.
   cannot overflow the available-burn calculation.
 - The Machine Resetter rejects packed cardboard boxes. They are block items with machine data, but resetting one would
   delete the block stored inside it.
+- All machine GUIs now open. The client setup listener was registered on the Forge event bus instead of the
+  mod event bus, so the menu screens and the Item Collector renderer were never registered.
 - The Potion Brewer's JEI transfer button no longer reports a missing blaze powder gas ingredient. The gas has no
   container slot and cannot be moved by JEI, so the transfer now ignores the gas page slot and fills the bottle and
   ingredient slots only; the gas still has to be supplied to the machine's tank.
 - Potion Brewer bottle slots hold exactly one bottle, like a vanilla brewing stand. A stacked bottle would otherwise
   make the brewing registry reject the input and stall the row.
+- Potion Brewer limits a brew cycle to the rows it counted and charged gas for. A modded ingredient whose crafting
+  remainder is itself a valid ingredient can no longer brew an extra row without paying for it.
+- The Improved Gas Generator's 3D engine model no longer shows the block behind it through the open centre. A solid
+  inner core fills the space between the base, the four tanks and the top chamber, so adjacent blocks do not appear
+  through the machine.
 
 ### Removed
 

@@ -433,7 +433,7 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         }
         brewTicks = 0;
         brewingIngredient = null;
-        int brewed = doBrew();
+        int brewed = doBrew(brews);
         if (brewed > 0) {
             // Charge only the rows that really brewed: a brew event that cancels a row must not eat the gas
             blazePowderTank.extract(CHEMICAL_PER_BREW * Math.min(brewed, brews),
@@ -442,16 +442,18 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
     }
 
     /**
-     * Brews every batch of three bottles, exactly like a brewing stand would (three bottles and one ingredient per
-     * batch). The Forge brewing events are fired once per batch with the four vanilla slots. Returns the number of
-     * rows that really brewed, so gas is charged for exactly those rows.
+     * Brews up to {@code maxBrews} batches of three bottles, exactly like a brewing stand would (three bottles and
+     * one ingredient per batch). The Forge brewing events are fired once per batch with the four vanilla slots.
+     * Returns the number of rows that really brewed, so gas is charged for exactly those rows.
      */
-    private int doBrew() {
+    private int doBrew(int maxBrews) {
         if (level == null) {
             return 0;
         }
         int brewedRows = 0;
-        for (int row = 0; row < rowCount(); row++) {
+        // One ingredient item is consumed per successful row, so never brew more rows than were counted and
+        // charged above. A crafting remainder that is itself a valid ingredient must not add a free extra row.
+        for (int row = 0; row < rowCount() && brewedRows < maxBrews; row++) {
             int start = row * BOTTLES_PER_BREW;
             int end = Math.min(start + BOTTLES_PER_BREW, bottleSlots.length);
             ItemStack currentIngredient = ingredientSlot.getStack();
