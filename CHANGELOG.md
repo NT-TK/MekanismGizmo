@@ -42,11 +42,15 @@ published separately from the `1.20.1` branch.
 - Potion Brewer no longer converts blaze powder while disabled by redstone or security, compares the full ingredient
   stack for running brews, checks the gas needed for every brewable row before starting, and pauses instead of
   starting a cycle it cannot finish. Its bottle slots now hold exactly one bottle, like a vanilla brewing stand, so a
-  stacked bottle cannot stall the row through the brewing registry's count check.
+  stacked bottle cannot stall the row through the brewing registry's count check. It also limits each cycle to the
+  rows it counted and charged gas for, so a crafting remainder that is itself a valid ingredient cannot add a free
+  extra row.
 - The Machine Resetter rejects packed cardboard boxes. They are block items with machine data, but resetting one would
   delete the block stored inside it.
 - The Improved Gas Generator's available-burn calculation widens before multiplying, so a fuel with a very long burn
   time cannot overflow it.
+- The Improved Gas Generator's 3D engine model has a solid inner core. Its open frame previously let the block behind
+  the machine show through the centre, which looked like transparent gaps between adjacent blocks.
 - Liquid Heater documentation now correctly describes its tank as forty operations' worth of sodium per tier.
 - Fluid Injector and Potion Brewer JEI categories, recipe transfer and layout fixes.
 - EMI pages are registered as synthetic recipes, so EMI no longer logs a `not present in recipe manager` error for
