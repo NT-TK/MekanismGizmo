@@ -8,6 +8,7 @@ import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
 import mekanism.api.Upgrade;
 import mekanism.common.attachments.containers.ContainerType;
+import mekanism.common.block.BlockCardboardBox;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
@@ -106,7 +107,8 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
      * setting, upgrades or an owner. Plain blocks such as a steel casing and ordinary items are rejected.
      */
     public static boolean isMachineItem(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem() instanceof BlockItem && hasMachineData(stack);
+        return !stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem
+              && !(blockItem.getBlock() instanceof BlockCardboardBox) && hasMachineData(stack);
     }
 
     private static boolean hasMachineData(ItemStack stack) {

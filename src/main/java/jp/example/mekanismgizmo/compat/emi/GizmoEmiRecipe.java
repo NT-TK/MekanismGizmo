@@ -33,7 +33,7 @@ public final class GizmoEmiRecipe implements EmiRecipe {
     public GizmoEmiRecipe(EmiRecipeCategory category, ResourceLocation id, int width, int height, List<Slot> inputs,
           List<Slot> outputs, List<Component> lines, int arrowX, int arrowY) {
         this.category = category;
-        this.id = id;
+        this.id = synthetic(id);
         this.width = width;
         this.height = height;
         this.inputs = inputs;
@@ -41,6 +41,18 @@ public final class GizmoEmiRecipe implements EmiRecipe {
         this.lines = lines;
         this.arrowX = arrowX;
         this.arrowY = arrowY;
+    }
+
+    /**
+     * EMI only treats a recipe as synthetic (and skips looking it up in the vanilla recipe manager) when its path
+     * starts with a slash. Every page here is generated from Mekanism Gizmo's own data, so without this prefix EMI
+     * logs one "not present in recipe manager" error per page.
+     */
+    private static ResourceLocation synthetic(ResourceLocation id) {
+        if (id == null || id.getPath().startsWith("/")) {
+            return id;
+        }
+        return ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "/" + id.getPath());
     }
 
     @Override

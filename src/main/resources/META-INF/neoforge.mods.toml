@@ -54,16 +54,6 @@ versionRange="[1.1,)"
 ordering="AFTER"
 side="CLIENT"
 
-# Optional: AE2 itself is never required. Its JEI pattern encoding copies the potion brewer page into a pattern
-# (the item inputs always transfer; the 5 mB of blaze powder gas only when a chemical capable AE2 addon, such as
-# Applied Mekanistics, is installed).
-[[dependencies.${mod_id}]]
-modId="ae2"
-type="optional"
-versionRange="[19.2,)"
-ordering="AFTER"
-side="BOTH"
-
 # Optional: the wind generator fusion machine also accepts the compressed wind generators of Compact Mekanism Machines
 # and counts each of them as the generators it replaces. Nothing is compiled against that mod - its items are matched
 # by registry name - so this entry only tells mod lists why the two work well together.

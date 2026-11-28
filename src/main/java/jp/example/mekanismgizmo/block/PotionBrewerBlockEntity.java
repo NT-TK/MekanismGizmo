@@ -2,6 +2,7 @@ package jp.example.mekanismgizmo.block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import jp.example.mekanismgizmo.registry.ModSideConfigs;
 import jp.example.mekanismgizmo.util.MachineTier;
 import jp.example.mekanismgizmo.util.MachineSideDefaults;
@@ -198,7 +199,7 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         bottleSlots = new InputInventorySlot[bottles];
         outputSlots = new OutputInventorySlot[bottles];
         for (int i = 0; i < bottles; i++) {
-            builder.addSlot(bottleSlots[i] = InputInventorySlot.at(this::isBottleInput, listener, bottleSlotX(i), pairY(i)));
+            builder.addSlot(bottleSlots[i] = new BottleSlot(this::isBottleInput, listener, bottleSlotX(i), pairY(i)));
             builder.addSlot(outputSlots[i] = OutputInventorySlot.at(listener, outputSlotX(i), pairY(i)));
         }
         builder.addSlot(blazePowderSlot = InputInventorySlot.at(stack -> stack.is(Items.BLAZE_POWDER), listener, POWDER_X, POWDER_Y));
@@ -221,6 +222,23 @@ public class PotionBrewerBlockEntity extends TieredMachineBlockEntity {
         EnergyContainerHelper builder = EnergyContainerHelper.forSideWithConfig(this);
         builder.addContainer(energyContainer = MachineEnergyContainer.input(this, listener));
         return builder.build();
+    }
+
+    /**
+     * A bottle slot holds exactly one bottle, like the three potion slots of a vanilla brewing stand. Besides matching
+     * that layout, this keeps {@code BrewingRecipeRegistry.getOutput} usable: it rejects any input stack whose count is
+     * not one, so a stacked bottle would otherwise stall the whole row.
+     */
+    private static class BottleSlot extends InputInventorySlot {
+
+        private BottleSlot(Predicate<ItemStack> valid, IContentsListener listener, int x, int y) {
+            super(stack -> true, valid, listener, x, y);
+        }
+
+        @Override
+        public int getLimit(ItemStack stack) {
+            return 1;
+        }
     }
 
     private boolean isBottleInput(ItemStack stack) {

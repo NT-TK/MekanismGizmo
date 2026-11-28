@@ -283,7 +283,7 @@ public class ImprovedGasGeneratorBlockEntity extends GizmoMachineBlockEntity {
                 // the remainder is the only fuel left, so let it use the full limit rather than zero.
                 double fill = stored.isEmpty() ? 1D : getFillLevel();
                 long toUse = (long) Math.ceil(getBurnTickLimit() * fill);
-                long available = burnTicksRemaining + gasTank.getStored() * maxBurnTicks;
+                long available = burnTicksRemaining + (long) gasTank.getStored() * maxBurnTicks;
                 toUse = Math.min(available, toUse);
                 // Only burn what still fits into the buffer
                 toUse = Math.min(toUse, MathUtils.clampToLong(needed / (double) energyPerTick));

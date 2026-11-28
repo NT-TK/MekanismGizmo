@@ -448,15 +448,6 @@ electric cobblestone generator, electric basalt generator and fluid injector), i
 gas** on every potion brewer page, and every tier is a workstation of its category. When EMI is installed the JEI
 pages are not registered, so the recipes are never listed twice.
 
-### AE2
-
-AE2 is optional and never required (the mod only *suggests* it). With AE2's JEI integration the potion brewer page can
-be dropped into a Pattern Encoding Terminal: the bottle, the ingredient and the potion are copied into the pattern.
-
-Plain AE2 patterns can only hold items and fluids, so the blaze powder gas is only encoded when a chemical capable AE2
-addon (for example Applied Mekanistics) is installed. Without one, keep the machine's gas tank filled with blaze powder
-(1 powder = 100 mB = 20 brews) and let the pattern provide the bottle and the ingredient.
-
 ## Requirements
 
 | | |
@@ -469,7 +460,6 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | Mekanism: More Machine | optional (no integration needed: its machine items are machine items, so the Machine Resetter cleans them like any other) |
 | JEI | optional (client side only) |
 | EMI | optional (client side only) |
-| AE2 | optional (pattern encoding) |
 
 ## Installation
 
@@ -933,15 +923,6 @@ EMIは任意（クライアント側のみ）です。EMI用に5機械の専用�
 ワークステーションとして登録されます。EMIが入っている場合はJEI側のページを登録しないため、レシピが二重に
 表示されることはありません。
 
-### AE2連携
-
-AE2は任意（依存は `optional` 指定のみ）です。AE2のJEI連携を使うと、ポーション醸造機のページをパターンエンコード
-ターミナルへドラッグしてパターン化できます（瓶・材料・ポーションがパターンに入ります）。
-
-AE2のパターンはアイテムと液体しか扱えないため、ブレイズパウダーガスは**化学物質を扱えるAE2アドオン**
-（例: Applied Mekanistics）が入っている場合のみパターンに入ります。無い場合は機械のガスタンクにブレイズパウダーを
-入れておけばよく（パウダー1個 = 100 mB = 醸造20回）、パターンには瓶と材料だけを入れます。
-
 ## 動作環境
 
 | | |
@@ -954,7 +935,6 @@ AE2のパターンはアイテムと液体しか扱えないため、ブレイ�
 | Mekanism: More Machine | 任意（連携不要：追加される機械アイテムもMekanismの機械アイテムなので、機械リセット機でそのままリセットできます） |
 | JEI | 任意（クライアント側のみ） |
 | EMI | 任意（クライアント側のみ） |
-| AE2 | 任意（パターン作成連携） |
 
 ## 導入方法
 
