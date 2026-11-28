@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * JEI page of the potion brewer, laid out like Mekanism's own machine pages: the bottle and the ingredient on the
- * left, an arrow, the brewed potion on the right, plus the gas and the time one batch of three bottles needs.
+ * left, an arrow, the brewed potion on the right, plus the gas and the time one brew cycle needs.
  */
 public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJeiRecipe> {
 
@@ -33,7 +33,7 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
     private static final Component TIME_LINE = Component.translatable("jei.mekanismgizmo.info.time",
           PotionBrewerBlockEntity.BASE_TICKS_REQUIRED);
     private static final int HEIGHT = 78;
-    /** Left hand gas slot: the blaze powder gas one brew of three bottles uses. */
+    /** Left hand gas slot: the blaze powder gas one brew cycle (up to three bottles) uses. */
     private static final int GAS_X = 6;
     private static final int GAS_Y = 20;
 
@@ -88,8 +88,8 @@ public class PotionBrewerRecipeCategory implements IRecipeCategory<PotionBrewerJ
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, PotionBrewerJeiRecipe recipe, IFocusGroup focuses) {
-        // Every brew of three bottles also needs blaze powder gas, so the gas is an input of the page as well.
-        // (Mekanism's JEI plugin provides the chemical ingredient type; without it the page simply has no gas slot.)
+        // Every brew cycle also needs blaze powder gas, so the gas is an input of the page as well. Mekanism's JEI
+        // plugin provides the chemical ingredient type used here.
         if (hasGasSlot()) {
             builder.addInputSlot(GAS_X, GAS_Y)
                   .setStandardSlotBackground()

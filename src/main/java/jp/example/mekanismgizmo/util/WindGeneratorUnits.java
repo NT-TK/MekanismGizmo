@@ -16,8 +16,8 @@ import net.minecraft.world.item.ItemStack;
  * A normal {@code mekanismgenerators:wind_generator} counts once. The compressed wind generators of Compact Mekanism
  * Machines produce exactly {@code multiplier} times what a wind generator produces at the same position (their
  * {@code getCurrentGeneration()} is {@code windGenerationMin * (toGen / windGenerationMin) * multiplier}), so an
- * {@code x532480} block counts as 532480 generators. Both naming schemes of that mod are recognised - the 1.21 port
- * calls its blocks {@code compressed_wind_generator_xN}, the 1.20 original {@code wind_generator_xN}.
+ * {@code x532480} block counts as 532480 generators. Both registry names used by builds and forks of that mod are
+ * recognised ({@code compressed_wind_generator_xN} and {@code wind_generator_xN}).
  * <p>
  * The lookup is purely name based, so Compact Mekanism Machines stays an optional mod and nothing is compiled against
  * it.

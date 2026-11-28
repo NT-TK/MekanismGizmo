@@ -28,8 +28,16 @@ public abstract class GizmoMachineBlockEntity extends TileEntityConfigurableMach
     protected GizmoMachineBlockEntity(IBlockProvider block, BlockPos pos, BlockState state) {
         super(block, pos, state);
         configComponent = new TileComponentConfig(this, TransmissionType.values());
-        MachineSideDefaults.applyIfUnconfigured(configComponent, ForgeRegistries.BLOCKS.getKey(getBlockType()));
         ejectorComponent = new TileComponentEjector(this);
+    }
+
+    /**
+     * Applies this machine's default side layout. Subclasses call this at the very end of their constructor, after
+     * their own {@code setup...Config} calls, because those calls reset the side layout to Mekanism's generic defaults.
+     * A layout that was saved in the world is read from NBT after construction and replaces these defaults.
+     */
+    protected final void applySideDefaults() {
+        MachineSideDefaults.apply(configComponent, ForgeRegistries.BLOCKS.getKey(getBlockType()));
     }
 
     /**

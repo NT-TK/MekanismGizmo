@@ -82,6 +82,7 @@ public class LiquidHeaterBlockEntity extends TieredMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.GAS, superheatedTank);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.GAS);
+        applySideDefaults();
     }
 
 

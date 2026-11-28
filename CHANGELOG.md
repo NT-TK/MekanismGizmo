@@ -35,7 +35,7 @@ published separately from the `1.21.1` branch.
 
 ### Fixed
 
-- Forge 47.4.0 starts the mod correctly: `mods.toml` declares the FML language version `[1,)`, dependencies use
+- Forge 47.4.0 starts the mod correctly: `mods.toml` declares the FML language version `[47,)`, dependencies use
   `mandatory=true/false`, and the mod class has the no-argument constructor Forge expects.
 - Removed the remaining 1.21-only startup and model errors, including the stale 1.21 test world that referenced
   `minecraft:trial_chambers`.
@@ -47,10 +47,26 @@ published separately from the `1.21.1` branch.
 - The Improved Portable Teleporter keeps its **10,000,000 FE per-jump ceiling** on 1.20.1. Its energy container reports
   the full simulated cost when the ceiling is affordable but only removes the ceiling, so Mekanism's own teleport packet
   and screen accept the jump while the item still pays at most 10,000,000 FE.
+- Default side configurations are applied after each machine's own configuration setup. The earlier ordering let the
+  generic Mekanism layout overwrite the defaults, so a freshly placed Liquid Heater could not auto-output superheated
+  sodium and a Cobblestone Generator, Basalt Generator or Item Collector exposed only one output face. Newly placed
+  machines now use the documented layouts; a layout already saved in a world still wins when the machine loads.
+- The Improved Gas Generator screen shows energy per mB instead of the per-tick value (Ethene now reads 28,200 FE/mB,
+  not 705). Its internal gas-amount calculation also widens before multiplying, so a fuel with a very long burn time
+  cannot overflow the available-burn calculation.
+- The Machine Resetter rejects packed cardboard boxes. They are block items with machine data, but resetting one would
+  delete the block stored inside it.
+- The Potion Brewer's JEI transfer button no longer reports a missing blaze powder gas ingredient. The gas has no
+  container slot and cannot be moved by JEI, so the transfer now ignores the gas page slot and fills the bottle and
+  ingredient slots only; the gas still has to be supplied to the machine's tank.
+- Potion Brewer bottle slots hold exactly one bottle, like a vanilla brewing stand. A stacked bottle would otherwise
+  make the brewing registry reject the input and stall the row.
 
 ### Removed
 
 - EMI integration is not included in the 1.20.1 edition. JEI is the supported recipe viewer on this branch.
+- The unused AE2 optional declaration and the unverified AE2 pattern-encoding claim. There is no dedicated AE2
+  integration.
 
 ## Release notes
 

@@ -199,8 +199,9 @@ or a loot chest - arrives with someone else's settings and contents.
 The Machine Resetter takes such an item, spends 200 FE on it and hands back the item with its defaults only:
 
 - input slot (machine item) -> progress arrow -> output slot (clean machine item)
-- the input must be a Mekanism machine item (a block item that carries machine data); casings, ordinary items and
-  items with only fluid or gas tanks such as the pipettes are rejected
+- the input must be a Mekanism machine item (a block item that carries machine data); casings, ordinary items,
+  items with only fluid or gas tanks such as the pipettes, and packed cardboard boxes (whose stored block would be
+  lost) are rejected
 - the result is the item's own default instance, so nothing of the old machine survives - not even the owner
 - 200 FE and 20 ticks at base speed per operation, with the usual SPEED and ENERGY upgrades; one machine item is
   reset per operation
@@ -438,18 +439,10 @@ included. When JEI is installed the mod adds
   **Fluid Injector** page
 - every tier as a recipe catalyst, and clickable progress arrows in the machine screens
 - the **5 mB of blaze powder gas** one brew of three bottles needs, listed as a chemical ingredient on every
-  potion brewer page
+  potion brewer page. The transfer button fills the bottle and ingredient slots only; the gas has no item container,
+  so keep the machine's tank filled
 
 Page widths are measured from the localised text, so nothing spills out in any language.
-
-### AE2
-
-AE2 is optional and never required (the mod only *suggests* it). With AE2's JEI integration the potion brewer page can
-be dropped into a Pattern Encoding Terminal: the bottle, the ingredient and the potion are copied into the pattern.
-
-Plain AE2 patterns can only hold items and fluids, so the blaze powder gas is only encoded when a chemical capable AE2
-addon (for example Applied Mekanistics) is installed. Without one, keep the machine's gas tank filled with blaze powder
-(1 powder = 100 mB = 20 brews) and let the pattern provide the bottle and the ingredient.
 
 ## Requirements
 
@@ -462,7 +455,6 @@ addon (for example Applied Mekanistics) is installed. Without one, keep the mach
 | Compact Mekanism Machines | optional (its compressed wind generators can go into the Wind Generator Fusion) |
 | Mekanism: More Machine | optional (no integration needed: its machine items are machine items, so the Machine Resetter cleans them like any other) |
 | JEI | optional (client side only) |
-| AE2 | optional (pattern encoding) |
 
 ## Installation
 
@@ -754,7 +746,7 @@ Mekanism 1.20.1 では、機械アイテムは機械の中身（所有者・セ�
 機械リセット機はそうしたアイテムを入れて 200 FE を消費するだけで、**クラフトしたての状態**に戻して出力します。
 
 - 入力スロット（機械アイテム）→ 進捗矢印 → 出力スロット（リセット済みアイテム）
-- 入力できるのは Mekanism の機械アイテム（機械データを持つブロックアイテム）のみ。鋼ケーシングや普通のアイテム、スポイトのような液体・ガスタンクだけのアイテムは入りません
+- 入力できるのは Mekanism の機械アイテム（機械データを持つブロックアイテム）のみ。鋼ケーシングや普通のアイテム、スポイトのような液体・ガスタンクだけのアイテム、中身のブロックを失う詰め込み済みの段ボール箱は入りません
 - 出力は「そのアイテムのデフォルト状態」そのものなので、所有者を含めて古いデータは一切残りません
 - 1回の処理で 200 FE・基本20 tick（SPEED／ENERGYアップグレード対応）。**1回につき機械アイテム1個**を処理します
 
@@ -881,18 +873,9 @@ JEI連携は任意で、クライアント側だけにあります。1.20.1版�
 - **ポーション醸造機**のページ。ゲーム本体の醸造データ（バニラ・Forge・データパックのレシピすべて）から瓶＋材料ごとに1件ずつ作り、レシピ転送（「+」）ボタンも付きます
 - **製氷機**、**電動丸石製造機**、**電動玄武岩製造機**、**流体注入機**のページ
 - 全ティアをレシピのカタリストとして登録し、機械画面の進捗矢印をクリック可能にします
-- 醸造3本ごとに必要な**ブレイズパウダーガス5 mB**を、ポーション醸造機の各ページに化学物質の材料として表示します
+- 醸造3本ごとに必要な**ブレイズパウダーガス5 mB**を、ポーション醸造機の各ページに化学物質の材料として表示します。転送ボタンが入れるのは瓶と材料のスロットだけで、ガスにはアイテムの容器がないため、機械のタンクに入れておいてください
 
 ページ幅はローカライズ後の文字列から測るので、どの言語でもはみ出しません。
-
-### AE2
-
-AE2 は任意で、必須ではありません（MODはAE2を*suggest*するだけです）。AE2のJEI連携があると、ポーション醸造機のページを
-パターンエンコードターミナルへドラッグでき、瓶・材料・ポーションがパターンにコピーされます。
-
-通常のAE2パターンはアイテムと液体しか持てないため、ブレイズパウダーガスは化学物質対応のAE2アドオン
-（例: Applied Mekanistics）がある場合だけエンコードされます。ない場合は、機械のガスタンクにブレイズパウダーを
-入れておき（1個=100 mB=20回分）、パターンには瓶と材料だけを入れてください。
 
 ## 必要条件
 
@@ -905,7 +888,6 @@ AE2 は任意で、必須ではありません（MODはAE2を*suggest*するだ�
 | Compact Mekanism Machines | 任意（圧縮風力発電機を風力発電融合機に入れられます） |
 | Mekanism: More Machine | 任意（連携不要。機械アイテムは機械アイテムなので、機械リセット機が他の機械と同じように掃除できます） |
 | JEI | 任意（クライアント側のみ） |
-| AE2 | 任意（パターン作成連携） |
 
 ## 導入方法
 

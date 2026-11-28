@@ -22,10 +22,6 @@ import mekanism.common.tile.component.TileComponentEjector;
 import mekanism.common.util.MekanismUtils;
 import mekanism.generators.common.config.MekanismGeneratorsConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.dimension.DimensionType;
 import mekanism.api.providers.IBlockProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -47,8 +43,6 @@ import net.minecraft.world.level.block.state.BlockState;
  * screen - comes from Mekanism's configurable machine base.
  */
 public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
-    private static final TagKey<DimensionType> NO_WIND = TagKey.create(Registries.DIMENSION_TYPE,
-          ResourceLocation.tryBuild("mekanism", "no_wind"));
     /** Number of wind generator slots: three rows of nine. */
     public static final int SLOT_COUNT = 27;
     public static final int COLUMNS = 9;
@@ -104,6 +98,7 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         // The machine has no item or fluid outputs, but the configurable machine base expects the component
         ejectorComponent = new TileComponentEjector(this);
+        applySideDefaults();
     }
 
 
@@ -138,8 +133,9 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
-        // Dimensions tagged as windless (Mekanism's own tag) never produce power
-        blacklistDimension = level != null && level.dimensionTypeRegistration().is(NO_WIND);
+        // Match Mekanism's 1.20.1 wind generator: dimensions in its config blacklist never produce power
+        blacklistDimension = level != null && MekanismGeneratorsConfig.generators.windGenerationDimBlacklist.get()
+              .contains(level.dimension().location());
     }
 
     @Override
@@ -226,19 +222,18 @@ public class WindFusionBlockEntity extends GizmoMachineBlockEntity {
         if (!level.getFluidState(above).isEmpty() || !level.canSeeSky(above)) {
             return 0;
         }
-        int minY = level.getMinBuildHeight();
-        int maxY = Math.min(level.getMaxBuildHeight(), minY + level.dimensionType().logicalHeight()) - 1;
-        int generationMinY = Math.max(MekanismGeneratorsConfig.generators.windGenerationMinY.get(), minY);
-        int generationMaxY = Math.min(MekanismGeneratorsConfig.generators.windGenerationMaxY.get(), maxY);
-        if (generationMaxY <= generationMinY) {
+        // Same clamping and interpolation as Mekanism's TileEntityWindGenerator in 1.20.1
+        int minY = Math.max(MekanismGeneratorsConfig.generators.windGenerationMinY.get(), level.getMinBuildHeight());
+        int maxY = Math.min(MekanismGeneratorsConfig.generators.windGenerationMaxY.get(), level.dimensionType().logicalHeight());
+        if (maxY <= minY) {
             // A configuration without a height range behaves like a single wind generator
             return 1;
         }
-        int height = Math.min(generationMaxY, Math.max(generationMinY, above.getY()));
+        int height = Math.min(maxY, Math.max(minY, above.getY()));
         long minGeneration = MekanismGeneratorsConfig.generators.windGenerationMin.get().longValue();
         long maxGeneration = MekanismGeneratorsConfig.generators.windGenerationMax.get().longValue();
-        double generationPerBlock = (maxGeneration - minGeneration) / (double) (generationMaxY - generationMinY);
-        double generation = minGeneration + generationPerBlock * (height - generationMinY);
+        double generationPerBlock = (maxGeneration - minGeneration) / (double) (maxY - minY);
+        double generation = minGeneration + generationPerBlock * (height - minY);
         return generation / (double) minGeneration;
     }
 

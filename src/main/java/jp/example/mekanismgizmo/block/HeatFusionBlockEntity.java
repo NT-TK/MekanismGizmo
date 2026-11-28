@@ -126,6 +126,7 @@ public class HeatFusionBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         configComponent.setupInputConfig(TransmissionType.FLUID, lavaTank);
         ejectorComponent = new TileComponentEjector(this);
+        applySideDefaults();
     }
 
 

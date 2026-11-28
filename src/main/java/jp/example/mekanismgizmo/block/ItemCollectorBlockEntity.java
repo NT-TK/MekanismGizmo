@@ -79,6 +79,7 @@ public class ItemCollectorBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        applySideDefaults();
     }
 
 

@@ -27,7 +27,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -38,8 +37,6 @@ import net.minecraftforge.fluids.FluidStack;
 public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     private static final ResourceLocation UID = ResourceLocation.tryBuild(MekanismGizmo.MOD_ID, "jei_plugin");
-    /** EMI draws our pages natively (see the emi package), so nothing is registered for JEI in that case. */
-    private static final boolean EMI_LOADED = false;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -48,9 +45,6 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        if (EMI_LOADED) {
-            return;
-        }
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(new PotionBrewerRecipeCategory(guiHelper), new IceMakerRecipeCategory(guiHelper),
               new CobblestoneGeneratorRecipeCategory(guiHelper), new BasaltGeneratorRecipeCategory(guiHelper),
@@ -59,9 +53,6 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        if (EMI_LOADED) {
-            return;
-        }
         // The brewer gets its own page: every recipe the game's brewing system accepts, one page per bottle+ingredient
         registration.addRecipes(PotionBrewerRecipeCategory.TYPE,
               PotionBrewerRecipes.all(Minecraft.getInstance().level));
@@ -80,9 +71,6 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        if (EMI_LOADED) {
-            return;
-        }
         // The potion brewer shows up on its own brewing page (one entry per bottle + ingredient)
         registration.addRecipeCatalyst(ModBlocks.POTION_BREWER.asItem(), PotionBrewerRecipeCategory.TYPE);
         registration.addRecipeCatalyst(ModBlocks.POTION_BREWER_BASIC.asItem(), PotionBrewerRecipeCategory.TYPE);
@@ -131,18 +119,13 @@ public class MekanismGizmoJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        if (EMI_LOADED) {
-            return;
-        }
-        // Lets the "+" button of the brewing category fill the potion brewer (three bottles + ingredient)
-        registration.addRecipeTransferHandler(new PotionBrewerRecipeTransferInfo());
+        // Lets the "+" button fill the bottle and ingredient slots; JEI cannot move the blaze powder gas into the tank
+        registration.addRecipeTransferHandler(new PotionBrewerRecipeTransferHandler(registration.getTransferHelper()),
+              PotionBrewerRecipeCategory.TYPE);
     }
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        if (EMI_LOADED) {
-            return;
-        }
         // Same behaviour as Mekanism machines: clicking the progress arrow shows the recipes the machine can run
         registration.addRecipeClickArea(PotionBrewerScreen.class, 102, 37, 32, 8, PotionBrewerRecipeCategory.TYPE);
         registration.addRecipeClickArea(IceMakerScreen.class, 54, 40, 32, 8, IceMakerRecipeCategory.TYPE);

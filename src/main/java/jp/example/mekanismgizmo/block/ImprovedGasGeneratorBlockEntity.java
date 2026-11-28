@@ -72,6 +72,7 @@ public class ImprovedGasGeneratorBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupOutputConfig(TransmissionType.ENERGY, energyContainer);
         configComponent.setupInputConfig(TransmissionType.GAS, gasTank);
         ejectorComponent = new TileComponentEjector(this);
+        applySideDefaults();
     }
 
     @Override
@@ -151,7 +152,12 @@ public class ImprovedGasGeneratorBlockEntity extends GizmoMachineBlockEntity {
 
     public long getEnergyPerMb() {
         Fuel fuel = activeFuelData();
-        return fuel == null ? 0 : fuel.getEnergyPerTick().longValue();
+        if (fuel == null) {
+            return 0;
+        }
+        long energyPerTick = Math.max(1, fuel.getEnergyPerTick().longValue());
+        long burnTicks = Math.max(1, fuel.getBurnTicks());
+        return energyPerTick > Long.MAX_VALUE / burnTicks ? Long.MAX_VALUE : energyPerTick * burnTicks;
     }
 
     @Override
@@ -189,7 +195,8 @@ public class ImprovedGasGeneratorBlockEntity extends GizmoMachineBlockEntity {
             if (!needed.isZero()) {
                 double fill = stored.isEmpty() ? 1D : getFillLevel();
                 long toUse = (long) Math.ceil(getBurnTickLimit() * fill);
-                long available = burnTicksRemaining + gasTank.getStored() * maxBurnTicks;
+                // Widen before multiplying: a full tank times a long burn time can exceed the int range
+                long available = burnTicksRemaining + (long) gasTank.getStored() * maxBurnTicks;
                 toUse = Math.min(available, toUse);
                 toUse = Math.min(toUse, MathUtils.clampToLong(needed.divide(energyPerTick).doubleValue()));
                 if (toUse > 0) {

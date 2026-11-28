@@ -15,8 +15,8 @@ import net.minecraft.world.item.ItemStack;
  * <p>
  * A normal {@code mekanismgenerators:heat_generator} counts once. Compressed heat generators of Compact Mekanism
  * Machines (when that mod has them) produce exactly {@code multiplier} times what a heat generator produces, so an
- * {@code x532480} block would count as 532480 generators. Both naming schemes of that mod are recognised - the 1.21
- * port calls its blocks {@code compressed_heat_generator_xN}, the 1.20 original {@code heat_generator_xN}.
+ * {@code x532480} block would count as 532480 generators. Both registry names used by builds and forks of that mod are
+ * recognised ({@code compressed_heat_generator_xN} and {@code heat_generator_xN}).
  * <p>
  * The lookup is purely name based, so Compact Mekanism Machines stays an optional mod and nothing is compiled against
  * it.

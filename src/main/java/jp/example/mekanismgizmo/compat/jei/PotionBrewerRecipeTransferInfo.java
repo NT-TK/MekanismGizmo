@@ -16,12 +16,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 
 /**
- * Maps the potion brewer's own JEI page onto the machine: the page shows the blaze powder gas, one bottle, the
- * ingredient and the result, in that order, so the "+" button fills the bottle, the ingredient and the output slot.
- * <p>
- * The blaze powder gas has no container slot (it lives in the machine's chemical tank); it is mapped onto the blaze
- * powder slot, which is the item that produces the gas, so the recipe slot indices line up. JEI has no item stack for
- * a chemical, so it simply leaves that slot alone.
+ * Maps the item part of the potion brewer's JEI page onto the machine: one bottle and one ingredient. The gas slot is
+ * left out because JEI's default transfer only knows item stacks; the recipe transfer handler filters it out of the
+ * page before handing the remaining slots to JEI.
  */
 public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<PotionBrewerMenu, PotionBrewerJeiRecipe> {
 
@@ -55,16 +52,10 @@ public class PotionBrewerRecipeTransferInfo implements IRecipeTransferInfo<Potio
                 slots.put(containerSlot.getInventorySlot(), slot);
             }
         }
-        List<Slot> recipeSlots = new ArrayList<>(3);
-        // Same order as the page: gas (only when the page has that slot), bottle, ingredient. The output slot is
-        // deliberately not part of the transfer: JEI moves ingredients from the player inventory into these slots and
-        // an output slot would reject the result (or even receive a potion from the inventory).
-        if (PotionBrewerRecipeCategory.hasGasSlot()) {
-            Slot gas = slots.get(tile.getBlazePowderSlot());
-            if (gas != null) {
-                recipeSlots.add(gas);
-            }
-        }
+        List<Slot> recipeSlots = new ArrayList<>(2);
+        // Same order as the item inputs of the page: bottle, ingredient. The gas slot is not part of the transfer (JEI
+        // cannot move a chemical into the tank) and the output slot is deliberately not part of it either: JEI moves
+        // ingredients from the player inventory into these slots and an output slot would reject the result.
         Slot bottle = slots.get(tile.getBottleSlots()[0]);
         if (bottle != null) {
             recipeSlots.add(bottle);

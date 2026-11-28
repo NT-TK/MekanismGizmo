@@ -11,11 +11,12 @@ import mekanism.common.tile.component.config.DataType;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Restores the sensible default side configuration of a machine when it has never been configured.
+ * Applies the sensible default side configuration of a machine.
  * <p>
- * In 1.20.1 the side configuration is not carried by the block item, so a freshly placed machine starts with every
- * side set to {@link DataType#NONE}. Without this repair a machine would silently refuse all items, fluids, gases and
- * energy until the player opened the side configuration tab. A layout the player has already changed is never touched.
+ * In 1.20.1 the side configuration is not carried by the block item, so a freshly placed machine would otherwise
+ * start with Mekanism's generic layout. Subclasses call this after their own config setup, which resets the side
+ * layout. A layout the player has already changed is saved in the world and replaces these defaults when the block
+ * entity loads.
  */
 public final class MachineSideDefaults {
 
@@ -83,7 +84,7 @@ public final class MachineSideDefaults {
               all(TransmissionType.ENERGY, DataType.OUTPUT)));
     }
 
-    public static void applyIfUnconfigured(TileComponentConfig configComponent, ResourceLocation blockId) {
+    public static void apply(TileComponentConfig configComponent, ResourceLocation blockId) {
         if (configComponent == null || blockId == null) {
             return;
         }
@@ -100,22 +101,13 @@ public final class MachineSideDefaults {
         }
         for (Map.Entry<TransmissionType, Map<RelativeSide, DataType>> entry : defaults.entrySet()) {
             ConfigInfo info = configComponent.getConfig(entry.getKey());
-            if (info == null || !isAllNone(info)) {
+            if (info == null) {
                 continue;
             }
             for (Map.Entry<RelativeSide, DataType> side : entry.getValue().entrySet()) {
                 info.setDataType(side.getValue(), side.getKey());
             }
         }
-    }
-
-    private static boolean isAllNone(ConfigInfo info) {
-        for (RelativeSide side : RelativeSide.values()) {
-            if (info.getDataType(side) != DataType.NONE) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static void put(String machine, Map<TransmissionType, Map<RelativeSide, DataType>> defaults) {

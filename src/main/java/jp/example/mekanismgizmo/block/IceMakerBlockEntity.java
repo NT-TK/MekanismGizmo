@@ -69,6 +69,7 @@ public class IceMakerBlockEntity extends TieredMachineBlockEntity {
         configComponent.setupInputConfig(TransmissionType.FLUID, waterTank);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        applySideDefaults();
     }
 
 

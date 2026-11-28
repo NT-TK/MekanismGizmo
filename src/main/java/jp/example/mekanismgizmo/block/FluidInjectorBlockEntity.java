@@ -84,6 +84,7 @@ public class FluidInjectorBlockEntity extends TieredMachineBlockEntity {
         configComponent.setupIOConfig(TransmissionType.FLUID, fluidTank, RelativeSide.BACK);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        applySideDefaults();
     }
 
 

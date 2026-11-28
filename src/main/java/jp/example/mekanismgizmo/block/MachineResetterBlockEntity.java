@@ -6,6 +6,7 @@ import mekanism.api.AutomationType;
 import mekanism.api.math.FloatingLong;
 import mekanism.api.IContentsListener;
 import mekanism.api.Upgrade;
+import mekanism.common.block.BlockCardboardBox;
 import mekanism.common.capabilities.energy.MachineEnergyContainer;
 import mekanism.common.capabilities.holder.energy.EnergyContainerHelper;
 import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
@@ -34,11 +35,11 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Machine resetter: takes the item form of a machine and hands back a clean copy of it.
  * <p>
- * Since Minecraft 1.21 Mekanism stores everything a machine contains on the item: the owner, the security mode, item,
- * fluid and gas contents, the stored energy, the installed upgrades, the side configuration and the redstone setting.
- * Breaking a machine therefore keeps all of that, and a machine that was picked up in a world you no longer use cannot
- * be cleaned by hand. This machine does that: insert the machine item, pay a little energy, and the result is the same
- * item with its defaults only - exactly the item you would get from crafting it.
+ * In Mekanism 10.4 for Minecraft 1.20.1 a machine item keeps everything the machine contains: the owner, the security
+ * mode, item, fluid and gas contents, the stored energy, the installed upgrades, the side configuration and the
+ * redstone setting. Breaking a machine therefore keeps all of that, and a machine that was picked up in a world you no
+ * longer use cannot be cleaned by hand. This machine does that: insert the machine item, pay a little energy, and the
+ * result is the same item with its defaults only - exactly the item you would get from crafting it.
  */
 public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     /** Ticks one machine item needs at base speed. */
@@ -69,6 +70,7 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        applySideDefaults();
     }
 
 
@@ -92,10 +94,13 @@ public class MachineResetterBlockEntity extends GizmoMachineBlockEntity {
     /**
      * True for the item form of a Mekanism machine (or any Mekanism block that stores contents): a block item that
      * carries machine data - a side configuration, an ejector setting, stored items, fluids, gas or energy, a redstone
-     * setting, upgrades or an owner. Plain blocks such as a steel casing and ordinary items are rejected.
+     * setting, upgrades or an owner. Plain blocks such as a steel casing and ordinary items are rejected. Packed
+     * cardboard boxes are also rejected: they are block items with data, but resetting one would delete the block
+     * stored inside it instead of cleaning a machine.
      */
     public static boolean isMachineItem(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem() instanceof BlockItem && hasMachineData(stack);
+        return !stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem
+              && !(blockItem.getBlock() instanceof BlockCardboardBox) && hasMachineData(stack);
     }
 
     private static boolean hasMachineData(ItemStack stack) {

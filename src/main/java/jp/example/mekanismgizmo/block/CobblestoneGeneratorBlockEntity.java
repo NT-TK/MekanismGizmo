@@ -56,6 +56,7 @@ public class CobblestoneGeneratorBlockEntity extends TieredMachineBlockEntity {
         configComponent.setupInputConfig(TransmissionType.ENERGY, energyContainer);
         ejectorComponent = new TileComponentEjector(this);
         ejectorComponent.setOutputData(configComponent, TransmissionType.ITEM);
+        applySideDefaults();
     }
 
 
